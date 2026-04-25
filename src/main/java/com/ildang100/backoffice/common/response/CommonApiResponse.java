@@ -1,5 +1,6 @@
 package com.ildang100.backoffice.common.response;
 
+import com.ildang100.backoffice.common.execption.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public class CommonApiResponse<T> {
     private final int status;
+    private final String code;
     private final String message;
     private final T data;
 
@@ -20,6 +22,13 @@ public class CommonApiResponse<T> {
      * 성공 응답 생성
      */
     public static <T> CommonApiResponse<T> success(HttpStatus status, String message, T data) {
-        return new CommonApiResponse<>(status.value(), message, data);
+        return new CommonApiResponse<>(status.value(), message, null, data);
+    }
+
+    /**
+     * 에러 응답 생성
+     */
+    public static CommonApiResponse<Void> error(ErrorCode errorCode) {
+        return new CommonApiResponse<>(errorCode.getStatus(), errorCode.getCode(), errorCode.getMessage(), null);
     }
 }
