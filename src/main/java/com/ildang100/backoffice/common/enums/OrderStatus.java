@@ -13,8 +13,8 @@ package com.ildang100.backoffice.common.enums;
  * </ul>
  */
 public enum OrderStatus {
-    PREPARED,
+    PREPARING,
     SHIPPING,
     DELIVERED,
-    CANCELED
+    CANCELLED
 }
