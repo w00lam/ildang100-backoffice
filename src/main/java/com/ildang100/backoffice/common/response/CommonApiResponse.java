@@ -1,5 +1,6 @@
 package com.ildang100.backoffice.common.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
  */
 @Getter
 @RequiredArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommonApiResponse<T> {
     private final int status;
     private final String code;
@@ -22,7 +24,7 @@ public class CommonApiResponse<T> {
      * 성공 응답 생성
      */
     public static <T> CommonApiResponse<T> success(HttpStatus status, String message, T data) {
-        return new CommonApiResponse<>(status.value(), message, null, data);
+        return new CommonApiResponse<>(status.value(), null, message, data);
     }
 
     /**
