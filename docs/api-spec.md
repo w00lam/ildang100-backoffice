@@ -1401,8 +1401,11 @@
 
 ### Query Parameter
 
-- `page`: 선택, 0부터 시작
-- `size`: 선택, 페이지 크기
+- `keyword`: 선택, 검색 키워드 (이름, 이메일)
+- `page`: 선택, 1부터 시작 (기본값: 1)
+- `size`: 선택, 페이지 크기 (기본값: 10)
+- `sortBy`: 선택, 정렬 기준 (`name`, `email`, `createdAt`, 기본값: `createdAt`)
+- `sortOrder`: 선택, 정렬 순서 (`asc`, `desc`, 기본값: `desc`)
 - `status`: 선택, `CustomerStatus`(`ACTIVE`, `INACTIVE`, `SUSPENDED`)
 
 ### Request Body
@@ -1411,29 +1414,36 @@
 
 ### 요청 조건
 
-- `page`: 선택, 0 이상
+- `keyword`: 선택, 문자열
+- `page`: 선택, 1 이상
 - `size`: 선택, 1 이상
+- `sortBy`: 선택, `name`, `email`, `createdAt` 중 하나
+- `sortOrder`: 선택, `asc`, `desc` 중 하나
 - `status`: 선택, `CustomerStatus`(`ACTIVE`, `INACTIVE`, `SUSPENDED`)
 
 ### Response Body
 
 ```json
 {
-  "content": [
-    {
-      "id": 101,
-      "name": "김고객",
-      "email": "customer@example.com",
-      "tele": "010-1234-0000",
-      "status": "ACTIVE",
-      "createdAt": "2026-04-10T10:00:00",
-      "updatedAt": "2026-04-23T12:00:00"
-    }
-  ],
-  "page": 0,
-  "size": 10,
-  "totalElements": 1,
-  "totalPages": 1
+  "status": 200,
+  "message": "고객 리스트 조회 성공",
+  "data": {
+    "content": [
+      {
+        "id": 101,
+        "name": "김고객",
+        "email": "customer@example.com",
+        "tele": "010-1234-0000",
+        "status": "ACTIVE",
+        "createdAt": "2026-04-10T10:00:00",
+        "updatedAt": "2026-04-23T12:00:00"
+      }
+    ],
+    "page": 1,
+    "size": 10,
+    "totalElements": 1,
+    "totalPages": 1
+  }
 }
 ```
 
@@ -1443,6 +1453,7 @@
 
 ### 예외
 
+- `400 Bad Request: 입력값이 올바르지 않음`
 - `401 Unauthorized: 로그인 필요`
 
 #### 고객 상세 조회
