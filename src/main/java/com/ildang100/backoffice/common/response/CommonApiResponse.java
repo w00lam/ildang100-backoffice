@@ -1,6 +1,6 @@
 package com.ildang100.backoffice.common.response;
 
-import com.ildang100.backoffice.common.execption.ErrorCode;
+import com.ildang100.backoffice.common.exception.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
