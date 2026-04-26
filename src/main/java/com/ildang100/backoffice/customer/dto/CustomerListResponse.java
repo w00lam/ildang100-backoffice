@@ -21,7 +21,7 @@ public class CustomerListResponse {
     private final long totalElements;
     private final int totalPages;
 
-    public CustomerListResponse(
+    private CustomerListResponse(
             List<CustomerResponse> content,
             int page,
             int size,

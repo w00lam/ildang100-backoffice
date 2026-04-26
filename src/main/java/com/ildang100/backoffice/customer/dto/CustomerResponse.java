@@ -20,7 +20,7 @@ public class CustomerResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public CustomerResponse(
+    private CustomerResponse(
             Long id,
             String name,
             String email,
