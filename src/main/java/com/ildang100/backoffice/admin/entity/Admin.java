@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * 관리자 정보를 나타내는 엔티티입니다.
  *
@@ -54,6 +56,8 @@ public class Admin extends BaseEntity {
     @Column(length = 30, nullable = false)
     private AdminStatus status;
 
+    private LocalDateTime approvedAt;
+
     private Admin(String name, String email, String password, String tele, AdminRole role) {
         this.name = name;
         this.email = email;
@@ -61,6 +65,7 @@ public class Admin extends BaseEntity {
         this.tele = tele;
         this.role = role;
         this.status = AdminStatus.PENDING_APPROVAL;
+        this.approvedAt = null;
     }
 
     /**
