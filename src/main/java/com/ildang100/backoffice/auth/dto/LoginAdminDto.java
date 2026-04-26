@@ -25,7 +25,6 @@ public class LoginAdminDto {
 
     private final Long id;
     private final String email;
-    private final String name;
     private final AdminRole role;
 
     /**
@@ -36,10 +35,9 @@ public class LoginAdminDto {
      * 생성 로직을 통제하고 일관성을 유지합니다.
      * </p>
      */
-    private LoginAdminDto(Long id, String email, String name, AdminRole role) {
+    private LoginAdminDto(Long id, String email, AdminRole role) {
         this.id = id;
         this.email = email;
-        this.name = name;
         this.role = role;
     }
 
@@ -58,7 +56,6 @@ public class LoginAdminDto {
         return new LoginAdminDto(
                 admin.getId(),
                 admin.getEmail(),
-                admin.getName(),
                 admin.getRole()
         );
     }
