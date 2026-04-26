@@ -10,7 +10,7 @@ import java.util.List;
  * 고객 목록 조회 응답 DTO입니다.
  *
  * <p>고객 목록과 페이지네이션 메타 정보를 함께 제공합니다.
- * {@code page}는 0부터 시작하는 페이지 번호입니다.</p>
+ * {@code page}는 1부터 시작하는 페이지 번호입니다.</p>
  */
 @Getter
 public class CustomerListResponse {
@@ -48,7 +48,7 @@ public class CustomerListResponse {
 
         return new CustomerListResponse(
                 content,
-                customers.getNumber(),
+                customers.getNumber() + 1,
                 customers.getSize(),
                 customers.getTotalElements(),
                 customers.getTotalPages()
