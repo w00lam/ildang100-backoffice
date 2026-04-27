@@ -2,13 +2,19 @@ package com.ildang100.backoffice.auth.service;
 
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
+import com.ildang100.backoffice.auth.dto.AdminLoginRequest;
 import com.ildang100.backoffice.auth.dto.AdminSignUpRequest;
+import com.ildang100.backoffice.auth.dto.LoginAdminDto;
+import com.ildang100.backoffice.auth.session.SessionConst;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.config.PasswordEncoder;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.ildang100.backoffice.common.enums.AdminStatus.ACTIVE;
 
 /**
  * 관리자 인증 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -76,6 +82,35 @@ public class AdminService {
     }
 
     /**
+     * 관리자 로그인 처리
+     *
+     * <p><b>처리 흐름</b></p>
+     * <ol>
+     *     <li>이메일로 관리자 조회</li>
+     *     <li>비밀번호 검증</li>
+     *     <li>계정 상태 확인</li>
+     *     <li>세션에 로그인 정보 저장</li>
+     * </ol>
+     *
+     * @param request 로그인 요청 DTO
+     * @param session HttpSession
+     */
+    @Transactional
+    public void login(AdminLoginRequest request, HttpSession session) {
+
+        Admin admin = adminRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ServiceException(ErrorCode.INVALID_CREDENTIALS));
+
+        if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
+            throw new ServiceException(ErrorCode.INVALID_CREDENTIALS);
+        }
+
+        validateLoginAvailable(admin);
+
+        session.setAttribute(SessionConst.LOGIN_ADMIN, LoginAdminDto.from(admin));
+    }
+
+    /**
      * 이메일 중복 여부 검증
      *
      * <p>
@@ -91,5 +126,44 @@ public class AdminService {
         }
     }
 
+    /**
+     * 관리자 로그인 가능 여부를 검증합니다.
+     *
+     * <p>
+     * 관리자 계정의 상태(status)를 기반으로 로그인 가능 여부를 판단합니다.
+     * ACTIVE 상태인 경우에만 로그인이 허용되며,
+     * 그 외 상태는 각각의 상황에 맞는 예외를 발생시킵니다.
+     * </p>
+     *
+     * <p><b>처리 흐름</b></p>
+     * <ul>
+     *     <li>ACTIVE: 로그인 허용</li>
+     *     <li>그 외 상태: 예외 발생</li>
+     * </ul>
+     *
+     * <p><b>상태별 예외</b></p>
+     * <ul>
+     *     <li>PENDING_APPROVAL: 승인 대기 → 로그인 불가</li>
+     *     <li>REJECTED: 승인 거부 → 로그인 불가</li>
+     *     <li>SUSPENDED: 계정 정지 → 로그인 불가</li>
+     *     <li>INACTIVE: 계정 비활성 → 로그인 불가</li>
+     * </ul>
+     *
+     * @param admin 관리자 엔티티
+     * @throws ServiceException 계정 상태에 따른 예외 발생
+     */
+    private void validateLoginAvailable(Admin admin) {
 
+        if (admin.getStatus() == ACTIVE) {
+            return;
+        }
+
+        switch (admin.getStatus()) {
+            case PENDING_APPROVAL -> throw new ServiceException(ErrorCode.ADMIN_PENDING_APPROVAL);
+            case REJECTED -> throw new ServiceException(ErrorCode.ADMIN_REJECTED);
+            case SUSPENDED -> throw new ServiceException(ErrorCode.ADMIN_SUSPENDED);
+            case INACTIVE -> throw new ServiceException(ErrorCode.ADMIN_INACTIVE);
+            default -> throw new ServiceException(ErrorCode.INVALID_ADMIN_STATUS);
+        }
+    }
 }
