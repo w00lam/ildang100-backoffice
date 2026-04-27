@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
 
         return ResponseEntity
-                .status(errorCode.getStatus())
+                .status(errorCode.getHttpStatus())
                 .body(CommonApiResponse.error(errorCode));
     }
 
