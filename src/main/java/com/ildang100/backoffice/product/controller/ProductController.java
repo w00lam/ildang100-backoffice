@@ -1,4 +1,4 @@
-package com.ildang100.backoffice.product.controlloer;
+package com.ildang100.backoffice.product.controller;
 
 import com.ildang100.backoffice.auth.dto.LoginAdminDto;
 import com.ildang100.backoffice.auth.util.SessionUtils;
