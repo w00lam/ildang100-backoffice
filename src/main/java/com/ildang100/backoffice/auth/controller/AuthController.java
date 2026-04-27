@@ -1,5 +1,6 @@
 package com.ildang100.backoffice.auth.controller;
 
+import com.ildang100.backoffice.auth.dto.AdminLoginRequest;
 import com.ildang100.backoffice.auth.dto.AdminSignUpRequest;
 import com.ildang100.backoffice.auth.service.AuthService;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
  * <p><b>현재 제공 기능</b></p>
  * <ul>
  *     <li>관리자 회원가입</li>
+ *     <li>관리자 로그인</li>
+ *     <li>관리자 로그아웃</li>
  * </ul>
  *
  * @author 이우람
@@ -40,6 +43,13 @@ public class AuthController {
         authService.signUp(request);
 
         return CommonApiResponse.success(HttpStatus.CREATED, "관리자 회원가입이 완료되었습니다.", null);
+    }
+
+    @PostMapping("/admins/login")
+    public CommonApiResponse<Void> login(@RequestBody @Valid AdminLoginRequest request, HttpSession session) {
+        authService.login(request, session);
+
+        return CommonApiResponse.success(HttpStatus.OK, "로그인에 성공했습니다.", null);
     }
 
     @PostMapping("/admins/logout")
