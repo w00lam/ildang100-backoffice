@@ -2,6 +2,7 @@ package com.ildang100.backoffice.common.exception;
 
 import com.ildang100.backoffice.common.enums.*;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -40,6 +41,7 @@ import java.util.List;
  * @author 이우람
  * @since 2026-04-25
  */
+@Slf4j //500에러 확인을 위해 추가
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -103,6 +105,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CommonApiResponse<Void>> handleException(Exception e) {
+        // 에러 로그에서 확인하는 기능 추가
+        log.error("[예상치 못한 서버 에러 발생] 원인: {}", e.getMessage(), e);
+
         return ResponseEntity
                 .status(ErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
                 .body(CommonApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
