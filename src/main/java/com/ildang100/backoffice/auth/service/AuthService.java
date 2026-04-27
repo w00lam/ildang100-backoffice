@@ -36,7 +36,7 @@ import static com.ildang100.backoffice.common.enums.AdminStatus.ACTIVE;
  */
 @Service
 @RequiredArgsConstructor
-public class AdminService {
+public class AuthService {
 
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
@@ -108,6 +108,21 @@ public class AdminService {
         validateLoginAvailable(admin);
 
         session.setAttribute(SessionConst.LOGIN_ADMIN, LoginAdminDto.from(admin));
+    }
+
+    /**
+     * 관리자 로그아웃 처리
+     *
+     * <p>
+     * 현재 요청의 {@link HttpSession}을 무효화하여
+     * 세션에 저장된 로그인 관리자 정보를 제거합니다.
+     * </p>
+     *
+     * @param session 현재 HTTP 세션
+     */
+    @Transactional
+    public void logout(HttpSession session) {
+        session.invalidate();
     }
 
     /**
