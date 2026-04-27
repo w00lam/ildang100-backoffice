@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class AdminResponse {
 
     // 1. 관리자 데이터 응답 DTO
-    private final Long adminId;
+    private final Long id;
     private final String name;
     private final String email;
     private final String tele;
@@ -20,9 +20,9 @@ public class AdminResponse {
     private final LocalDateTime updatedAt;
     private final LocalDateTime approvedAt;
 
-    private AdminResponse(Long adminId, String name, String email, String tele, AdminRole role,
+    private AdminResponse(Long id, String name, String email, String tele, AdminRole role,
                           AdminStatus status, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime approvedAt) {
-        this.adminId = adminId;
+        this.id = id;
         this.name = name;
         this.email = email;
         this.tele = tele;
