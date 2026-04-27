@@ -7,7 +7,7 @@ import java.util.List;
 
 
 /**
- * 페이지 공통 응답 DTO입니다.
+ * 페이지 공통 응답 DTO입니다. - 추후에 전체 페잊 관련 공통 dto 승격 건의 예정
  *
  * <p>
  * Spring Data {@link Page}를 외부 API 응답용으로 단순화한 페이징 컨테이너입니다.

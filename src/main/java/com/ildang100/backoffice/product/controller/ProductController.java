@@ -2,20 +2,30 @@ package com.ildang100.backoffice.product.controller;
 
 import com.ildang100.backoffice.auth.dto.LoginAdminDto;
 import com.ildang100.backoffice.auth.util.SessionUtils;
+import com.ildang100.backoffice.common.enums.ProductStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
 import com.ildang100.backoffice.product.dto.request.ProductUpdateRequest;
+import com.ildang100.backoffice.product.dto.response.PageResponse;
 import com.ildang100.backoffice.product.dto.response.ProductResponse;
+import com.ildang100.backoffice.product.policy.ProductSortPolicy;
 import com.ildang100.backoffice.product.service.ProductService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/products")
+@Validated
 public class ProductController {
 
     private final ProductService productService;
@@ -68,5 +78,36 @@ public class ProductController {
         productService.delete(productId);
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 삭제 완료", null);
+    }
+
+    /**
+     * 상품 목록 조회 (페이징·검색·필터·정렬).
+     *
+     * <p>
+     * page는 외부 API 기준 1-based. status가 ProductStatus enum에 매핑되지 않으면
+     * Spring의 {@code MethodArgumentTypeMismatchException}으로 떨어지며,
+     * GlobalExceptionHandler에서 {@code INVALID_PRODUCT_STATUS}(400)로 매핑된다.
+     * </p>
+     */
+    @GetMapping
+    public CommonApiResponse<PageResponse<ProductResponse>> search(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) ProductStatus status,
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortOrder,
+            HttpSession session
+                                                                  ) {
+        SessionUtils.getLoginAdmin(session); // 인증 가드
+
+        // 트랜잭션 밖에서 sort 검증 + pageable 조립 (1-based → 0-based 변환 포함)
+        // 입력 검증 여기서 종료
+        Sort sort = ProductSortPolicy.resolve(sortBy, sortOrder);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+
+        PageResponse<ProductResponse> response = productService.search(keyword, status, pageable);
+
+        return CommonApiResponse.success(HttpStatus.OK, "상품 목록 조회 성공", response);
     }
 }

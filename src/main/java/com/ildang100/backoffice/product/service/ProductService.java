@@ -3,14 +3,20 @@ package com.ildang100.backoffice.product.service;
 
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
+import com.ildang100.backoffice.common.enums.ProductStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
 import com.ildang100.backoffice.product.dto.request.ProductUpdateRequest;
+import com.ildang100.backoffice.product.dto.response.PageResponse;
 import com.ildang100.backoffice.product.dto.response.ProductResponse;
 import com.ildang100.backoffice.product.entity.Product;
 import com.ildang100.backoffice.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,4 +77,25 @@ public class ProductService {
 
         productRepository.delete(product);
     }
+
+    /**
+     * 상품 목록 조회 (페이징·검색·필터·정렬).
+     *
+     * <p>
+     * 입력 검증은 Controller 단에서 끝났다고 가정한다:
+     * - {@code page} / {@code size}: Bean Validation ({@code @Min}/{@code @Max})
+     * - {@code sortBy} / {@code sortOrder}: {@code ProductSortPolicy}
+     * Service는 이미 검증된 {@link Pageable}을 받아 Repository에 위임만 한다.
+     * </p>
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<ProductResponse> search(
+            String keyword,
+            ProductStatus status,
+            Pageable pageable
+                                               ) {
+        Page<Product> products = productRepository.searchProducts(keyword, status, pageable);
+        return PageResponse.from(products.map(ProductResponse::from));
+    }
+
 }
