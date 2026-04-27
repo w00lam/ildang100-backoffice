@@ -74,10 +74,28 @@ public enum ErrorCode {
             "FORBIDDEN",
             "접근 권한이 없습니다."
     ),
-    ADMIN_NOT_APPROVED(
+    ADMIN_PENDING_APPROVAL(
             HttpStatus.FORBIDDEN,
-            "ADMIN_NOT_APPROVED",
-            "승인되지 않았거나 비활성 상태의 관리자입니다."
+            "ADMIN_PENDING_APPROVAL",
+            "계정 승인 대기 중입니다."
+    ),
+
+    ADMIN_REJECTED(
+            HttpStatus.FORBIDDEN,
+            "ADMIN_REJECTED",
+            "계정 신청이 거부되었습니다."
+    ),
+
+    ADMIN_SUSPENDED(
+            HttpStatus.FORBIDDEN,
+            "ADMIN_SUSPENDED",
+            "정지된 계정입니다."
+    ),
+
+    ADMIN_INACTIVE(
+            HttpStatus.FORBIDDEN,
+            "ADMIN_INACTIVE",
+            "비활성화된 계정입니다."
     ),
     INVALID_PASSWORD(
             HttpStatus.FORBIDDEN,
