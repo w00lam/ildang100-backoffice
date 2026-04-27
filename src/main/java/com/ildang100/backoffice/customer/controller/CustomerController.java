@@ -5,8 +5,10 @@ import com.ildang100.backoffice.common.enums.CustomerStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.customer.dto.CustomerListResponse;
 import com.ildang100.backoffice.customer.dto.CustomerResponse;
+import com.ildang100.backoffice.customer.dto.CustomerUpdateRequest;
 import com.ildang100.backoffice.customer.service.CustomerService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -80,6 +82,23 @@ public class CustomerController {
         return CommonApiResponse.success(
                 HttpStatus.OK,
                 "고객 상세 조회 성공",
+                response
+        );
+    }
+
+    @PutMapping("/{customerId}")
+    CommonApiResponse<CustomerResponse> updateCustomer(
+            @PathVariable Long customerId,
+            @Valid @RequestBody CustomerUpdateRequest request,
+            HttpSession session
+    ) {
+        SessionUtils.getLoginAdmin(session);
+
+        CustomerResponse response = customerService.updateCustomer(customerId, request);
+
+        return CommonApiResponse.success(
+                HttpStatus.OK,
+                "고객 정보 수정 완료",
                 response
         );
     }

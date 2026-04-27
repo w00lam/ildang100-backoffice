@@ -5,6 +5,7 @@ import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.dto.CustomerListResponse;
 import com.ildang100.backoffice.customer.dto.CustomerResponse;
+import com.ildang100.backoffice.customer.dto.CustomerUpdateRequest;
 import com.ildang100.backoffice.customer.entity.Customer;
 import com.ildang100.backoffice.customer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -76,14 +77,39 @@ public class CustomerService {
      */
     @Transactional(readOnly = true)
     public CustomerResponse getCustomer(Long customerId) {
-        if (customerId == null || customerId <= 0) {
-            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
-        }
+        validateCustomerId(customerId);
 
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
 
         return CustomerResponse.from(customer);
+    }
+
+    @Transactional
+    public CustomerResponse updateCustomer(Long customerId, CustomerUpdateRequest request) {
+        validateCustomerId(customerId);
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
+
+        if (request.getEmail() != null
+                && customerRepository.existsByEmailAndIdNot(request.getEmail(), customerId)) {
+            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
+        }
+
+        customer.update(
+                request.getName(),
+                request.getEmail(),
+                request.getTele()
+        );
+
+        return CustomerResponse.from(customer);
+    }
+
+    private void validateCustomerId(Long customerId) {
+        if (customerId == null || customerId <= 0) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+        }
     }
 
     private Sort.Direction convertSortDirection(String sortOrder) {
