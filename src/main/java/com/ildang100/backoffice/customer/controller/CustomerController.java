@@ -5,6 +5,7 @@ import com.ildang100.backoffice.common.enums.CustomerStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.customer.dto.CustomerListResponse;
 import com.ildang100.backoffice.customer.dto.CustomerResponse;
+import com.ildang100.backoffice.customer.dto.CustomerStatusUpdateRequest;
 import com.ildang100.backoffice.customer.dto.CustomerUpdateRequest;
 import com.ildang100.backoffice.customer.service.CustomerService;
 import jakarta.servlet.http.HttpSession;
@@ -86,6 +87,14 @@ public class CustomerController {
         );
     }
 
+    /**
+     * 고객 기본 정보를 수정합니다.
+     *
+     * @param customerId 정보를 수정할 고객 ID
+     * @param request 변경할 고객 이름, 이메일, 전화번호 정보
+     * @param session 로그인 관리자 확인을 위한 HTTP 세션
+     * @return 변경된 고객 정보를 포함한 응답
+     */
     @PutMapping("/{customerId}")
     CommonApiResponse<CustomerResponse> updateCustomer(
             @PathVariable Long customerId,
@@ -99,6 +108,31 @@ public class CustomerController {
         return CommonApiResponse.success(
                 HttpStatus.OK,
                 "고객 정보 수정 완료",
+                response
+        );
+    }
+
+    /**
+     * 고객 상태를 수정합니다.
+     *
+     * @param customerId 상태를 수정할 고객 ID
+     * @param request 변경할 고객 상태 정보
+     * @param session 로그인 관리자 확인을 위한 HTTP 세션
+     * @return 변경된 고객 정보를 포함한 응답
+     */
+    @PutMapping("/{customerId}/status")
+    public CommonApiResponse<CustomerResponse> updateCustomerStatus(
+            @PathVariable Long customerId,
+            @Valid @RequestBody CustomerStatusUpdateRequest request,
+            HttpSession session
+    ) {
+        SessionUtils.getLoginAdmin(session);
+
+        CustomerResponse response = customerService.updateCustomerStatus(customerId, request);
+
+        return CommonApiResponse.success(
+                HttpStatus.OK,
+                "고객 상태 수정 완료",
                 response
         );
     }

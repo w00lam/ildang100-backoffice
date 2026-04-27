@@ -5,6 +5,7 @@ import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.dto.CustomerListResponse;
 import com.ildang100.backoffice.customer.dto.CustomerResponse;
+import com.ildang100.backoffice.customer.dto.CustomerStatusUpdateRequest;
 import com.ildang100.backoffice.customer.dto.CustomerUpdateRequest;
 import com.ildang100.backoffice.customer.entity.Customer;
 import com.ildang100.backoffice.customer.repository.CustomerRepository;
@@ -85,9 +86,24 @@ public class CustomerService {
         return CustomerResponse.from(customer);
     }
 
+    /**
+     * 고객 기본 정보를 수정합니다.
+     *
+     * <p>수정 가능한 필드는 이름, 이메일, 전화번호입니다.
+     * 이메일을 변경하는 경우 다른 고객이 사용 중인 이메일인지 검증합니다.</p>
+     *
+     * @param customerId 정보를 수정할 고객 ID
+     * @param request 변경할 고객 이름, 이메일, 전화번호 정보
+     * @return 변경된 고객 상세 응답 DTO
+     * @throws ServiceException 고객 ID가 유효하지 않거나, 고객을 찾을 수 없거나, 이메일이 중복된 경우
+     */
     @Transactional
-    public CustomerResponse updateCustomer(Long customerId, CustomerUpdateRequest request) {
+    public CustomerResponse updateCustomer(
+            Long customerId,
+            CustomerUpdateRequest request
+    ) {
         validateCustomerId(customerId);
+        validateUpdateRequest(request);
 
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
@@ -97,7 +113,7 @@ public class CustomerService {
             throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
         }
 
-        customer.update(
+        customer.updateInfo(
                 request.getName(),
                 request.getEmail(),
                 request.getTele()
@@ -106,8 +122,45 @@ public class CustomerService {
         return CustomerResponse.from(customer);
     }
 
+    /**
+     * 고객 상태를 수정합니다.
+     *
+     * @param customerId 상태를 수정할 고객 ID
+     * @param request 변경할 고객 상태 정보
+     * @return 변경된 고객 상세 응답 DTO
+     * @throws ServiceException 고객 ID가 유효하지 않거나 고객을 찾을 수 없는 경우
+     */
+    @Transactional
+    public CustomerResponse updateCustomerStatus(
+            Long customerId,
+            CustomerStatusUpdateRequest request
+    ) {
+        validateCustomerId(customerId);
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
+
+        customer.updateStatus(request.getStatus());
+
+        return CustomerResponse.from(customer);
+    }
+
     private void validateCustomerId(Long customerId) {
         if (customerId == null || customerId <= 0) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+        }
+    }
+
+    private void validateUpdateRequest(CustomerUpdateRequest request) {
+        if (request.getName() != null && request.getName().isBlank()) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+        }
+
+        if (request.getEmail() != null && request.getEmail().isBlank()) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+        }
+
+        if (request.getTele() != null && request.getTele().isBlank()) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
         }
     }
