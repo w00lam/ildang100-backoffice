@@ -4,7 +4,6 @@ import com.ildang100.backoffice.admin.dto.AdminListResponse;
 import com.ildang100.backoffice.admin.dto.AdminResponse;
 import com.ildang100.backoffice.admin.dto.AdminUpdateRequest;
 import com.ildang100.backoffice.admin.service.AdminManageService;
-import com.ildang100.backoffice.auth.dto.LoginAdminDto;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
@@ -48,6 +47,7 @@ public class AdminController {
      * @author 박채빈
      * @since 2026-04-27
      */
+    //@PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping
     public CommonApiResponse<AdminListResponse> getAdminList(
             @RequestParam(required = false) String keyword,
@@ -71,6 +71,7 @@ public class AdminController {
      * 관리자 상세 조회 API
      * GET /admins/{adminId}
      */
+    //@PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping("/{adminId}")
     public CommonApiResponse<AdminResponse> getAdmin(@PathVariable Long adminId, HttpSession session) {
 
@@ -94,13 +95,6 @@ public class AdminController {
      * <li>권한이 {@code SUPER_ADMIN}이 아닐 경우 {@link ErrorCode#FORBIDDEN} 예외를 발생시킵니다.</li>
      * </ul>
      *
-     * <p><b>처리 흐름</b></p>
-     * <ol>
-     * <li>세션 기반 인증 및 슈퍼 관리자 권한 검증</li>
-     * <li>요청 데이터(@Valid) 유효성 검사</li>
-     * <li>서비스 레이어 호출을 통한 정보 수정 및 중복 검증</li>
-     * <li>수정 완료된 데이터 반환</li>
-     * </ol>
      *
      * @param adminId 수정할 대상 관리자의 고유 ID
      * @param request 수정할 정보를 담은 DTO
@@ -113,14 +107,9 @@ public class AdminController {
     public CommonApiResponse<AdminResponse> updateAdmin(
             @PathVariable Long adminId,
             @RequestBody @Valid AdminUpdateRequest request,
-            HttpSession session
-    ) {
-        // 1. 로그인 여부 및 권한 체크
-        LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);
+            HttpSession session) {
 
-        if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
-            throw new ServiceException(ErrorCode.FORBIDDEN);
-        }
+        SessionUtils.getLoginAdmin(session);
 
         AdminResponse response = adminManageService.updateAdmin(adminId, request);
 
