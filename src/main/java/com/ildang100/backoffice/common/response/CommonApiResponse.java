@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+
 /**
  * 공통 API 응답을 위한 Wrapper 클래스입니다.
  *
@@ -32,5 +34,14 @@ public class CommonApiResponse<T> {
      */
     public static CommonApiResponse<Void> error(ErrorCode errorCode) {
         return new CommonApiResponse<>(errorCode.getStatus(), errorCode.getCode(), errorCode.getMessage(), null);
+    }
+
+    public static <T> CommonApiResponse<T> error(ErrorCode errorCode, T data) {
+        return new CommonApiResponse<>(
+                errorCode.getHttpStatus().value(),
+                errorCode.getCode(),
+                errorCode.getMessage(),
+                data
+        );
     }
 }
