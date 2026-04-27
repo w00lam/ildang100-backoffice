@@ -68,7 +68,10 @@ public class AdminController {
      * GET /admins/{adminId}
      */
     @GetMapping("/{adminId}")
-    public CommonApiResponse<AdminResponse> getAdmin(@PathVariable Long adminId) {
+    public CommonApiResponse<AdminResponse> getAdmin(@PathVariable Long adminId, HttpSession session) {
+
+        SessionUtils.getLoginAdmin(session);
+
         AdminResponse response = adminManageService.getAdmin(adminId);
 
         return CommonApiResponse.success(OK, "관리자 상세 조회 성공", response);
