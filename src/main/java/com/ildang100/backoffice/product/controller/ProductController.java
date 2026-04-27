@@ -4,6 +4,7 @@ import com.ildang100.backoffice.auth.dto.LoginAdminDto;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
+import com.ildang100.backoffice.product.dto.request.ProductUpdateRequest;
 import com.ildang100.backoffice.product.dto.response.ProductResponse;
 import com.ildang100.backoffice.product.service.ProductService;
 import jakarta.servlet.http.HttpSession;
@@ -20,27 +21,52 @@ public class ProductController {
     private final ProductService productService;
 
     /**
-     * 상품 등록 API
-     *
-     * <p>
-     * 새 상품을 등록합니다. 등록 관리자 ID는 세션 인증 정보에서 식별되며,
-     * 요청 본문에는 포함되지 않습니다.
-     * </p>
-     *
-     * @param request 상품 등록 요청 DTO ({@code @Valid}로 형식 검증)
-     * @param session HTTP 세션 (로그인된 관리자 식별)
-     * @return 등록된 상품 정보를 담은 공통 응답 (HTTP 201)
+     * 상품 등록.
+     * 등록 관리자 ID는 세션에서 식별. 요청 본문의 adminId는 받지 않는다.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CommonApiResponse<ProductResponse> create(
-            @RequestBody @Valid ProductCreateRequest request,
+            @Valid @RequestBody ProductCreateRequest request,
             HttpSession session
                                                     ) {
         LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);
 
-        ProductResponse response = productService.create(request, loginAdmin.getId());
+        ProductResponse response = productService.create(loginAdmin.getId(), request);
 
         return CommonApiResponse.success(HttpStatus.CREATED, "상품 생성 완료", response);
+    }
+
+    /**
+     * 상품 정보 부분 수정.
+     * 모든 필드가 null이면 변경 없이 정상 응답 (멱등성 보장).
+     */
+    @PutMapping("/{productId}")
+    public CommonApiResponse<ProductResponse> update(
+            @PathVariable Long productId,
+            @Valid @RequestBody ProductUpdateRequest request,
+            HttpSession session
+                                                    ) {
+        SessionUtils.getLoginAdmin(session); // 인증 가드 (미인증 시 401 자동 발생)
+
+        ProductResponse response = productService.update(productId, request);
+
+        return CommonApiResponse.success(HttpStatus.OK, "상품 정보 수정 성공", response);
+    }
+
+    /**
+     * 상품 삭제 (물리 삭제).
+     * 참조 무결성 검증은 Story P-6에서 추가 예정.
+     */
+    @DeleteMapping("/{productId}")
+    public CommonApiResponse<Void> delete(
+            @PathVariable Long productId,
+            HttpSession session
+                                         ) {
+        SessionUtils.getLoginAdmin(session); // 인증 가드
+
+        productService.delete(productId);
+
+        return CommonApiResponse.success(HttpStatus.OK, "상품 삭제 완료", null);
     }
 }
