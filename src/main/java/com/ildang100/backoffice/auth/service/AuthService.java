@@ -6,6 +6,7 @@ import com.ildang100.backoffice.auth.dto.AdminSignUpRequest;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.config.PasswordEncoder;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
-public class AdminService {
+public class AuthService {
 
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
@@ -73,6 +74,21 @@ public class AdminService {
         );
 
         adminRepository.save(admin);
+    }
+
+    /**
+     * 관리자 로그아웃 처리
+     *
+     * <p>
+     * 현재 요청의 {@link HttpSession}을 무효화하여
+     * 세션에 저장된 로그인 관리자 정보를 제거합니다.
+     * </p>
+     *
+     * @param session 현재 HTTP 세션
+     */
+    @Transactional
+    public void logout(HttpSession session) {
+        session.invalidate();
     }
 
     /**
