@@ -127,22 +127,90 @@
 ```json
 {
   "status": 200,
-  "message": "대시 보드 조회 성공",
+  "message": "대시보드 조회가 완료되었습니다.",
   "data": {
-    "adminCount": 5,
-    "pendingAdminApprovalCount": 2,
-    "customerCount": 128,
-    "pendingCustomerApprovalCount": 100,
-    "productCount": 54,
-    "activeProductCount": 49,
-    "orderCount": 321,
-    "reviewCount": 210,
-    "orderStatusSummary": {
-      "PREPARE": 20,
-      "SHIPPING": 15,
-      "DELIVERED": 265,
-      "CANCELED": 21
-    }
+    "summary": {
+      "totalAdmins": 10,
+      "activeAdmins": 7,
+      "totalCustomers": 120,
+      "activeCustomers": 95,
+      "totalProducts": 80,
+      "lowStockProducts": 5,
+      "totalOrders": 300,
+      "todayOrders": 12,
+      "totalReviews": 150,
+      "averageRating": 4.3
+    },
+    "widgets": {
+      "totalSales": 15000000,
+      "todaySales": 350000,
+      "preparingOrders": 4,
+      "shippingOrders": 8,
+      "deliveredOrders": 250,
+      "lowStockProducts": 5,
+      "outOfStockProducts": 2
+    },
+    "charts": {
+      "reviewRatingDistribution": [
+        {
+          "rating": 1,
+          "count": 3
+        },
+        {
+          "rating": 2,
+          "count": 7
+        },
+        {
+          "rating": 3,
+          "count": 20
+        },
+        {
+          "rating": 4,
+          "count": 50
+        },
+        {
+          "rating": 5,
+          "count": 70
+        }
+      ],
+      "customerStatusDistribution": [
+        {
+          "status": "ACTIVE",
+          "count": 95
+        },
+        {
+          "status": "INACTIVE",
+          "count": 15
+        },
+        {
+          "status": "SUSPENDED",
+          "count": 10
+        }
+      ],
+      "productCategoryDistribution": [
+        {
+          "category": "ELECTRONICS",
+          "count": 30
+        },
+        {
+          "category": "FASHION",
+          "count": 25
+        },
+        {
+          "category": "FOOD",
+          "count": 25
+        }
+      ]
+    },
+    "recentOrders": [
+      {
+        "orderNumber": "ORD-20260427-0001",
+        "customerName": "홍길동",
+        "productName": "무선 이어폰",
+        "amount": 89000,
+        "status": "PREPARING"
+      }
+    ]
   }
 }
 ```
