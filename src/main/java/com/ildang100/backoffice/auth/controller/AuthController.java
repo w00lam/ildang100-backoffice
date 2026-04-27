@@ -46,6 +46,6 @@ public class AuthController {
     public CommonApiResponse<Void> logout(HttpSession session) {
         authService.logout(session);
 
-        return CommonApiResponse.success(HttpStatus.OK, "로그 아웃이 완료되었습니다.", null);
+        return CommonApiResponse.success(HttpStatus.OK, "로그아웃이 완료되었습니다.", null);
     }
 }
