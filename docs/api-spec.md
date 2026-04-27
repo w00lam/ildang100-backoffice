@@ -1486,13 +1486,17 @@
 
 ```json
 {
-  "id": 101,
-  "name": "김고객",
-  "email": "customer@example.com",
-  "tele": "010-1234-0000",
-  "status": "ACTIVE",
-  "createdAt": "2026-04-10T10:00:00",
-  "updatedAt": "2026-04-23T12:00:00"
+  "status": 200,
+  "message": "고객 상세 조회 성공",
+  "data": {
+    "id": 101,
+    "name": "김고객",
+    "email": "customer@example.com",
+    "tele": "010-1234-0000",
+    "status": "ACTIVE",
+    "createdAt": "2026-04-10T10:00:00",
+    "updatedAt": "2026-04-23T12:00:00"
+  }
 }
 ```
 
@@ -1502,6 +1506,7 @@
 
 ### 예외
 
+- `400 Bad Request: 입력값이 올바르지 않음`
 - `401 Unauthorized: 로그인 필요`
 - `404 Not Found: 고객 없음`
 
