@@ -17,9 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class AdminManageService {
@@ -68,6 +65,19 @@ public class AdminManageService {
     }
 
     /**
+     * 관리자 단건 조회
+     * @param adminId 조회할 관리자의 고유 ID
+     * @return 관리자 응답 DTO
+     * @throws ServiceException 관리자를 찾을 수 없는 경우 발생
+     */
+    public AdminResponse getAdmin(Long adminId) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        return AdminResponse.from(admin);
+    }
+
+    /**
      * 관리자 정보 수정 비즈니스 로직
      *
      * <p><b>처리 흐름</b></p>
@@ -103,4 +113,6 @@ public class AdminManageService {
 
         return AdminResponse.from(admin);
     }
+
+
 }

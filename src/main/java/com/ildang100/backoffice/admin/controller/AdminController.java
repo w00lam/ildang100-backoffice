@@ -5,7 +5,6 @@ import com.ildang100.backoffice.admin.dto.AdminResponse;
 import com.ildang100.backoffice.admin.dto.AdminUpdateRequest;
 import com.ildang100.backoffice.admin.service.AdminManageService;
 import com.ildang100.backoffice.auth.dto.LoginAdminDto;
-import com.ildang100.backoffice.auth.session.SessionConst;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
@@ -49,7 +48,6 @@ public class AdminController {
      * @author 박채빈
      * @since 2026-04-27
      */
-    //@PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping
     public CommonApiResponse<AdminListResponse> getAdminList(
             @RequestParam(required = false) String keyword,
@@ -67,6 +65,20 @@ public class AdminController {
                 adminManageService.getAdminList(keyword, role, status, page, size, sortBy, sortOrder);
 
         return CommonApiResponse.success(OK, "관리자 리스트 조회 성공", response);
+    }
+
+    /**
+     * 관리자 상세 조회 API
+     * GET /admins/{adminId}
+     */
+    @GetMapping("/{adminId}")
+    public CommonApiResponse<AdminResponse> getAdmin(@PathVariable Long adminId, HttpSession session) {
+
+        SessionUtils.getLoginAdmin(session);
+
+        AdminResponse response = adminManageService.getAdmin(adminId);
+
+        return CommonApiResponse.success(OK, "관리자 상세 조회 성공", response);
     }
     /**
      * 관리자 정보 수정 API
@@ -96,6 +108,7 @@ public class AdminController {
      * @return 수정된 관리자 정보를 포함한 공통 응답 객체
      * @throws ServiceException 인증되지 않았거나 권한이 없는 경우, 또는 대상 관리자가 없는 경우 발생
      */
+    //@PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping("/{adminId}")
     public CommonApiResponse<AdminResponse> updateAdmin(
             @PathVariable Long adminId,
