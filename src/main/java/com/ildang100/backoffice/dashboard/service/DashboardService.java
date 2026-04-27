@@ -1,5 +1,7 @@
 package com.ildang100.backoffice.dashboard.service;
 
+import com.ildang100.backoffice.admin.repository.AdminRepository;
+import com.ildang100.backoffice.common.enums.AdminStatus;
 import com.ildang100.backoffice.common.enums.CustomerStatus;
 import com.ildang100.backoffice.customer.repository.CustomerRepository;
 import com.ildang100.backoffice.dashboard.dto.DashboardResponse;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DashboardService {
 
+    private final AdminRepository adminRepository;
     private final CustomerRepository customerRepository;
 
     /**
@@ -31,10 +34,13 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardResponse getDashboard() {
 
+        long totalAdmins = adminRepository.count();
+        long activeAdmins = adminRepository.countByStatus(AdminStatus.ACTIVE);
+
         long totalCustomers = customerRepository.count();
         long activeCustomers = customerRepository.countByStatus(CustomerStatus.ACTIVE);
 
-        SummaryResponse summary = SummaryResponse.of(totalCustomers, activeCustomers);
+        SummaryResponse summary = SummaryResponse.of(totalAdmins, activeAdmins, totalCustomers, activeCustomers);
 
         return DashboardResponse.of(summary);
     }

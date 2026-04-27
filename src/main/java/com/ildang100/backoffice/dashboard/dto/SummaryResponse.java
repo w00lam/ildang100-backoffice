@@ -1,5 +1,6 @@
 package com.ildang100.backoffice.dashboard.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
 /**
@@ -14,12 +15,27 @@ import lombok.Getter;
  * @since 2026-04-27
  */
 @Getter
+@JsonPropertyOrder({
+        "totalAdmins",
+        "activeAdmins",
+        "totalCustomers",
+        "activeCustomers"
+})
 public class SummaryResponse {
 
+    private final Long totalAdmins;
+    private final Long activeAdmins;
     private final Long totalCustomers;
     private final Long activeCustomers;
 
-    private SummaryResponse(Long totalCustomers, Long activeCustomers) {
+    private SummaryResponse(
+            Long totalAdmins,
+            Long activeAdmins,
+            Long totalCustomers,
+            Long activeCustomers
+    ) {
+        this.totalAdmins = totalAdmins;
+        this.activeAdmins = activeAdmins;
         this.totalCustomers = totalCustomers;
         this.activeCustomers = activeCustomers;
     }
@@ -27,7 +43,12 @@ public class SummaryResponse {
     /**
      * 현재 단계에서 고객 통계만 반환하는 팩토리 메서드입니다.
      */
-    public static SummaryResponse of(Long totalCustomers, Long activeCustomers) {
-        return new SummaryResponse(totalCustomers, activeCustomers);
+    public static SummaryResponse of(
+            Long totalAdmins,
+            Long activeAdmins,
+            Long totalCustomers,
+            Long activeCustomers
+    ) {
+        return new SummaryResponse(totalAdmins, activeAdmins, totalCustomers, activeCustomers);
     }
 }
