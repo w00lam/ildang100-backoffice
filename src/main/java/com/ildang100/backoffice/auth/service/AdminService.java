@@ -99,10 +99,10 @@ public class AdminService {
     public void login(AdminLoginRequest request, HttpSession session) {
 
         Admin admin = adminRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+                .orElseThrow(() -> new ServiceException(ErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
-            throw new ServiceException(ErrorCode.PASSWORD_CONFIRM_MISMATCH);
+            throw new ServiceException(ErrorCode.INVALID_CREDENTIALS);
         }
 
         validateLoginAvailable(admin);
