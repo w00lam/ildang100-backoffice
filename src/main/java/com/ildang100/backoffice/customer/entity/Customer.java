@@ -63,4 +63,8 @@ public class Customer extends BaseEntity {
     public void updateStatus(CustomerStatus status) {
         this.status = status;
     }
+
+    public void withdraw() {
+        this.status = CustomerStatus.INACTIVE;
+    }
 }
