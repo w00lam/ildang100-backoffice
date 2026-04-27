@@ -2,11 +2,14 @@ package com.ildang100.backoffice.common.exception;
 
 import com.ildang100.backoffice.common.enums.*;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.List;
 
 /**
  * 전역 예외 처리(Global Exception Handler) 클래스입니다.
@@ -72,12 +75,18 @@ public class GlobalExceptionHandler {
      * @return 공통 에러 응답
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CommonApiResponse<Void>> handleValidationException(
+    public ResponseEntity<CommonApiResponse<List<String>>> handleValidationException(
             MethodArgumentNotValidException e
     ) {
+        List<String> messages = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+
         return ResponseEntity
                 .status(ErrorCode.VALIDATION_FAILED.getHttpStatus())
-                .body(CommonApiResponse.error(ErrorCode.VALIDATION_FAILED));
+                .body(CommonApiResponse.error(ErrorCode.VALIDATION_FAILED, messages));
     }
 
     /**
