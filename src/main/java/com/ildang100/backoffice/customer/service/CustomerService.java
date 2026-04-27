@@ -4,6 +4,7 @@ import com.ildang100.backoffice.common.enums.CustomerStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.dto.CustomerListResponse;
+import com.ildang100.backoffice.customer.dto.CustomerResponse;
 import com.ildang100.backoffice.customer.entity.Customer;
 import com.ildang100.backoffice.customer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,6 @@ public class CustomerService {
             String sortOrder,
             CustomerStatus status
     ) {
-
         if (page < 1 || size < 1) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
         }
@@ -65,6 +65,25 @@ public class CustomerService {
         );
 
         return CustomerListResponse.from(customers);
+    }
+
+    /**
+     * 고객 ID로 고객 상세 정보를 조회합니다.
+     *
+     * @param customerId 조회할 고객 ID
+     * @return 고객 상세 응답 DTO
+     * @throws ServiceException 고객을 찾을 수 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public CustomerResponse getCustomer(Long customerId) {
+        if (customerId == null || customerId <= 0) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+        }
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
+
+        return CustomerResponse.from(customer);
     }
 
     private Sort.Direction convertSortDirection(String sortOrder) {
