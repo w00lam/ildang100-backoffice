@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *     <li>이메일 중복 여부 확인</li>
  * </ul>
  */
-public interface AdminRepository extends JpaRepository<Admin, Integer> {
+public interface AdminRepository extends JpaRepository<Admin, Long> {
 
     /**
      * 이메일 중복 여부 확인
