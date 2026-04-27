@@ -22,6 +22,7 @@ public class ProductController {
 
     /**
      * 상품 등록.
+     * 등록 관리자 ID는 세션에서 식별. 요청 본문의 adminId는 받지 않는다.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

@@ -16,29 +16,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final AdminRepository adminRepository;
 
     /**
-     * 상품 등록 처리
-     *
-     * <p>
-     * 요청받은 정보를 기반으로 새로운 상품을 생성합니다.
-     * 등록 관리자는 세션 인증 정보에서 식별된 ID로 조회하며,
-     * Product Aggregate의 팩토리 메서드를 통해 도메인 검증과 상태 자동 결정을 적용합니다.
-     * </p>
-     *
-     * @param request 상품 등록 요청 DTO
-     * @param adminId 등록 관리자 ID (Controller에서 세션을 통해 식별)
-     * @return 등록된 상품 정보 응답 DTO
-     * @throws ServiceException 등록 관리자가 존재하지 않거나 도메인 검증 실패 시
+     * 상품 등록.
+     * 등록 관리자(Admin)를 조회한 뒤 Aggregate.create()에 위임한다.
      */
-    @Transactional
-    public ProductResponse create(ProductCreateRequest request, Long adminId) {
+    public ProductResponse create(Long adminId, ProductCreateRequest request) {
         Admin admin = adminRepository.findById(adminId)
-                                     .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+                                     .orElseThrow(() -> new ServiceException(ErrorCode.UNAUTHORIZED));
 
         Product product = Product.create(
                 admin,
@@ -50,7 +40,6 @@ public class ProductService {
                                         );
 
         Product saved = productRepository.save(product);
-
         return ProductResponse.from(saved);
     }
 
@@ -68,6 +57,13 @@ public class ProductService {
 
     /**
      * 상품 삭제 (물리 삭제, P-1 ~ P-2 단계).
+     *
+     * <p>존재하지 않는 ID에 대해 404 응답을 보장하기 위해 {@code findById} 후
+     * {@code delete(entity)}로 처리한다. {@code deleteById(id)}는 존재하지 않는
+     * ID를 전달해도 조용히 종료되는 경우가 있어 {@code PRODUCT_NOT_FOUND} 예외가
+     * 일관되게 던져지지 않는다.
+     *
+     * <p>참조 무결성 검증(주문/리뷰 연결)은 Story P-6에서 추가 예정.
      */
     public void delete(Long productId) {
         Product product = productRepository.findById(productId)
