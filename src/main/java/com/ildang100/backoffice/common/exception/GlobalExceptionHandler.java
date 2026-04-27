@@ -4,6 +4,7 @@ import com.ildang100.backoffice.common.enums.*;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -116,6 +117,37 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
                 .body(CommonApiResponse.error(errorCode));
+    }
+
+    /**
+     * JSON 파싱 및 역직렬화 실패 예외 처리
+     *
+     * <p>
+     * {@code @RequestBody} 요청 처리 중 발생하는 JSON 파싱 오류를 처리합니다.
+     * </p>
+     *
+     * <p><b>주요 발생 케이스</b></p>
+     * <ul>
+     *     <li>Enum 변환 실패 (예: role에 존재하지 않는 값 전달)</li>
+     *     <li>잘못된 JSON 형식</li>
+     *     <li>타입 불일치 (String → Enum 등)</li>
+     * </ul>
+     *
+     * <p>
+     * 특히 enum 값이 잘못된 경우 (예: "ADMIN") {@link com.ildang100.backoffice.common.enums.AdminRole}로
+     * 변환되지 못해 이 예외가 발생합니다.
+     * </p>
+     *
+     * @param e HttpMessageNotReadableException
+     * @return 공통 에러 응답 (INVALID_ROLE)
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<CommonApiResponse<Void>> handleJsonParseException(
+            HttpMessageNotReadableException e
+    ) {
+        return ResponseEntity
+                .status(ErrorCode.VALIDATION_FAILED.getHttpStatus())
+                .body(CommonApiResponse.error(ErrorCode.INVALID_ROLE));
     }
 
     private ErrorCode resolveTypeMismatchErrorCode(Class<?> requiredType) {
