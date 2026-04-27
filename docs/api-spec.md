@@ -1542,19 +1542,24 @@
 
 - `customerId`: 필수, 양의 정수
 - `name`: 선택, 최대 30자
-- `email`: 선택, 이메일 형식, 최대 30자
+- `email`: 선택, 이메일 형식, 최대 50자
 - `tele`: 선택, 최대 30자
 
 ### Response Body
 
 ```json
 {
-  "id": 101,
-  "name": "김고객",
-  "email": "customer@example.com",
-  "tele": "010-5555-6666",
-  "status": "ACTIVE",
-  "updatedAt": "2026-04-23T16:00:00"
+  "status": 200,
+  "message": "고객 정보 수정 완료",
+  "data": {
+    "id": 101,
+    "name": "김고객",
+    "email": "customer@example.com",
+    "tele": "010-5555-6666",
+    "status": "ACTIVE",
+    "createdAt": "2026-04-10T10:00:00",
+    "updatedAt": "2026-04-23T16:00:00"
+  }
 }
 ```
 
@@ -1604,9 +1609,17 @@
 
 ```json
 {
-  "id": 101,
-  "status": "INACTIVE",
-  "updatedAt": "2026-04-23T16:05:00"
+  "status": 200,
+  "message": "고객 상태 수정 완료",
+  "data": {
+    "id": 101,
+    "name": "김고객",
+    "email": "customer@example.com",
+    "tele": "010-1234-0000",
+    "status": "INACTIVE",
+    "createdAt": "2026-04-10T10:00:00",
+    "updatedAt": "2026-04-23T16:05:00"
+  }
 }
 ```
 
@@ -1616,7 +1629,7 @@
 
 ### 예외
 
-- `400 Bad Request: 유효하지 않은 상태값`
+- `400 Bad Request: 요청값 검증 실패`
 - `401 Unauthorized: 로그인 필요`
 - `404 Not Found: 고객 없음`
 
