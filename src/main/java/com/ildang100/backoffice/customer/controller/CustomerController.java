@@ -1,9 +1,11 @@
 package com.ildang100.backoffice.customer.controller;
 
+import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.CustomerStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.customer.dto.CustomerListResponse;
 import com.ildang100.backoffice.customer.service.CustomerService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,8 +41,10 @@ public class CustomerController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortOrder,
-            @RequestParam(required = false) CustomerStatus status
+            @RequestParam(required = false) CustomerStatus status,
+            HttpSession session
     ){
+        SessionUtils.getLoginAdmin(session);
         CustomerListResponse response = customerService.getCustomers(
                 keyword,
                 page,
