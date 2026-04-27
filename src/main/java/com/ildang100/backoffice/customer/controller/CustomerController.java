@@ -136,4 +136,20 @@ public class CustomerController {
                 response
         );
     }
+
+    @DeleteMapping("/{customerId}")
+    public CommonApiResponse<Void> deleteCustomer(
+            @PathVariable Long customerId,
+            HttpSession session
+    ) {
+        SessionUtils.getLoginAdmin(session);
+
+        customerService.deleteCustomer(customerId);
+
+        return CommonApiResponse.success(
+                HttpStatus.OK,
+                "고객 삭제 완료",
+                null
+        );
+    }
 }
