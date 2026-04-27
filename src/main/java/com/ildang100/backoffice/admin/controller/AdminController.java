@@ -1,6 +1,7 @@
 package com.ildang100.backoffice.admin.controller;
 
 import com.ildang100.backoffice.admin.dto.AdminListResponse;
+import com.ildang100.backoffice.admin.dto.AdminResponse;
 import com.ildang100.backoffice.admin.service.AdminManageService;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.AdminRole;
@@ -9,10 +10,8 @@ import com.ildang100.backoffice.common.response.CommonApiResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 //import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 
 import static org.springframework.http.HttpStatus.OK;
@@ -62,5 +61,16 @@ public class AdminController {
                 adminManageService.getAdminList(keyword, role, status, page, size, sortBy, sortOrder);
 
         return CommonApiResponse.success(OK, "관리자 리스트 조회 성공", response);
+    }
+
+    /**
+     * 관리자 상세 조회 API
+     * GET /admins/{adminId}
+     */
+    @GetMapping("/{adminId}")
+    public CommonApiResponse<AdminResponse> getAdmin(@PathVariable Long adminId) {
+        AdminResponse response = adminManageService.getAdmin(adminId);
+
+        return CommonApiResponse.success(OK, "관리자 상세 조회 성공", response);
     }
 }
