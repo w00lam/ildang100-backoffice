@@ -1,10 +1,13 @@
 package com.ildang100.backoffice.admin.service;
 
 import com.ildang100.backoffice.admin.dto.AdminListResponse;
+import com.ildang100.backoffice.admin.dto.AdminResponse;
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
+import com.ildang100.backoffice.common.exception.ErrorCode;
+import com.ildang100.backoffice.common.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -61,5 +64,18 @@ public class AdminManageService {
         Page<Admin> adminPage = adminRepository.findAdminsByCondition(keyword, role, status, pageable);
 
         return AdminListResponse.from(adminPage);
+    }
+
+    /**
+     * 관리자 단건 조회
+     * @param adminId 조회할 관리자의 고유 ID
+     * @return 관리자 응답 DTO
+     * @throws ServiceException 관리자를 찾을 수 없는 경우 발생
+     */
+    public AdminResponse getAdmin(Long adminId) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        return AdminResponse.from(admin);
     }
 }
