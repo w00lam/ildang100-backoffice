@@ -1,7 +1,7 @@
 INSERT INTO admins
 (id, name, email, password, tele, status, role, created_at, approved_at, updated_at)
 VALUES
-    (1, '슈퍼관리자', 'superadmin@example.com', 'password123', '010-1111-2222',
+    (1, '슈퍼관리자', 'superadmin@example.com', '$2a$04$gGFHz5uFoyJPvGkPFST3tOyFPXtRTK8.VGrfGAaF/iLa7I5.ZB4wi', '010-1111-2222',
      'ACTIVE', 'SUPER_ADMIN', NOW(), NOW(), NOW());
 
 INSERT INTO customers

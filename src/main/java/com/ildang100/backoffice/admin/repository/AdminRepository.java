@@ -1,7 +1,13 @@
 package com.ildang100.backoffice.admin.repository;
 
 import com.ildang100.backoffice.admin.entity.Admin;
+import com.ildang100.backoffice.common.enums.AdminRole;
+import com.ildang100.backoffice.common.enums.AdminStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -51,4 +57,33 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
      * @since 2026-04-27
      */
     Optional<Admin> findByEmail(String email);
+
+    /**
+     * 관리자 목록 동적 검색 및 페이징 조회
+     *
+     * <p>
+     * 키워드(이름 또는 이메일), 권한(Role), 상태(Status) 조건을 기반으로 관리자 목록을 검색합니다.
+     * 전달된 파라미터가 {@code null}일 경우 해당 검색 조건은 무시되며, 값이 존재하는 파라미터들만 AND 조건으로 결합되어 조회됩니다.
+     * 키워드는 부분 일치(LIKE) 검색을 수행하며, 역할과 상태는 정확히 일치하는 데이터를 찾습니다.
+     * </p>
+     *
+     * @param keyword 검색할 이름 또는 이메일의 부분 키워드 (null 허용)
+     * @param role 필터링할 관리자의 특정 권한 Enum (null 허용)
+     * @param status 필터링할 관리자의 특정 상태 Enum (null 허용)
+     * @param pageable 페이징 및 정렬 요청 정보
+     * @return 조건에 부합하는 관리자 엔티티들이 담긴 {@link Page} 객체
+     *
+     * @author 박채빈
+     * @since 2026-04-27
+     */
+    @Query("SELECT a FROM Admin a " +
+            "WHERE (:keyword IS NULL OR a.name LIKE %:keyword% OR a.email LIKE %:keyword%) " +
+            "AND (:role IS NULL OR a.role = :role) " +
+            "AND (:status IS NULL OR a.status = :status)")
+    Page<Admin> findAdminsByCondition(
+            @Param("keyword") String keyword,
+            @Param("role") AdminRole role,
+            @Param("status") AdminStatus status,
+            Pageable pageable
+    );
 }
