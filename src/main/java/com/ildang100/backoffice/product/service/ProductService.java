@@ -6,6 +6,7 @@ import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
+import com.ildang100.backoffice.product.dto.request.ProductUpdateRequest;
 import com.ildang100.backoffice.product.dto.response.ProductResponse;
 import com.ildang100.backoffice.product.entity.Product;
 import com.ildang100.backoffice.product.repository.ProductRepository;
@@ -51,5 +52,27 @@ public class ProductService {
         Product saved = productRepository.save(product);
 
         return ProductResponse.from(saved);
+    }
+
+    /**
+     * 상품 정보 부분 수정.
+     */
+    public ProductResponse update(Long productId, ProductUpdateRequest request) {
+        Product product = productRepository.findById(productId)
+                                           .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        product.updateInfo(request.getName(), request.getCategory(), request.getPrice());
+
+        return ProductResponse.from(product);
+    }
+
+    /**
+     * 상품 삭제 (물리 삭제, P-1 ~ P-2 단계).
+     */
+    public void delete(Long productId) {
+        Product product = productRepository.findById(productId)
+                                           .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        productRepository.delete(product);
     }
 }
