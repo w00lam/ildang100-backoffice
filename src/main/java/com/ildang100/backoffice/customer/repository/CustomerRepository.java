@@ -2,6 +2,8 @@ package com.ildang100.backoffice.customer.repository;
 
 import com.ildang100.backoffice.common.enums.CustomerStatus;
 import com.ildang100.backoffice.customer.entity.Customer;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,4 +38,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
             @Param("keyword") String keyword,
             @Param("status") CustomerStatus status,
             Pageable pageable);
+
+    boolean existsByEmailAndIdNot(String email, Long customerId);
 }
