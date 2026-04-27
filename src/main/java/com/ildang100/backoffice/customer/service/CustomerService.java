@@ -44,7 +44,6 @@ public class CustomerService {
             String sortOrder,
             CustomerStatus status
     ) {
-
         if (page < 1 || size < 1) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
         }
@@ -77,6 +76,10 @@ public class CustomerService {
      */
     @Transactional(readOnly = true)
     public CustomerResponse getCustomer(Long customerId) {
+        if (customerId == null || customerId <= 0) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+        }
+
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
 
