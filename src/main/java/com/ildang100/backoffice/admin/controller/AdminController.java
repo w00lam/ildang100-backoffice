@@ -1,18 +1,23 @@
 package com.ildang100.backoffice.admin.controller;
 
 import com.ildang100.backoffice.admin.dto.AdminListResponse;
+import com.ildang100.backoffice.admin.dto.AdminResponse;
+import com.ildang100.backoffice.admin.dto.AdminUpdateRequest;
 import com.ildang100.backoffice.admin.service.AdminManageService;
+import com.ildang100.backoffice.auth.dto.LoginAdminDto;
+import com.ildang100.backoffice.auth.session.SessionConst;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
+import com.ildang100.backoffice.common.exception.ErrorCode;
+import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 //import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 
 import static org.springframework.http.HttpStatus.OK;
@@ -62,5 +67,50 @@ public class AdminController {
                 adminManageService.getAdminList(keyword, role, status, page, size, sortBy, sortOrder);
 
         return CommonApiResponse.success(OK, "관리자 리스트 조회 성공", response);
+    }
+    /**
+     * 관리자 정보 수정 API
+     *
+     * <p>
+     * 특정 관리자의 기본 정보(이름, 이메일, 전화번호)를 수정합니다.
+     * 이 요청은 슈퍼 관리자(SUPER_ADMIN) 권한을 가진 사용자만 수행할 수 있습니다.
+     * </p>
+     *
+     * <p><b>보안 및 권한 로직</b></p>
+     * <ul>
+     * <li>세션에서 로그인된 관리자 정보를 확인합니다.</li>
+     * <li>권한이 {@code SUPER_ADMIN}이 아닐 경우 {@link ErrorCode#FORBIDDEN} 예외를 발생시킵니다.</li>
+     * </ul>
+     *
+     * <p><b>처리 흐름</b></p>
+     * <ol>
+     * <li>세션 기반 인증 및 슈퍼 관리자 권한 검증</li>
+     * <li>요청 데이터(@Valid) 유효성 검사</li>
+     * <li>서비스 레이어 호출을 통한 정보 수정 및 중복 검증</li>
+     * <li>수정 완료된 데이터 반환</li>
+     * </ol>
+     *
+     * @param adminId 수정할 대상 관리자의 고유 ID
+     * @param request 수정할 정보를 담은 DTO
+     * @param session 현재 사용자 세션
+     * @return 수정된 관리자 정보를 포함한 공통 응답 객체
+     * @throws ServiceException 인증되지 않았거나 권한이 없는 경우, 또는 대상 관리자가 없는 경우 발생
+     */
+    @PutMapping("/{adminId}")
+    public CommonApiResponse<AdminResponse> updateAdmin(
+            @PathVariable Long adminId,
+            @RequestBody @Valid AdminUpdateRequest request,
+            HttpSession session
+    ) {
+        // 1. 로그인 여부 및 권한 체크
+        LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);
+
+        if (loginAdmin.getRole() != AdminRole.SUPER_ADMIN) {
+            throw new ServiceException(ErrorCode.FORBIDDEN);
+        }
+
+        AdminResponse response = adminManageService.updateAdmin(adminId, request);
+
+        return CommonApiResponse.success(HttpStatus.OK, "관리자 정보 수정 성공", response);
     }
 }
