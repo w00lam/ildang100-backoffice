@@ -145,6 +145,20 @@ public class CustomerService {
         return CustomerResponse.from(customer);
     }
 
+    @Transactional
+    public void deleteCustomer(Long customerId) {
+        validateCustomerId(customerId);
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
+
+        if (customer.getStatus() == CustomerStatus.INACTIVE) {
+            throw new ServiceException(ErrorCode.CUSTOMER_DELETE_NOT_ALLOWED);
+        }
+
+        customer.withdraw();
+    }
+
     private void validateCustomerId(Long customerId) {
         if (customerId == null || customerId <= 0) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
