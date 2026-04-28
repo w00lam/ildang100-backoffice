@@ -7,6 +7,7 @@ import com.ildang100.backoffice.common.enums.ProductStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
+import com.ildang100.backoffice.product.dto.request.ProductStockUpdateRequest;
 import com.ildang100.backoffice.product.dto.request.ProductUpdateRequest;
 import com.ildang100.backoffice.product.dto.response.PageResponse;
 import com.ildang100.backoffice.product.dto.response.ProductDetailResponse;
@@ -107,5 +108,23 @@ public class ProductService {
 
         return ProductDetailResponse.from(product);
     }
+
+    /**
+     * 상품 재고 변경 (운영자 채널).
+     *
+     * <p>
+     * 재고를 절대값으로 설정하며, 도메인 정책에 의해 상태가 자동 전이된다.
+     * 단종 상품은 재고만 변경되고 상태는 유지된다.
+     * </p>
+     */
+    public ProductResponse changeStock(Long productId, ProductStockUpdateRequest request) {
+        Product product = productRepository.findById(productId)
+                                           .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        product.changeStock(request.getStock());
+
+        return ProductResponse.from(product);
+    }
+
 
 }

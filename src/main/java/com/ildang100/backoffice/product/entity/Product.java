@@ -175,35 +175,79 @@ public class Product extends BaseEntity {
     }
 
     /**
-     * 상품 재고를 차감합니다.
+     * 상품 재고를 절대값으로 설정합니다 (운영자 채널 / P-4).
      *
-     * <p>판매 중단 상품, 품절 상품, 재고보다 많은 수량 요청은 예외로 처리합니다.
-     * 차감 후 재고가 0이 되면 상품 상태를 {@code OUT_OF_STOCK}으로 변경합니다.</p>
+     * <p>
+     * 변경 후 자동 전이 규칙(§{@link #applyStockChange})에 따라 상태가 갱신됩니다.
+     * 단종 상품은 재고만 변경되고 상태는 단종으로 유지됩니다.
+     * </p>
      *
-     * @param quantity 차감할 재고 수량
-     * @throws ServiceException 수량이 유효하지 않거나 재고 차감이 불가능한 경우
+     * @param newStock 새 재고 수량 (0 이상)
+     * @throws ServiceException newStock이 음수인 경우 ({@link ErrorCode#INVALID_STOCK_VALUE})
      */
-    public void decreaseStock(Integer quantity) {
-        if (quantity < 1) {
-            throw new ServiceException(ErrorCode.INVALID_QUANTITY);
-        }
+    public void changeStock(int newStock) {
+        validateStock(newStock);
+        applyStockChange(newStock);
+    }
 
-        if (this.status == ProductStatus.DISCONTINUED) {
-            throw new ServiceException(ErrorCode.INVALID_PRODUCT_STATUS);
-        }
-
-        if (this.status == ProductStatus.OUT_OF_STOCK) {
-            throw new ServiceException(ErrorCode.INSUFFICIENT_STOCK);
-        }
-
+    /**
+     * 상품 재고를 차감합니다 (주문 도메인 채널 / P-4·P-7).
+     *
+     * <p>
+     * 차감 후 자동 전이 규칙에 따라 상태가 갱신됩니다.
+     * 단종/품절 상품에 대한 주문 가능 여부 검증은 호출자(Order Service) 책임입니다 — 도메인 메서드는
+     * 재고/상태 정합성만 보장합니다.
+     * </p>
+     *
+     * @param quantity 차감 수량 (1 이상)
+     * @throws ServiceException quantity가 1 미만 ({@link ErrorCode#INVALID_QUANTITY})
+     *                          또는 현재 재고보다 큰 경우 ({@link ErrorCode#INSUFFICIENT_STOCK})
+     */
+    public void decreaseStock(int quantity) {
+        validateQuantity(quantity);
         if (this.stock < quantity) {
             throw new ServiceException(ErrorCode.INSUFFICIENT_STOCK);
         }
+        applyStockChange(this.stock - quantity);
+    }
 
-        this.stock -= quantity;
+    /**
+     * 상품 재고를 복구합니다 (주문 취소 채널 / P-4·P-7).
+     *
+     * <p>
+     * 복구 후 자동 전이 규칙에 따라 상태가 갱신됩니다.
+     * 품절 상품이 복구되어 재고가 1 이상이 되면 자동으로 판매중으로 전이되고,
+     * 단종 상품은 재고만 변경되고 상태는 유지됩니다.
+     * </p>
+     *
+     * @param quantity 복구 수량 (1 이상)
+     * @throws ServiceException quantity가 1 미만인 경우 ({@link ErrorCode#INVALID_QUANTITY})
+     */
+    public void restoreStock(int quantity) {
+        validateQuantity(quantity);
+        applyStockChange(this.stock + quantity);
+    }
 
-        if (this.stock == 0) {
-            this.status = ProductStatus.OUT_OF_STOCK;
+    /**
+     * 재고 변경 + 상태 자동 전이 (Aggregate 내부 캡슐화).
+     *
+     * <p>
+     * 단종(DISCONTINUED) 상품은 재고만 변경되고 상태는 유지됩니다.
+     * 그 외 상태에서는 stock 기반으로 상태가 자동 결정됩니다 (stock ≤ 0 → OUT_OF_STOCK,
+     * stock ≥ 1 → ON_SALE).
+     * </p>
+     */
+    private void applyStockChange(int newStock) {
+        this.stock = newStock;
+        if (this.status == ProductStatus.DISCONTINUED) {
+            return; // 단종은 자동 전이 대상이 아님
+        }
+        this.status = (newStock <= 0) ? ProductStatus.OUT_OF_STOCK : ProductStatus.ON_SALE;
+    }
+
+    private static void validateQuantity(int quantity) {
+        if (quantity < 1) {
+            throw new ServiceException(ErrorCode.INVALID_QUANTITY);
         }
     }
 }
