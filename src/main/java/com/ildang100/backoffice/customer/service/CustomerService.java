@@ -159,6 +159,7 @@ public class CustomerService {
         customer.withdraw();
     }
 
+
     private void validateCustomerId(Long customerId) {
         if (customerId == null || customerId <= 0) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
