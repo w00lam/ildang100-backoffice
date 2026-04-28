@@ -64,4 +64,3 @@ public class DashboardWidgetView {
      */
     private Long outOfStockProductCount;
 }
-}
