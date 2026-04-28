@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 
@@ -40,6 +41,9 @@ public class AdminApprovalHistory extends BaseEntity {
 
     @Builder
     private AdminApprovalHistory(Long adminId, AdminStatus status, String rejectReason, LocalDateTime rejectedAt) {
+        Assert.notNull(adminId, "관리자 Id는 필수입니다.");
+        Assert.notNull(status, "관리자 상태는 필수입니다.");
+
         this.adminId = adminId;
         this.status = status;
         this.rejectReason = rejectReason;
