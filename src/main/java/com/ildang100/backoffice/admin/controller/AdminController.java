@@ -256,7 +256,7 @@ public class AdminController {
      */
     @PutMapping("/me")
     public CommonApiResponse<AdminResponse> updateMyProfile(
-            @RequestBody @Valid AdminProfileUpdateRequest request,
+            @RequestBody @Valid AdminInfoUpdateRequest request,
             HttpSession session) {
 
         LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);

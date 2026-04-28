@@ -1,5 +1,6 @@
 package com.ildang100.backoffice.admin.entity;
 
+import com.ildang100.backoffice.admin.dto.AdminInfoUpdateRequest;
 import com.ildang100.backoffice.common.entity.BaseEntity;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
@@ -99,14 +100,11 @@ public class Admin extends BaseEntity {
      * <li>JPA의 변경 감지(Dirty Checking)를 통해 트랜잭션 종료 시점에 반영됩니다.</li>
      * </ul>
      *
-     * @param name  수정할 이름
-     * @param email 수정할 이메일
-     * @param tele  수정할 전화번호
      */
-    public void update(String name, String email, String tele) {
-        this.name = name;
-        this.email = email;
-        this.tele = tele;
+    public void update(AdminInfoUpdateRequest request) {
+        this.name = request.getName();
+        this.email = request.getEmail();
+        this.tele = request.getTele();
     }
 
     /**

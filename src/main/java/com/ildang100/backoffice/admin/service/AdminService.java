@@ -53,7 +53,6 @@ public class AdminService {
         // 1. 페이지 번호 변환 (클라이언트 1-based -> JPA 0-based)
         int pageNumber = Math.max(0, page - 1);
 
-        // 2. 정렬 조건 설정
         Sort sort = Sort.unsorted();
         if (sortBy != null && !sortBy.isEmpty()) {
             Sort.Direction direction = "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
@@ -97,22 +96,16 @@ public class AdminService {
      */
     @Transactional
     public AdminResponse updateAdmin(Long adminId, AdminInfoUpdateRequest request) {
-        // 1. 대상 조회
+
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
 
-        // 2. 이메일 중복 체크 (본인 이메일이 아닌데 이미 존재하는 경우)
         if (!admin.getEmail().equals(request.getEmail()) &&
                 adminRepository.existsByEmail(request.getEmail())) {
             throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
         }
 
-        // 3. 정보 업데이트 (Entity에 update 메서드가 있다고 가정)
-        admin.update(
-                request.getName(),
-                request.getEmail(),
-                request.getTele()
-        );
+        admin.update(request);
 
         return AdminResponse.from(admin);
     }
@@ -274,17 +267,13 @@ public class AdminService {
      * @return 수정 완료된 프로필 응답 객체
      */
     @Transactional
-    public AdminResponse updateAdminProfile(Long adminId, AdminProfileUpdateRequest request) {
+    public AdminResponse updateAdminProfile(Long adminId, AdminInfoUpdateRequest request) {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
 
         this.validateDuplicateEmail(request.getEmail());
 
-        admin.update(
-                request.getName(),
-                request.getEmail(),
-                request.getTele()
-        );
+        admin.update(request);
 
         return AdminResponse.from(admin);
     }
