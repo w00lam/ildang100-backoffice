@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS history;
 DROP TABLE IF EXISTS customers;
 DROP TABLE IF EXISTS admins;
 
@@ -15,6 +16,18 @@ CREATE TABLE admins (
                         created_at DATETIME NOT NULL,
                         approved_at DATETIME,
                         updated_at DATETIME NOT NULL
+);
+
+CREATE TABLE history (
+                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                         admin_id BIGINT NOT NULL,
+                         status VARCHAR(30) NOT NULL,
+                         reject_reason VARCHAR(100),
+                         rejected_at DATETIME,
+                         created_at DATETIME NOT NULL,
+                         updated_at DATETIME NOT NULL,
+                         CONSTRAINT fk_history_admin
+                             FOREIGN KEY (admin_id) REFERENCES admins(id)
 );
 
 CREATE TABLE customers (
