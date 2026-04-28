@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS history;
 DROP TABLE IF EXISTS customers;
 DROP TABLE IF EXISTS admins;
 
+DROP VIEW IF EXISTS dashboard_widget_view;
+
 CREATE TABLE admins (
                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
                         name VARCHAR(30) NOT NULL,
