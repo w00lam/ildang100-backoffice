@@ -7,6 +7,7 @@ import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
 import com.ildang100.backoffice.product.dto.request.ProductUpdateRequest;
 import com.ildang100.backoffice.product.dto.response.PageResponse;
+import com.ildang100.backoffice.product.dto.response.ProductDetailResponse;
 import com.ildang100.backoffice.product.dto.response.ProductResponse;
 import com.ildang100.backoffice.product.policy.ProductSortPolicy;
 import com.ildang100.backoffice.product.service.ProductService;
@@ -109,5 +110,21 @@ public class ProductController {
                 productService.search(keyword, category, status, pageable);   // ⬅ category 전달
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 목록 조회 성공", response);
+    }
+
+    /**
+     * 상품 상세 조회.
+     * 등록 관리자 이름과 이메일을 함께 반환한다.
+     */
+    @GetMapping("/{productId}")
+    public CommonApiResponse<ProductDetailResponse> getDetail(
+            @PathVariable Long productId,
+            HttpSession session
+                                                             ) {
+        SessionUtils.getLoginAdmin(session); // 인증 가드 (미인증 시 401 자동 발생)
+
+        ProductDetailResponse response = productService.getDetail(productId);
+
+        return CommonApiResponse.success(HttpStatus.OK, "상품 상세 조회 성공", response);
     }
 }

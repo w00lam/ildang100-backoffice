@@ -9,6 +9,7 @@ import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
 import com.ildang100.backoffice.product.dto.request.ProductUpdateRequest;
 import com.ildang100.backoffice.product.dto.response.PageResponse;
+import com.ildang100.backoffice.product.dto.response.ProductDetailResponse;
 import com.ildang100.backoffice.product.dto.response.ProductResponse;
 import com.ildang100.backoffice.product.entity.Product;
 import com.ildang100.backoffice.product.repository.ProductRepository;
@@ -97,6 +98,14 @@ public class ProductService {
                                                ) {
         Page<Product> products = productRepository.searchProducts(keyword, category, status, pageable);
         return PageResponse.from(products.map(ProductResponse::from));
+    }
+
+    @Transactional(readOnly = true)
+    public ProductDetailResponse getDetail(Long productId) {
+        Product product = productRepository.findDetailById(productId)
+                                           .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        return ProductDetailResponse.from(product);
     }
 
 }
