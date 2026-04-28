@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -100,14 +101,27 @@ public class AdminService {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
 
-        if (!admin.getEmail().equals(request.getEmail()) &&
-                adminRepository.existsByEmail(request.getEmail())) {
-            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
-        }
+        this.validateDuplicateEmail(request.getEmail());
 
         admin.update(request);
 
         return AdminResponse.from(admin);
+    }
+
+    /**
+     * 이메일 중복 여부 검증
+     *
+     * <p>
+     * 동일한 이메일을 가진 관리자 계정이 이미 존재하는 경우 예외를 발생시킵니다.
+     * </p>
+     *
+     * @param email 확인할 이메일
+     * @throws ServiceException 이메일이 이미 존재하는 경우
+     */
+    private void validateDuplicateEmail(String email) {
+        if (adminRepository.existsByEmail(email)) {
+            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
+        }
     }
 
     /**
@@ -157,6 +171,7 @@ public class AdminService {
 
         return AdminResponse.from(admin);
     }
+
     /**
      * 관리자 삭제 비즈니스 로직
      *
@@ -271,7 +286,7 @@ public class AdminService {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
 
-        this.validateDuplicateEmail(request.getEmail());
+        this.validateDuplicateEmailAndId(request.getEmail(), admin);
 
         admin.update(request);
 
@@ -279,17 +294,19 @@ public class AdminService {
     }
 
     /**
-     * 이메일 중복 여부 검증
+     * 이메일 중복 여부 검증(본인 제외)
      *
      * <p>
-     * 동일한 이메일을 가진 관리자 계정이 이미 존재하는 경우 예외를 발생시킵니다.
+     * 자신을 제외한 동일한 이메일을 가진 관리자 계정이 이미 존재하는 경우 예외를 발생시킵니다.
      * </p>
      *
-     * @param email 확인할 이메일
+     * @param newEmail 확인할 새로운 이메일
+     * @param admin 이메일 바꿀 관리자
      * @throws ServiceException 이메일이 이미 존재하는 경우
      */
-    private void validateDuplicateEmail(String email) {
-        if (adminRepository.existsByEmail(email)) {
+    private void validateDuplicateEmailAndId(String newEmail, Admin admin) {
+        if (StringUtils.hasText(newEmail) && !newEmail.equals(admin.getEmail())
+                && adminRepository.existsByEmailAndIdNot(newEmail, admin.getId())) {
             throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
         }
     }
