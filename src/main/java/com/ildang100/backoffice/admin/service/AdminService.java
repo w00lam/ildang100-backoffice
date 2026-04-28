@@ -229,33 +229,28 @@ public class AdminService {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
 
-        if (admin.getStatus() != AdminStatus.PENDING_APPROVAL) {
-            throw new ServiceException(ErrorCode.ALREADY_PROCESSED_ADMIN);
-        }
-
-        if (!request.getIsApproved() && (request.getRejectReason() == null || request.getRejectReason().isBlank())) {
-            throw new ServiceException(ErrorCode.REJECT_REASON_REQUIRED);
-        }
-
         LocalDateTime now = LocalDateTime.now();
-        AdminStatus targetStatus = request.getIsApproved() ? AdminStatus.ACTIVE : AdminStatus.REJECTED;
 
         if (request.getIsApproved()) {
             admin.approve(now);
         } else {
+            validateRejectReason(request.getRejectReason());
             admin.reject();
+
+            AdminApprovalHistory history = AdminApprovalHistory.createRejection(adminId, request.getRejectReason(), now);
+            approvalHistoryRepository.save(history);
         }
 
-        AdminApprovalHistory history = AdminApprovalHistory.builder()
-                .adminId(adminId)
-                .status(targetStatus)
-                .rejectReason(request.getRejectReason())
-                .rejectedAt(request.getIsApproved() ? null : now) // 거절일 때만 rejectedAt 설정
-                .build();
-
-        approvalHistoryRepository.save(history);
-
         return AdminApprovalResponse.from(admin, request.getRejectReason(), now);
+    }
+
+    /**
+     * 거절 사유 필수값 검증
+     */
+    private void validateRejectReason(String reason) {
+        if (reason == null || reason.isBlank()) {
+            throw new ServiceException(ErrorCode.REJECT_REASON_REQUIRED);
+        }
     }
 
     /**

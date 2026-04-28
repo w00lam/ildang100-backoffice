@@ -4,6 +4,8 @@ import com.ildang100.backoffice.admin.dto.AdminInfoUpdateRequest;
 import com.ildang100.backoffice.common.entity.BaseEntity;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
+import com.ildang100.backoffice.common.exception.ErrorCode;
+import com.ildang100.backoffice.common.exception.ServiceException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -139,19 +141,31 @@ public class Admin extends BaseEntity {
     public void updateStatus(AdminStatus status) {
         this.status = status;
     }
+
     /**
-     * 승인 시 호출: 상태를 ACTIVE로 변경하고 승인일 기록
+     * 관리자 승인 처리
+     * @param approvedAt 승인 일시
      */
     public void approve(LocalDateTime approvedAt) {
+        validatePendingStatus();
         this.status = AdminStatus.ACTIVE;
         this.approvedAt = approvedAt;
     }
 
     /**
-     * 거절 시 호출: 상태를 REJECTED로 변경 (승인일은 null 유지 혹은 처리일 기록)
+     * 관리자 거절 처리
      */
     public void reject() {
+        validatePendingStatus();
         this.status = AdminStatus.REJECTED;
-        // 필요 시 별도의 필드나 approvedAt에 처리 시점을 남길 수 있습니다.
+    }
+
+    /**
+     * 상태 변경 가능 여부 검증 (내부 캡슐화)
+     */
+    private void validatePendingStatus() {
+        if (this.status != AdminStatus.PENDING_APPROVAL) {
+            throw new ServiceException(ErrorCode.ALREADY_PROCESSED_ADMIN);
+        }
     }
 }
