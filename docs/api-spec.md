@@ -6,7 +6,7 @@
 
 - 관리자 역할(`AdminRole`)
     - `SUPER_ADMIN`
-    - `OPERATION_ADMIN`
+    - `OPERATIONS_ADMIN`
     - `CS_ADMIN`
 - 관리자 상태(`AdminStatus`)
     - `ACTIVE`
@@ -394,11 +394,30 @@
 
 ### 주문 관리 API 명세서
 
+이번 프로젝트의 주문 구조는 아래와 같이 단순화합니다.
+
+- 1개의 주문은 1개의 상품 종류만 포함합니다.
+- 같은 상품의 여러 개 주문은 `quantity` 필드로 관리합니다.
+- 서로 다른 상품을 함께 주문하려면 주문을 별도로 생성합니다.
+- CS 대리 주문은 주문 소유자인 고객과 별도로 주문을 등록한 관리자 정보를 저장합니다.
+- 고객 직접 주문인 경우 관리자 정보(`adminId`, `adminName`, `adminEmail`, `adminRole`)는 `null`일 수 있습니다.
+
 #### 주문 생성
 
 ### 기능
 
-고객과 상품을 지정해 주문을 생성합니다.
+로그인한 관리자가 고객과 상품을 지정해 CS 주문을 생성합니다.
+
+서버 처리 사항:
+
+- 주문일(`createdAt`) 자동 생성
+- 주문번호(`orderNumber`) 자동 생성
+- 초기 상태를 `PREPARING`으로 설정
+- 주문 당시 상품 가격을 `unitPrice`로 저장
+- 주문 총 금액(`totalPrice`) 계산: `unitPrice * quantity`
+- 주문 수량만큼 상품 재고 검증 및 차감
+- 재고 변경에 따른 상품 상태 자동 전환
+- 주문 등록 관리자 정보 저장
 
 ### Method / URL
 
@@ -432,10 +451,14 @@
   "message": "주문 생성 성공",
   "data": {
     "id": 5001,
+    "orderNumber": 202604270001,
     "customerId": 101,
     "productId": 1001,
     "quantity": 2,
+    "unitPrice": 35000,
+    "totalPrice": 70000,
     "status": "PREPARING",
+    "adminName": "운영관리자",
     "createdAt": "2026-04-23T16:40:00",
     "updatedAt": "2026-04-23T16:40:00"
   }
@@ -451,13 +474,13 @@
 - `400 Bad Request: 요청값 검증 실패`
 - `401 Unauthorized: 로그인 필요`
 - `404 Not Found: 고객 또는 상품 없음`
-- `409 Conflict: 재고 부족`
+- `409 Conflict: 상품이 품절/단종 상태이거나 재고 부족`
 
 #### 주문 리스트 조회
 
 ### 기능
 
-주문 목록을 조회합니다.
+주문 목록을 조회합니다. 검색 키워드는 주문번호와 고객명을 대상으로 합니다.
 
 ### Method / URL
 
@@ -469,12 +492,12 @@
 
 ### Query Parameter
 
-- `keyword` (문자열, 선택): 검색 키워드 (orderId, customerName)
-- `page`: 선택, 0부터 시작
-- `size`: 선택, 페이지 크기
-- `sortBy` (문자열, 선택): 정렬 기준 (quantity, totalAmount, orderDate)
-- `sortOrder` (문자열, 선택): 정렬 순서 (asc, desc)
-- `status`: 선택, `OrderStatus`(`PREPERING`, `SHIPPING`, `DELIVERED`, `CANCELLED`)
+- `keyword` (문자열, 선택): 검색 키워드 (`orderNumber`, `customerName`)
+- `page` (정수, 선택): 페이지 번호, 기본값 `1`
+- `size` (정수, 선택): 페이지당 개수, 기본값 `10`
+- `sortBy` (문자열, 선택): 정렬 기준 (`quantity`, `totalPrice`, `createdAt`)
+- `sortOrder` (문자열, 선택): 정렬 순서 (`asc`, `desc`)
+- `status` (문자열, 선택): `OrderStatus`(`PREPARING`, `SHIPPING`, `DELIVERED`, `CANCELLED`)
 
 ### Request Body
 
@@ -482,9 +505,11 @@
 
 ### 요청 조건
 
-- `page`: 선택, 0 이상
+- `page`: 선택, 1 이상
 - `size`: 선택, 1 이상
-- `status`: 선택, `OrderStatus`(`PREPERING`, `SHIPPING`, `DELIVERED`, `CANCELLED`)
+- `sortBy`: 선택, `quantity`, `totalPrice`, `createdAt` 중 하나
+- `sortOrder`: 선택, `asc`, `desc` 중 하나
+- `status`: 선택, `OrderStatus`(`PREPARING`, `SHIPPING`, `DELIVERED`, `CANCELLED`)
 
 ### Response Body
 
@@ -496,18 +521,17 @@
     "content": [
       {
         "id": 5001,
-        "orderNumber": 1,
+        "orderNumber": 202604270001,
         "customerName": "김고객",
         "productName": "무선 마우스",
         "quantity": 2,
-        "totalAmount": 1000000,
-        "status": "PREPARING",
-        "adminName": "운영관리자",
+        "totalPrice": 70000,
         "createdAt": "2026-04-23T16:40:00",
-        "updatedAt": "2026-04-23T16:40:00"
+        "status": "PREPARING",
+        "adminName": "운영관리자"
       }
     ],
-    "page": 0,
+    "page": 1,
     "size": 10,
     "totalElements": 1,
     "totalPages": 1
@@ -557,25 +581,25 @@
   "message": "주문 상세 조회 성공",
   "data": {
     "id": 5001,
-    "customerId": 101,
-    "productId": 1001,
+    "orderNumber": 202604270001,
+    "customerName": "김고객",
+    "customerEmail": "customer@example.com",
+    "productName": "무선 마우스",
     "quantity": 2,
-    "totalAmount": 1000000,
-    "status": "PREPARING",
+    "unitPrice": 35000,
+    "totalPrice": 70000,
     "createdAt": "2026-04-23T16:40:00",
+    "status": "PREPARING",
+    "adminName": "운영관리자",
+    "adminEmail": "operation@example.com",
+    "adminRole": "OPERATIONS_ADMIN",
+    "cancelReason": null,
     "updatedAt": "2026-04-23T16:40:00"
   }
 }
 ```
 
-- **Response (성공 시 - 200 OK):**
-
-**- 주문 상세 정보
-반환: `orderNo`, `customerName`, `customerEmail`, `productName`, `quantity`, `totalAmount`, `orderDate`, `status`**
-
-**- **CS 주문인 경우:** `adminName`, `adminEmail`, `adminRole` 포함 (고객 직접 주문이면 해당 필드는 null 처리)**
-
-- **Response (실패 시 - 404 Not Found):** 존재하지 않는 ID 요청 시 에러 반환
+고객 직접 주문인 경우 `adminName`, `adminEmail`, `adminRole`은 `null`로 응답합니다.
 
 ### 상태 코드
 
@@ -608,14 +632,16 @@
 
 ```json
 {
-  "status": "DELIVERED"
+  "status": "SHIPPING"
 }
 ```
 
 ### 요청 조건
 
 - `orderId`: 필수, 양의 정수
-- `status`: 필수, 문자열, 최대 20자, `OrderStatus(PREPERING, SHIPPING, DELIVERED, CANCELLED)`
+- `status`: 필수, 문자열, `OrderStatus` 중 변경할 상태
+- 허용 상태 변경 순서: `PREPARING` → `SHIPPING` → `DELIVERED`
+- `CANCELLED` 변경은 주문 취소 API를 사용합니다.
 
 ### Response Body
 
@@ -625,7 +651,7 @@
   "message": "주문 상태 수정 완료",
   "data": {
     "id": 5001,
-    "status": "DELIVERED",
+    "status": "SHIPPING",
     "updatedAt": "2026-04-23T17:00:00"
   }
 }
@@ -648,9 +674,18 @@
 
 특정 주문을 취소합니다.
 
+주문 취소 처리 사항:
+
+- 취소 사유(`cancelReason`) 필수 입력
+- `PREPARING` 상태 주문만 취소 가능
+- 주문 상태를 `CANCELLED`로 변경
+- 주문 수량만큼 상품 재고 복구
+- 재고 변경에 따른 상품 상태 자동 전환
+- 단, 상품이 `DISCONTINUED` 상태인 경우 재고만 복구하고 상품 상태는 `DISCONTINUED` 유지
+
 ### Method / URL
 
-`PATCH /orders/{orderId}/cancel`
+`PATCH /admin/orders/{orderId}/cancel`
 
 ### 인증
 
@@ -662,11 +697,16 @@
 
 ### Request Body
 
-없음
+```json
+{
+  "cancelReason": "고객 변심"
+}
+```
 
 ### 요청 조건
 
 - `orderId`: 필수, 양의 정수
+- `cancelReason`: 필수, 공백 불가, 최대 255자
 
 ### Response Body
 
@@ -676,7 +716,8 @@
   "message": "주문 취소 성공",
   "data": {
     "id": 5001,
-    "status": "CANCELED",
+    "status": "CANCELLED",
+    "cancelReason": "고객 변심",
     "updatedAt": "2026-04-23T17:10:00"
   }
 }
@@ -688,6 +729,7 @@
 
 ### 예외
 
+- `400 Bad Request: 취소 사유 누락 또는 요청값 검증 실패`
 - `401 Unauthorized: 로그인 필요`
 - `404 Not Found: 주문 없음`
 - `409 Conflict: 이미 취소되었거나 취소 불가 상태`
@@ -715,7 +757,7 @@
 - `size`: 선택, 페이지 크기
 - `sortBy` (문자열, 선택): 정렬 기준 (adminName, adminEmail, createdAt)
 - `sortOrder` (문자열, 선택): 정렬 순서 (asc, desc)
-- `role`: 선택, `AdminRole`(`SUPER_ADMIN`, `OPERATION_ADMIN`, `CS_ADMIN`)
+- `role`: 선택, `AdminRole`(`SUPER_ADMIN`, `OPERATIONS_ADMIN`, `CS_ADMIN`)
 - `status`: 선택, `AdminStatus`(`ACTIVE`, `INACTIVE`, `SUSPENDED`, `PENDING_APPROVAL`, `REJECTED`)
 
 ### Request Body
@@ -726,7 +768,7 @@
 
 - `page`: 선택, 0 이상
 - `size`: 선택, 1 이상
-- `role`: 선택, `AdminRole`(`SUPER_ADMIN`, `OPERATION_ADMIN`, `CS_ADMIN`)
+- `role`: 선택, `AdminRole`(`SUPER_ADMIN`, `OPERATIONS_ADMIN`, `CS_ADMIN`)
 - `status`: 선택, `AdminStatus`(`ACTIVE`, `INACTIVE`, `SUSPENDED`, `PENDING_APPROVAL`, `REJECTED`)
 
 ### Response Body
@@ -742,7 +784,7 @@
         "name": "운영관리자",
         "email": "ops@example.com",
         "tele": "010-2222-3333",
-        "role": "OPERATION_ADMIN",
+        "role": "OPERATIONS_ADMIN",
         "status": "ACTIVE",
         "createdAt": "2026-04-21T10:00:00",
         "approvedAt": "2026-04-21T10:30:00",
@@ -803,7 +845,7 @@
     "name": "운영관리자",
     "email": "ops@example.com",
     "tele": "010-2222-3333",
-    "role": "OPERATION_ADMIN",
+    "role": "OPERATIONS_ADMIN",
     "status": "ACTIVE",
     "createdAt": "2026-04-21T10:00:00",
     "approvedAt": "2026-04-21T10:30:00",
@@ -868,7 +910,7 @@
     "name": "운영관리자",
     "email": "ops@example.com",
     "tele": "010-9999-8888",
-    "role": "OPERATION_ADMIN",
+    "role": "OPERATIONS_ADMIN",
     "status": "ACTIVE",
     "createdAt": "2026-04-21T10:00:00",
     "approvedAt": "2026-04-21T10:30:00",
