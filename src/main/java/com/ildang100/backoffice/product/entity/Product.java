@@ -173,4 +173,37 @@ public class Product extends BaseEntity {
         }
         return (stock <= 0) ? ProductStatus.OUT_OF_STOCK : ProductStatus.ON_SALE;
     }
+
+    /**
+     * 상품 재고를 차감합니다.
+     *
+     * <p>판매 중단 상품, 품절 상품, 재고보다 많은 수량 요청은 예외로 처리합니다.
+     * 차감 후 재고가 0이 되면 상품 상태를 {@code OUT_OF_STOCK}으로 변경합니다.</p>
+     *
+     * @param quantity 차감할 재고 수량
+     * @throws ServiceException 수량이 유효하지 않거나 재고 차감이 불가능한 경우
+     */
+    public void decreaseStock(Integer quantity) {
+        if (quantity < 1) {
+            throw new ServiceException(ErrorCode.INVALID_QUANTITY);
+        }
+
+        if (this.status == ProductStatus.DISCONTINUED) {
+            throw new ServiceException(ErrorCode.INVALID_PRODUCT_STATUS);
+        }
+
+        if (this.status == ProductStatus.OUT_OF_STOCK) {
+            throw new ServiceException(ErrorCode.INSUFFICIENT_STOCK);
+        }
+
+        if (this.stock < quantity) {
+            throw new ServiceException(ErrorCode.INSUFFICIENT_STOCK);
+        }
+
+        this.stock -= quantity;
+
+        if (this.stock == 0) {
+            this.status = ProductStatus.OUT_OF_STOCK;
+        }
+    }
 }
