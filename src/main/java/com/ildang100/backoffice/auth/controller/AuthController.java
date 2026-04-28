@@ -38,7 +38,6 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/admins/signup")
-    @ResponseStatus(HttpStatus.CREATED)
     public CommonApiResponse<Void> signup(@RequestBody @Valid AdminSignUpRequest request) {
         authService.signUp(request);
 
