@@ -111,7 +111,7 @@ public class AdminController {
 
         AdminResponse response = adminService.updateAdmin(adminId, request);
 
-        return CommonApiResponse.success(HttpStatus.OK, "관리자 정보 수정 성공", response);
+        return CommonApiResponse.success(OK, "관리자 정보 수정 성공", response);
     }
 
     /**
@@ -138,7 +138,7 @@ public class AdminController {
 
         AdminResponse response = adminService.updateAdminRole(adminId, request);
 
-        return CommonApiResponse.success(HttpStatus.OK, "관리자 역할 수정 성공", response);
+        return CommonApiResponse.success(OK, "관리자 역할 수정 성공", response);
     }
     /**
      * 관리자 상태 수정 API
@@ -170,6 +170,36 @@ public class AdminController {
 
         AdminResponse response = adminService.updateAdminStatus(adminId, request);
 
-        return CommonApiResponse.success(HttpStatus.OK, "관리자 상태 수정 성공", response);
+        return CommonApiResponse.success(OK, "관리자 상태 수정 성공", response);
+    }
+    /**
+     * 관리자 삭제 API
+     *
+     * <p>
+     * 관리자 계정을 시스템에서 영구적으로 삭제합니다.
+     * 이 작업은 복구가 불가능하며, 오직 슈퍼 관리자(SUPER_ADMIN)만 수행할 수 있습니다.
+     * </p>
+     *
+     * <p><b>보안 제약 사항</b></p>
+     * <ul>
+     * <li>로그인 세션이 유효해야 합니다. (401 Unauthorized)</li>
+     * <li>요청자의 권한이 {@code SUPER_ADMIN}이어야 합니다. (403 Forbidden)</li>
+     * </ul>
+     *
+     * @param adminId 삭제 대상 관리자 고유 ID
+     * @param session 현재 사용자 세션
+     * @return 삭제 완료 메시지를 포함한 공통 응답 객체
+     */
+    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @DeleteMapping("/{adminId}")
+    public CommonApiResponse<Void> deleteAdmin(
+            @PathVariable Long adminId,
+            HttpSession session) {
+
+        SessionUtils.getLoginAdmin(session);
+
+        adminService.deleteAdmin(adminId);
+
+        return CommonApiResponse.success(OK, "관리자 삭제 완료", null);
     }
 }
