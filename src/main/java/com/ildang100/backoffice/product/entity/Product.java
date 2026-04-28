@@ -19,24 +19,8 @@ import lombok.NoArgsConstructor;
  * JPA를 통해 DB의 products 테이블과 매핑됩니다.
  * </p>
  *
- * <p><b>설계 원칙</b></p>
- * <ul>
- *     <li>생성은 팩토리 메서드({@link #create})를 통해서만 가능합니다.</li>
- *     <li>등록 관리자(admin)는 생성 시점에 결정되며 이후 변경되지 않습니다.</li>
- *     <li>비즈니스 예외는 모두 {@link ServiceException} 형태로 발생시킵니다.</li>
- * </ul>
- *
- * <p><b>생성 시 status 결정 규칙</b></p>
- * <ul>
- *     <li>요청 상태가 {@link ProductStatus#DISCONTINUED} → 그대로 DISCONTINUED 등록
- *         (운영자의 명시적 단종 등록 허용)</li>
- *     <li>그 외 → stock 기반 자동 결정
- *         (stock {@literal <=} 0 → OUT_OF_STOCK, stock {@literal >=} 1 → ON_SALE)</li>
- * </ul>
- *
  * <p>
  * 본 규칙으로 "stock=0 + status=ON_SALE" 같은 정합성 위반 등록을 원천 차단합니다.
- * 정보 수정은 후속 PR에서 {@code updateInfo} 메서드로,
  * 재고 변경에 따른 상태 자동 전이는 Story P-4에서 {@code changeStock} 메서드로 추가됩니다.
  * </p>
  *
@@ -56,14 +40,14 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id", nullable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "admin_id", nullable = false)
     private Admin admin;
 
-    @Column(length = 30, nullable = false)
+    @Column(nullable = false, length = 30)
     private String name;
 
-    @Column(length = 30, nullable = false)
+    @Column(nullable = false, length = 30)
     private String category;
 
     @Column(nullable = false)
@@ -73,7 +57,7 @@ public class Product extends BaseEntity {
     private int stock;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
+    @Column(nullable = false, length = 20)
     private ProductStatus status;
 
     private Product(Admin admin, String name, String category, int price, int stock, ProductStatus status) {
@@ -86,26 +70,10 @@ public class Product extends BaseEntity {
     }
 
     /**
-     * 상품 엔티티 생성 팩토리 메서드입니다.
-     *
-     * <p>
-     * 입력값 검증 후 "생성 시 status 결정 규칙"에 따라 status를 자동으로 결정합니다.
-     * name과 category는 trim 처리 후 저장되어 좌우 공백을 제거합니다.
-     * validation 자체는 도메인 서비스 전용 validation입니다.
-     * </p>
-     *
-     * @param admin           등록 관리자 (필수, 생성 후 변경 불가)
-     * @param name            상품명 (1~30자, 공백만 허용 안 됨)
-     * @param category        카테고리 (1~30자, 공백만 허용 안 됨)
-     * @param price           판매 가격 (0 이상 정수)
-     * @param stock           재고 수량 (0 이상 정수)
-     * @param requestedStatus 요청된 판매 상태
-     *                        (DISCONTINUED 외에는 stock 기반 자동 결정에 의해 무시됨)
-     * @return 생성된 Product 엔티티
-     * @throws ServiceException 입력값 검증 실패 시
-     *                          ({@link ErrorCode#VALIDATION_FAILED},
-     *                          {@link ErrorCode#INVALID_STOCK_VALUE},
-     *                          {@link ErrorCode#INVALID_PRODUCT_STATUS})
+     * 상품 생성 팩토리.
+     * 생성 시 status는 stock과 requestedStatus 조합으로 자동 결정된다.
+     * - requestedStatus == DISCONTINUED → DISCONTINUED 유지
+     * - 그 외: stock <= 0 → OUT_OF_STOCK, stock >= 1 → ON_SALE
      */
     public static Product create(
             Admin admin,
@@ -116,16 +84,42 @@ public class Product extends BaseEntity {
             ProductStatus requestedStatus
                                 ) {
         validateAdmin(admin);
-        validateName(name);
-        validateCategory(category);
+        String trimmedName = validateAndTrimName(name);
+        String trimmedCategory = validateAndTrimCategory(category);
         validatePrice(price);
         validateStock(stock);
         validateRequestedStatus(requestedStatus);
 
-        ProductStatus resolvedStatus = resolveStatusOnCreate(stock, requestedStatus);
+        ProductStatus resolvedStatus = resolveCreationStatus(stock, requestedStatus);
 
-        return new Product(admin, name.trim(), category.trim(), price, stock, resolvedStatus);
+        return new Product(admin, trimmedName, trimmedCategory, price, stock, resolvedStatus);
     }
+
+    /**
+     * 상품 기본 정보 부분 수정. - update
+     * null로 전달된 필드는 기존 값 유지 (부분 수정 의미론).
+     * 모든 필드가 null이면 early return — 불필요한 dirty checking 회피 + 멱등성 보장.
+     * stock과 status는 변경하지 않는다 (분리된 채널).
+     */
+    public void updateInfo(String name, String category, Integer price) {
+        // 모든 필드가 null이면 변경 없이 종료 (API 명세서: 멱등성 보장)
+        if (name == null && category == null && price == null) {
+            return;
+        }
+
+        if (name != null) {
+            this.name = validateAndTrimName(name);
+        }
+        if (category != null) {
+            this.category = validateAndTrimCategory(category);
+        }
+        if (price != null) {
+            validatePrice(price);
+            this.price = price;
+        }
+    }
+
+    // ---- 검증 헬퍼  ----
 
     private static void validateAdmin(Admin admin) {
         if (admin == null) {
@@ -133,22 +127,26 @@ public class Product extends BaseEntity {
         }
     }
 
-    private static void validateName(String name) {
+    private static String validateAndTrimName(String name) {
         if (name == null || name.isBlank()) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
         }
-        if (name.trim().length() > NAME_MAX_LENGTH) {
+        String trimmed = name.trim();
+        if (trimmed.length() > NAME_MAX_LENGTH) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
         }
+        return trimmed;
     }
 
-    private static void validateCategory(String category) {
+    private static String validateAndTrimCategory(String category) {
         if (category == null || category.isBlank()) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
         }
-        if (category.trim().length() > CATEGORY_MAX_LENGTH) {
+        String trimmed = category.trim();
+        if (trimmed.length() > CATEGORY_MAX_LENGTH) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
         }
+        return trimmed;
     }
 
     private static void validatePrice(int price) {
@@ -169,10 +167,10 @@ public class Product extends BaseEntity {
         }
     }
 
-    private static ProductStatus resolveStatusOnCreate(int stock, ProductStatus requestedStatus) {
+    private static ProductStatus resolveCreationStatus(int stock, ProductStatus requestedStatus) {
         if (requestedStatus == ProductStatus.DISCONTINUED) {
             return ProductStatus.DISCONTINUED;
         }
-        return stock <= 0 ? ProductStatus.OUT_OF_STOCK : ProductStatus.ON_SALE;
+        return (stock <= 0) ? ProductStatus.OUT_OF_STOCK : ProductStatus.ON_SALE;
     }
 }

@@ -17,11 +17,11 @@ public class AdminResponse {
     private final AdminRole role;
     private final AdminStatus status;
     private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
     private final LocalDateTime approvedAt;
+    private final LocalDateTime updatedAt;
 
     private AdminResponse(Long id, String name, String email, String tele, AdminRole role,
-                          AdminStatus status, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime approvedAt) {
+                          AdminStatus status, LocalDateTime createdAt, LocalDateTime approvedAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -29,8 +29,8 @@ public class AdminResponse {
         this.role = role;
         this.status = status;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
         this.approvedAt = approvedAt;
+        this.updatedAt = updatedAt;
     }
 
     // Entity -> DTO 변환을 DTO 내부에서 처리
@@ -43,8 +43,8 @@ public class AdminResponse {
                 admin.getRole(),
                 admin.getStatus(),
                 admin.getCreatedAt(),
-                admin.getUpdatedAt(),
-                admin.getApprovedAt()
+                admin.getApprovedAt(),
+                admin.getUpdatedAt()
         );
     }
 }

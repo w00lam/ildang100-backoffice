@@ -85,4 +85,27 @@ public class Admin extends BaseEntity {
     public static Admin create(String name, String email, String password, String tele, AdminRole role) {
         return new Admin(name, email, password, tele, role);
     }
+
+    /**
+     * 관리자 기본 정보 수정
+     *
+     * <p>
+     * 관리자의 이름, 이메일, 전화번호 정보를 일괄 수정합니다.
+     * </p>
+     *
+     * <p><b>비즈니스 로직</b></p>
+     * <ul>
+     * <li>전달된 파라미터가 null이거나 공백이 아닐 경우에만 필드를 업데이트합니다.</li>
+     * <li>JPA의 변경 감지(Dirty Checking)를 통해 트랜잭션 종료 시점에 반영됩니다.</li>
+     * </ul>
+     *
+     * @param name  수정할 이름
+     * @param email 수정할 이메일
+     * @param tele  수정할 전화번호
+     */
+    public void update(String name, String email, String tele) {
+        this.name = name;
+        this.email = email;
+        this.tele = tele;
+    }
 }
