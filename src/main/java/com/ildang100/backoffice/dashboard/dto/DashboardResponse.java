@@ -22,8 +22,7 @@ public class DashboardResponse {
         this.summary = summary;
     }
 
-    public static DashboardResponse of(SummaryResponse summary
-    ) {
+    public static DashboardResponse of(SummaryResponse summary) {
         return new DashboardResponse(summary);
     }
 }
