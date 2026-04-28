@@ -193,6 +193,22 @@ public enum ErrorCode {
             "CANNOT_DELETE_REJECTED_ADMIN",
             "거절된 계정은 보안 기록 유지를 위해 즉시 삭제할 수 없습니다."
     ),
+    /**
+     * 이미 승인 또는 거절 처리가 완료된 관리자에게 재요청 시 (409 Conflict)
+     */
+    ALREADY_PROCESSED_ADMIN(
+            HttpStatus.CONFLICT,
+            "ALREADY_PROCESSED_ADMIN",
+            "이미 승인 또는 거절 처리가 완료된 관리자입니다."
+    ),
+    /**
+     * 가입 거절 처리 시 거절 사유가 누락된 경우 (400 Bad Request)
+     */
+    REJECT_REASON_REQUIRED(
+            HttpStatus.BAD_REQUEST,
+            "REJECT_REASON_REQUIRED",
+            "거절 사유는 필수입니다."
+    ),
     CUSTOMER_DELETE_NOT_ALLOWED(
             HttpStatus.CONFLICT,
             "CUSTOMER_DELETE_NOT_ALLOWED",
