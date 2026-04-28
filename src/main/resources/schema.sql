@@ -43,7 +43,7 @@ CREATE TABLE products (
 
 CREATE TABLE orders (
                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                        admin_id BIGINT NOT NULL,
+                        admin_id BIGINT,
                         customer_id BIGINT NOT NULL,
                         product_id BIGINT NOT NULL,
                         quantity INT NOT NULL,
@@ -53,6 +53,9 @@ CREATE TABLE orders (
                         order_number BIGINT NOT NULL,
                         unit_price INT NOT NULL,
                         total_price INT NOT NULL,
+                        cancel_reason VARCHAR(255),
+                        CONSTRAINT uk_orders_order_number
+                            UNIQUE (order_number),
                         CONSTRAINT fk_orders_admin
                             FOREIGN KEY (admin_id) REFERENCES admins(id),
                         CONSTRAINT fk_orders_customer
