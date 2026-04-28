@@ -2,6 +2,7 @@ package com.ildang100.backoffice.admin.controller;
 
 import com.ildang100.backoffice.admin.dto.*;
 import com.ildang100.backoffice.admin.service.AdminService;
+import com.ildang100.backoffice.auth.dto.LoginAdminDto;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
@@ -225,5 +226,24 @@ public class AdminController {
 
         String message = request.getIsApproved() ? "관리자 승인 완료" : "관리자 거부 완료";
         return CommonApiResponse.success(OK, message, response);
+    }
+    /**
+     * 내 프로필 조회 API
+     *
+     * <p>현재 세션에 로그인되어 있는 관리자 자신의 상세 정보를 조회합니다.</p>
+     *
+     * @param session 현재 사용자 세션
+     * @return 프로필 정보 데이터가 포함된 성공 응답
+     */
+    @GetMapping("/me")
+    public CommonApiResponse<AdminResponse> getMyProfile(HttpSession session) {
+        // 1. 세션에서 현재 로그인한 관리자 정보 가져오기 (비로그인 시 401 처리됨)
+        LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);
+
+        // 2. 서비스 호출하여 최신 DB 데이터 조회
+        AdminResponse response = adminService.getAdminProfile(loginAdmin.getId());
+
+        // 3. 성공 응답 반환
+        return CommonApiResponse.success(OK, "관리자 프로필 조회 성공", response);
     }
 }
