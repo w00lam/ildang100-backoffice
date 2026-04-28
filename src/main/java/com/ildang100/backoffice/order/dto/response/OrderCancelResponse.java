@@ -7,34 +7,39 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 /**
- * 주문 상태 수정 응답 DTO입니다.
+ * 주문 취소 응답 DTO입니다.
  */
 @Getter
-public class OrderStatusUpdateResponse {
+public class OrderCancelResponse {
+
     private final Long id;
     private final OrderStatus status;
+    private final String cancelReason;
     private final LocalDateTime updatedAt;
 
-    private OrderStatusUpdateResponse(
+    private OrderCancelResponse(
             Long id,
             OrderStatus status,
+            String cancelReason,
             LocalDateTime updatedAt
     ) {
         this.id = id;
         this.status = status;
+        this.cancelReason = cancelReason;
         this.updatedAt = updatedAt;
     }
 
     /**
-     * 주문 엔티티를 주문 상태 수정 응답 DTO로 변환합니다.
+     * 주문 엔티티를 주문 취소 응답 DTO로 변환합니다.
      *
      * @param order 주문 엔티티
-     * @return 주문 상태 수정 응답 DTO
+     * @return 주문 취소 응답 DTO
      */
-    public static OrderStatusUpdateResponse from(Order order) {
-        return new OrderStatusUpdateResponse(
+    public static OrderCancelResponse from(Order order) {
+        return new OrderCancelResponse(
                 order.getId(),
                 order.getStatus(),
+                order.getCancelReason(),
                 order.getUpdatedAt()
         );
     }

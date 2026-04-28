@@ -7,12 +7,10 @@ import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.entity.Customer;
 import com.ildang100.backoffice.customer.repository.CustomerRepository;
+import com.ildang100.backoffice.order.dto.request.OrderCancelRequest;
 import com.ildang100.backoffice.order.dto.request.OrderCreateRequest;
 import com.ildang100.backoffice.order.dto.request.OrderStatusUpdateRequest;
-import com.ildang100.backoffice.order.dto.response.OrderCreateResponse;
-import com.ildang100.backoffice.order.dto.response.OrderDetailResponse;
-import com.ildang100.backoffice.order.dto.response.OrderListResponse;
-import com.ildang100.backoffice.order.dto.response.OrderStatusUpdateResponse;
+import com.ildang100.backoffice.order.dto.response.*;
 import com.ildang100.backoffice.order.entity.Order;
 import com.ildang100.backoffice.order.repository.OrderRepository;
 import com.ildang100.backoffice.product.entity.Product;
@@ -132,6 +130,14 @@ public class OrderService {
         return OrderDetailResponse.from(order);
     }
 
+    /**
+     * 주문 상태를 수정합니다.
+     *
+     * @param orderId 상태를 수정할 주문 ID
+     * @param request 변경할 주문 상태 정보
+     * @return 변경된 주문 상태 응답 DTO
+     * @throws ServiceException 주문 ID가 유효하지 않거나, 주문을 찾을 수 없거나, 허용되지 않은 상태 전이인 경우
+     */
     @Transactional
     public OrderStatusUpdateResponse updateOrderStatus(
             Long orderId,
@@ -145,6 +151,30 @@ public class OrderService {
         order.updateStatus(request.getStatus());
 
         return OrderStatusUpdateResponse.from(order);
+    }
+
+    /**
+     * 주문을 취소하고 상품 재고를 복구합니다.
+     *
+     * @param orderId 취소할 주문 ID
+     * @param request 주문 취소 사유 정보
+     * @return 취소된 주문 응답 DTO
+     * @throws ServiceException 주문 ID가 유효하지 않거나, 주문을 찾을 수 없거나, 취소할 수 없는 주문인 경우
+     */
+    @Transactional
+    public OrderCancelResponse cancelOrder(
+            Long orderId,
+            OrderCancelRequest request
+    ) {
+        validateOrderId(orderId);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.cancel(request.getCancelReason());
+        order.getProduct().restoreStock(order.getQuantity());
+
+        return OrderCancelResponse.from(order);
     }
 
     private Long generateOrderNumber() {
@@ -204,7 +234,6 @@ public class OrderService {
     private void validateOrderId(Long orderId) {
         if (orderId == null || orderId <= 0) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
-
         }
     }
 }

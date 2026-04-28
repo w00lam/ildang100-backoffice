@@ -4,6 +4,9 @@ import com.ildang100.backoffice.common.enums.OrderStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+/**
+ * 주문 상태 수정 요청 DTO입니다.
+ */
 @Getter
 public class OrderStatusUpdateRequest {
 
