@@ -65,20 +65,24 @@ public class ProductService {
     }
 
     /**
-     * 상품 삭제 (물리 삭제, P-1 ~ P-2 단계).
+     * 상품 삭제 (소프트 삭제 수정, P-6).
      *
      * <p>존재하지 않는 ID에 대해 404 응답을 보장하기 위해 {@code findById} 후
-     * {@code delete(entity)}로 처리한다. {@code deleteById(id)}는 존재하지 않는
-     * ID를 전달해도 조용히 종료되는 경우가 있어 {@code PRODUCT_NOT_FOUND} 예외가
-     * 일관되게 던져지지 않는다.
+     * Aggregate의 {@code markAsDeleted()}를 호출하여 {@code deletionStatus}만
+     * {@code DELETED}로 전이시킨다. 데이터는 물리적으로 삭제되지 않으며,
+     * 상품의 {@code status}(판매 상태)는 보존된다.
      *
-     * <p>참조 무결성 검증(주문/리뷰 연결)은 Story P-6에서 추가 예정.
+     * <p>이미 {@code DELETED} 상태인 상품에 대해 재호출 시 Aggregate에서
+     * {@code PRODUCT_ALREADY_DELETED}(409)를 던진다.
+     *
+     * <p>본 epic 범위에서는 참조 무결성 검증을 별도로 수행하지 않는다 — soft delete의
+     * 본질상 데이터가 보존되므로 주문/리뷰 연결 여부와 무관하게 처리 가능하다.
      */
     public void delete(Long productId) {
         Product product = productRepository.findById(productId)
                                            .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        productRepository.delete(product);
+        product.markAsDeleted();
     }
 
     /**

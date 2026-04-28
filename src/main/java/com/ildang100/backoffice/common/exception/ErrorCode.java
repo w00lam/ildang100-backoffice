@@ -35,6 +35,11 @@ public enum ErrorCode {
             "INVALID_PRODUCT_STATUS",
             "유효하지 않은 상품 상태입니다."
     ),
+    PRODUCT_ALREADY_DELETED(
+            HttpStatus.CONFLICT,
+            "PRODUCT_ALREADY_DELETED",
+            "이미 삭제된 상품입니다."
+    ),
     INVALID_ORDER_STATUS(
             HttpStatus.BAD_REQUEST,
             "INVALID_ORDER_STATUS",

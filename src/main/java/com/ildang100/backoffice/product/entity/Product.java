@@ -60,6 +60,10 @@ public class Product extends BaseEntity {
     @Column(nullable = false, length = 20)
     private ProductStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private DeletionStatus deletionStatus;
+
     private Product(Admin admin, String name, String category, int price, int stock, ProductStatus status) {
         this.admin = admin;
         this.name = name;
@@ -67,6 +71,7 @@ public class Product extends BaseEntity {
         this.price = price;
         this.stock = stock;
         this.status = status;
+        this.deletionStatus = DeletionStatus.NOT_DELETED;
     }
 
     /**
@@ -268,6 +273,32 @@ public class Product extends BaseEntity {
             throw new ServiceException(ErrorCode.INVALID_PRODUCT_STATUS);
         }
         this.status = newStatus;
+    }
+
+    /**
+     * 상품을 소프트 삭제 처리합니다 (운영자 채널 / P-6).
+     *
+     * <p>
+     * 데이터는 물리적으로 삭제되지 않으며, {@code deletionStatus}만 {@code DELETED}로 전이됩니다.
+     * 상품의 {@code status}(판매 상태)는 변경되지 않고 그대로 보존되며, 연결된 주문/리뷰는
+     * 그대로 유지되어 이력·통계에 영향을 주지 않습니다.
+     * </p>
+     *
+     * @throws ServiceException 이미 {@code DELETED} 상태인 경우
+     *                          ({@link ErrorCode#PRODUCT_ALREADY_DELETED})
+     */
+    public void markAsDeleted() {
+        if (this.deletionStatus == DeletionStatus.DELETED) {
+            throw new ServiceException(ErrorCode.PRODUCT_ALREADY_DELETED);
+        }
+        this.deletionStatus = DeletionStatus.DELETED;
+    }
+
+    /**
+     * 상품이 소프트 삭제된 상태인지 여부를 반환합니다.
+     */
+    public boolean isDeleted() {
+        return this.deletionStatus == DeletionStatus.DELETED;
     }
 
 }
