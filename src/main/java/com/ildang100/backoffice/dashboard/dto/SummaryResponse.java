@@ -8,7 +8,7 @@ import lombok.Getter;
  *
  * <p>
  * 대시보드 상단에 표시할 주요 요약 통계를 제공합니다.
- * 현재 단계에서는 고객 통계만 우선 제공합니다.
+ * 현재 단계에서는 관리자, 고객, 상품 통계만 우선 제공합니다.
  * </p>
  *
  * @author 이우람
@@ -19,7 +19,9 @@ import lombok.Getter;
         "totalAdmins",
         "activeAdmins",
         "totalCustomers",
-        "activeCustomers"
+        "activeCustomers",
+        "totalProducts",
+        "lowStockProducts"
 })
 public class SummaryResponse {
 
@@ -27,28 +29,43 @@ public class SummaryResponse {
     private final Long activeAdmins;
     private final Long totalCustomers;
     private final Long activeCustomers;
+    private final Long totalProducts;
+    private final Long lowStockProducts;
 
     private SummaryResponse(
             Long totalAdmins,
             Long activeAdmins,
             Long totalCustomers,
-            Long activeCustomers
+            Long activeCustomers,
+            Long totalProducts,
+            Long lowStockProducts
     ) {
         this.totalAdmins = totalAdmins;
         this.activeAdmins = activeAdmins;
         this.totalCustomers = totalCustomers;
         this.activeCustomers = activeCustomers;
+        this.totalProducts = totalProducts;
+        this.lowStockProducts = lowStockProducts;
     }
 
     /**
-     * 현재 단계에서 고객 통계만 반환하는 팩토리 메서드입니다.
+     * 현재 단계에서 관리자, 고객, 상품 통계만 반환하는 팩토리 메서드입니다.
      */
     public static SummaryResponse of(
             Long totalAdmins,
             Long activeAdmins,
             Long totalCustomers,
-            Long activeCustomers
+            Long activeCustomers,
+            Long totalProducts,
+            Long lowStockProducts
     ) {
-        return new SummaryResponse(totalAdmins, activeAdmins, totalCustomers, activeCustomers);
+        return new SummaryResponse(
+                totalAdmins,
+                activeAdmins,
+                totalCustomers,
+                activeCustomers,
+                totalProducts,
+                lowStockProducts
+        );
     }
 }
