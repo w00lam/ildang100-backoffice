@@ -49,4 +49,16 @@ public class AdminApprovalHistory extends BaseEntity {
         this.rejectReason = rejectReason;
         this.rejectedAt = rejectedAt;
     }
+
+    /**
+     * 거절 이력 생성 팩토리 메서드
+     */
+    public static AdminApprovalHistory createRejection(Long adminId, String rejectReason, LocalDateTime rejectedAt) {
+        return AdminApprovalHistory.builder()
+                .adminId(adminId)
+                .status(AdminStatus.REJECTED)
+                .rejectReason(rejectReason)
+                .rejectedAt(rejectedAt)
+                .build();
+    }
 }
