@@ -171,6 +171,30 @@ public class Admin extends BaseEntity {
     }
 
     /**
+     * 관리자 계정의 로그인 가능 여부를 검증합니다.
+     *
+     * <p>
+     * 로그인 시도 시 계정 상태에 따라 접근 가능 여부를 판단하기 위해 사용됩니다.
+     * 실제 상태별 검증 로직은 {@link AdminStatus#validateLoginable()}에 위임합니다.
+     * </p>
+     *
+     * <p>
+     * 예를 들어 다음과 같은 상태에서는 로그인이 제한됩니다:
+     * <ul>
+     *     <li>PENDING_APPROVAL - 승인 대기</li>
+     *     <li>REJECTED - 승인 거절</li>
+     *     <li>SUSPENDED - 계정 정지</li>
+     *     <li>INACTIVE - 비활성 계정</li>
+     * </ul>
+     * </p>
+     *
+     * @throws ServiceException 로그인할 수 없는 계정 상태인 경우
+     */
+    public void validateLoginAvailable() {
+        this.status.validateLoginable();
+    }
+
+    /**
      * 비밀번호 변경 (객체지향적 설계)
      * <p>엔티티 스스로 현재 비밀번호를 검증하고, 통과 시 새 비밀번호를 암호화하여 업데이트합니다.</p>
      *
