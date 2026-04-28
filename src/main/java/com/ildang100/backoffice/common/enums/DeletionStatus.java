@@ -1,6 +1,4 @@
-package com.ildang100.backoffice.product.entity;
-
-import com.ildang100.backoffice.common.enums.ProductStatus;
+package com.ildang100.backoffice.common.enums;
 
 /**
  * 엔티티의 소프트 삭제(soft delete) 상태를 나타내는 공통 enum입니다.

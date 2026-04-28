@@ -2,6 +2,7 @@ package com.ildang100.backoffice.product.entity;
 
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.common.entity.BaseEntity;
+import com.ildang100.backoffice.common.enums.DeletionStatus;
 import com.ildang100.backoffice.common.enums.ProductStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
