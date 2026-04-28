@@ -5,7 +5,6 @@ import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.ProductStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
-import com.ildang100.backoffice.product.dto.request.ProductStockUpdateRequest;
 import com.ildang100.backoffice.product.dto.request.ProductUpdateRequest;
 import com.ildang100.backoffice.product.dto.response.PageResponse;
 import com.ildang100.backoffice.product.dto.response.ProductResponse;
@@ -110,22 +109,5 @@ public class ProductController {
                 productService.search(keyword, category, status, pageable);   // ⬅ category 전달
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 목록 조회 성공", response);
-    }
-
-    /**
-     * 상품 재고 변경 (운영자 채널).
-     * 재고 절대값을 설정하며, 도메인 정책에 의해 상태가 자동 전이된다.
-     */
-    @PutMapping("/{productId}/stock")
-    public CommonApiResponse<ProductResponse> changeStock(
-            @PathVariable Long productId,
-            @Valid @RequestBody ProductStockUpdateRequest request,
-            HttpSession session
-                                                         ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드
-
-        ProductResponse response = productService.changeStock(productId, request);
-
-        return CommonApiResponse.success(HttpStatus.OK, "상품 재고 변경 성공", response);
     }
 }

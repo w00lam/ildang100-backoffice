@@ -1,5 +1,6 @@
 package com.ildang100.backoffice.admin.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
@@ -7,6 +8,10 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 @Getter
+@JsonPropertyOrder({
+        "id", "name", "email", "tele", "role", "status",
+        "createdAt", "approvedAt", "updatedAt"
+})
 public class AdminResponse {
 
     // 1. 관리자 데이터 응답 DTO

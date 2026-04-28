@@ -159,4 +159,45 @@ public class AdminService {
 
         return AdminResponse.from(admin);
     }
+    /**
+     * 관리자 삭제 비즈니스 로직
+     *
+     * <p><b>처리 흐름</b></p>
+     * <ol>
+     * <li>대상 관리자 존재 여부 확인</li>
+     * <li>삭제 불가능한 상태(예: 이미 삭제 처리된 경우 등)인지 검증</li>
+     * <li>Repository를 통한 데이터 삭제 실행</li>
+     * </ol>
+     *
+     * @param adminId 삭제할 관리자 고유 ID
+     * @throws ServiceException 관리자가 없거나(ADMIN_NOT_FOUND), 삭제할 수 없는 상태일 때 발생
+     */
+    @Transactional
+    public void deleteAdmin(Long adminId) {
+
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        // 1. 슈퍼 관리자 삭제 방지
+        if (admin.getRole() == AdminRole.SUPER_ADMIN) {
+            throw new ServiceException(ErrorCode.CANNOT_DELETE_SUPER_ADMIN);
+        }
+
+        // 2. 활동 중인 계정 삭제 방지
+        if (admin.getStatus() == AdminStatus.ACTIVE) {
+            throw new ServiceException(ErrorCode.CANNOT_DELETE_ACTIVE_ADMIN);
+        }
+
+        // 3. 승인 대기 중인 계정 삭제 방지
+        if (admin.getStatus() == AdminStatus.PENDING_APPROVAL) {
+            throw new ServiceException(ErrorCode.CANNOT_DELETE_PENDING_ADMIN);
+        }
+
+        // 4. 거절된 계정 삭제 방지 (기록 보관 정책)
+        if (admin.getStatus() == AdminStatus.REJECTED) {
+            throw new ServiceException(ErrorCode.CANNOT_DELETE_REJECTED_ADMIN);
+        }
+
+        admin.updateStatus(AdminStatus.INACTIVE);
+    }
 }
