@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * 주문 목록에 표시할 주문 요약 응답 DTO입니다.
  */
 @Getter
-public class OrderSummaryResponse {
+public class OrderInfoResponse {
 
     private final Long id;
     private final Long orderNumber;
@@ -22,7 +22,7 @@ public class OrderSummaryResponse {
     private final OrderStatus status;
     private final String adminName;
 
-    private OrderSummaryResponse(
+    private OrderInfoResponse(
             Long id,
             Long orderNumber,
             String customerName,
@@ -50,8 +50,8 @@ public class OrderSummaryResponse {
      * @param order 주문 엔티티
      * @return 주문 요약 응답 DTO
      */
-    public static OrderSummaryResponse from(Order order) {
-        return new OrderSummaryResponse(
+    public static OrderInfoResponse from(Order order) {
+        return new OrderInfoResponse(
                 order.getId(),
                 order.getOrderNumber(),
                 order.getCustomer().getName(),

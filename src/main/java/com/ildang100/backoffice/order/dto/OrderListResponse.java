@@ -15,14 +15,14 @@ import java.util.List;
 @Getter
 public class OrderListResponse {
 
-    private final List<OrderSummaryResponse> content;
+    private final List<OrderInfoResponse> content;
     private final int page;
     private final int size;
     private final long totalElements;
     private final int totalPages;
 
     private OrderListResponse(
-            List<OrderSummaryResponse> content,
+            List<OrderInfoResponse> content,
             int page,
             int size,
             long totalElements,
@@ -44,7 +44,7 @@ public class OrderListResponse {
     public static OrderListResponse from(Page<Order> orders) {
         return new OrderListResponse(
                 orders.getContent().stream()
-                        .map(OrderSummaryResponse::from)
+                        .map(OrderInfoResponse::from)
                         .toList(),
                 orders.getNumber() + 1,
                 orders.getSize(),
