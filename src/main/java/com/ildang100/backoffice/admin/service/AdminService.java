@@ -3,6 +3,7 @@ package com.ildang100.backoffice.admin.service;
 import com.ildang100.backoffice.admin.dto.AdminListResponse;
 import com.ildang100.backoffice.admin.dto.AdminResponse;
 import com.ildang100.backoffice.admin.dto.AdminInfoUpdateRequest;
+import com.ildang100.backoffice.admin.dto.AdminRoleUpdateRequest;
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.common.enums.AdminRole;
@@ -114,5 +115,28 @@ public class AdminService {
         return AdminResponse.from(admin);
     }
 
+    /**
+     * 관리자 권한 역할 변경 비즈니스 로직
+     *
+     * <p><b>처리 흐름</b></p>
+     * <ol>
+     * <li>대상 관리자 존재 여부 확인</li>
+     * <li>엔티티의 역할 정보 업데이트</li>
+     * </ol>
+     *
+     * @param adminId 수정 대상 관리자 고유 ID
+     * @param request 변경할 역할 정보가 담긴 DTO
+     * @return 수정 완료된 관리자 응답 DTO
+     * @throws ServiceException 관리자를 찾을 수 없는 경우(ADMIN_NOT_FOUND) 발생
+     */
+    @Transactional
+    public AdminResponse updateAdminRole(Long adminId, AdminRoleUpdateRequest request) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        admin.updateRole(request.getRole());
+
+        return AdminResponse.from(admin);
+    }
 
 }

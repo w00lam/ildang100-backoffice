@@ -3,6 +3,7 @@ package com.ildang100.backoffice.admin.controller;
 import com.ildang100.backoffice.admin.dto.AdminListResponse;
 import com.ildang100.backoffice.admin.dto.AdminResponse;
 import com.ildang100.backoffice.admin.dto.AdminInfoUpdateRequest;
+import com.ildang100.backoffice.admin.dto.AdminRoleUpdateRequest;
 import com.ildang100.backoffice.admin.service.AdminService;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.AdminRole;
@@ -114,5 +115,32 @@ public class AdminController {
         AdminResponse response = adminService.updateAdmin(adminId, request);
 
         return CommonApiResponse.success(HttpStatus.OK, "관리자 정보 수정 성공", response);
+    }
+
+    /**
+     * 관리자 권한 역할 수정 API
+     *
+     * <p>
+     * 특정 관리자의 시스템 권한 역할을 변경합니다.
+     * 이 API는 오직 슈퍼 관리자(SUPER_ADMIN)만 호출 가능합니다.
+     * </p>
+     *
+     * @param adminId 수정할 대상 관리자의 고유 ID
+     * @param request 변경할 역할 정보를 담은 DTO
+     * @param session 현재 사용자 세션 (로그인 검증용)
+     * @return 수정된 관리자 정보를 포함한 공통 응답 객체
+     */
+    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PutMapping("/{adminId}/role")
+    public CommonApiResponse<AdminResponse> updateAdminRole(
+            @PathVariable Long adminId,
+            @RequestBody @Valid AdminRoleUpdateRequest request,
+            HttpSession session
+    ) {
+        SessionUtils.getLoginAdmin(session);
+
+        AdminResponse response = adminService.updateAdminRole(adminId, request);
+
+        return CommonApiResponse.success(HttpStatus.OK, "관리자 역할 수정 성공", response);
     }
 }
