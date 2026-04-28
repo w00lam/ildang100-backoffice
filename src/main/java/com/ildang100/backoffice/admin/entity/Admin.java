@@ -108,4 +108,30 @@ public class Admin extends BaseEntity {
         this.email = email;
         this.tele = tele;
     }
+
+    /**
+     * 관리자 권한 역할 수정
+     *
+     * <p>
+     * 관리자의 시스템 접근 권한(Role)을 변경합니다.
+     * </p>
+     *
+     * @param role 변경할 관리자 역할 (SUPER_ADMIN, OPERATIONS_ADMIN, CS_ADMIN 등)
+     */
+    public void updateRole(AdminRole role) {
+        this.role = role;
+    }
+
+    /**
+     * 관리자 상태 수정
+     *
+     * <p>
+     * 관리자의 계정 활동 상태를 변경합니다.
+     * </p>
+     *
+     * @param status 변경할 관리자 상태 (ACTIVE, INACTIVE, SUSPENDED 등)
+     */
+    public void updateStatus(AdminStatus status) {
+        this.status = status;
+    }
 }

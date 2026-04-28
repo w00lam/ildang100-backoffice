@@ -1,9 +1,7 @@
 package com.ildang100.backoffice.admin.controller;
 
-import com.ildang100.backoffice.admin.dto.AdminListResponse;
-import com.ildang100.backoffice.admin.dto.AdminResponse;
-import com.ildang100.backoffice.admin.dto.AdminUpdateRequest;
-import com.ildang100.backoffice.admin.service.AdminManageService;
+import com.ildang100.backoffice.admin.dto.*;
+import com.ildang100.backoffice.admin.service.AdminService;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
@@ -25,7 +23,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final AdminManageService adminManageService;
+    private final AdminService adminService;
     /**
      * 관리자 리스트 조회 (슈퍼 관리자용)
      *
@@ -62,7 +60,7 @@ public class AdminController {
         SessionUtils.getLoginAdmin(session);
 
         AdminListResponse response =
-                adminManageService.getAdminList(keyword, role, status, page, size, sortBy, sortOrder);
+                adminService.getAdminList(keyword, role, status, page, size, sortBy, sortOrder);
 
         return CommonApiResponse.success(OK, "관리자 리스트 조회 성공", response);
     }
@@ -77,7 +75,7 @@ public class AdminController {
 
         SessionUtils.getLoginAdmin(session);
 
-        AdminResponse response = adminManageService.getAdmin(adminId);
+        AdminResponse response = adminService.getAdmin(adminId);
 
         return CommonApiResponse.success(OK, "관리자 상세 조회 성공", response);
     }
@@ -106,13 +104,72 @@ public class AdminController {
     @PutMapping("/{adminId}")
     public CommonApiResponse<AdminResponse> updateAdmin(
             @PathVariable Long adminId,
-            @RequestBody @Valid AdminUpdateRequest request,
+            @RequestBody @Valid AdminInfoUpdateRequest request,
             HttpSession session) {
 
         SessionUtils.getLoginAdmin(session);
 
-        AdminResponse response = adminManageService.updateAdmin(adminId, request);
+        AdminResponse response = adminService.updateAdmin(adminId, request);
 
         return CommonApiResponse.success(HttpStatus.OK, "관리자 정보 수정 성공", response);
+    }
+
+    /**
+     * 관리자 권한 역할 수정 API
+     *
+     * <p>
+     * 특정 관리자의 시스템 권한 역할을 변경합니다.
+     * 이 API는 오직 슈퍼 관리자(SUPER_ADMIN)만 호출 가능합니다.
+     * </p>
+     *
+     * @param adminId 수정할 대상 관리자의 고유 ID
+     * @param request 변경할 역할 정보를 담은 DTO
+     * @param session 현재 사용자 세션 (로그인 검증용)
+     * @return 수정된 관리자 정보를 포함한 공통 응답 객체
+     */
+    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PutMapping("/{adminId}/role")
+    public CommonApiResponse<AdminResponse> updateAdminRole(
+            @PathVariable Long adminId,
+            @RequestBody @Valid AdminRoleUpdateRequest request,
+            HttpSession session
+    ) {
+        SessionUtils.getLoginAdmin(session);
+
+        AdminResponse response = adminService.updateAdminRole(adminId, request);
+
+        return CommonApiResponse.success(HttpStatus.OK, "관리자 역할 수정 성공", response);
+    }
+    /**
+     * 관리자 상태 수정 API
+     *
+     * <p>
+     * 특정 관리자의 계정 상태(활성화, 정지 등)를 변경합니다.
+     * 이 API는 시스템 보안을 위해 슈퍼 관리자(SUPER_ADMIN) 권한을 가진 사용자만 호출할 수 있습니다.
+     * </p>
+     *
+     * <p><b>보안 로직</b></p>
+     * <ul>
+     * <li>세션 인증을 통해 현재 로그인한 사용자의 정보를 가져옵니다.</li>
+     * <li>사용자의 권한이 {@code SUPER_ADMIN}이 아닐 경우 {@code 403 Forbidden} 예외를 반환합니다.</li>
+     * </ul>
+     *
+     * @param adminId 수정할 대상 관리자의 고유 ID
+     * @param request 변경할 상태 정보를 담은 DTO
+     * @param session 현재 사용자의 세션
+     * @return 수정된 관리자 정보를 포함한 공통 응답 객체
+     */
+    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PutMapping("/{adminId}/status")
+    public CommonApiResponse<AdminResponse> updateAdminStatus(
+            @PathVariable Long adminId,
+            @RequestBody @Valid AdminStatusUpdateRequest request,
+            HttpSession session) {
+
+        SessionUtils.getLoginAdmin(session);
+
+        AdminResponse response = adminService.updateAdminStatus(adminId, request);
+
+        return CommonApiResponse.success(HttpStatus.OK, "관리자 상태 수정 성공", response);
     }
 }

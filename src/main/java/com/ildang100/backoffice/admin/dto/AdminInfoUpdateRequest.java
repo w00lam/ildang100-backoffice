@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor
-public class AdminUpdateRequest {
+public class AdminInfoUpdateRequest {
     @NotBlank(message = "이름은 필수입니다.")
     @Size(max = 30, message = "이름은 최대 30자까지 입력할 수 있습니다.")
     private String name;
