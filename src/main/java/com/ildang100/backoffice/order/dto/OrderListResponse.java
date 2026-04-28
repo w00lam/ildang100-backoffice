@@ -6,6 +6,12 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
+/**
+ * 주문 목록 조회 응답 DTO입니다.
+ *
+ * <p>주문 요약 목록과 페이지네이션 정보를 함께 제공합니다.
+ * {@code page}는 1부터 시작하는 페이지 번호입니다.</p>
+ */
 @Getter
 public class OrderListResponse {
 
@@ -29,6 +35,12 @@ public class OrderListResponse {
         this.totalPages = totalPages;
     }
 
+    /**
+     * 주문 엔티티 페이지를 주문 목록 응답 DTO로 변환합니다.
+     *
+     * @param orders 주문 엔티티 페이지
+     * @return 주문 목록 응답 DTO
+     */
     public static OrderListResponse from(Page<Order> orders) {
         return new OrderListResponse(
                 orders.getContent().stream()

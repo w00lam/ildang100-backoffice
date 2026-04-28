@@ -6,6 +6,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * 주문 목록에 표시할 주문 요약 응답 DTO입니다.
+ */
 @Getter
 public class OrderSummaryResponse {
 
@@ -41,6 +44,12 @@ public class OrderSummaryResponse {
         this.adminName = adminName;
     }
 
+    /**
+     * 주문 엔티티를 주문 요약 응답 DTO로 변환합니다.
+     *
+     * @param order 주문 엔티티
+     * @return 주문 요약 응답 DTO
+     */
     public static OrderSummaryResponse from(Order order) {
         return new OrderSummaryResponse(
                 order.getId(),

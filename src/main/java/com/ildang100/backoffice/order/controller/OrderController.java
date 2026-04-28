@@ -47,6 +47,21 @@ public class OrderController {
         );
     }
 
+    /**
+     * 주문 목록을 조회합니다.
+     *
+     * <p>검색어, 주문 상태, 페이지, 정렬 조건을 기준으로 주문 목록을 조회합니다.
+     * 검색어는 고객 이름과 주문 번호를 대상으로 적용됩니다.</p>
+     *
+     * @param keyword 고객 이름 또는 주문 번호 검색어. 생략 시 검색 조건 없이 조회
+     * @param page 조회할 페이지 번호. 1부터 시작
+     * @param size 페이지당 조회할 주문 수
+     * @param sortBy 정렬 기준. 허용 값: {@code quantity}, {@code totalPrice}, {@code createdAt}
+     * @param sortOrder 정렬 방향. 허용 값: {@code asc}, {@code desc}
+     * @param status 조회할 주문 상태. 생략 시 전체 상태 조회
+     * @param session 로그인 관리자 확인을 위한 HTTP 세션
+     * @return 주문 목록과 페이지 정보를 포함한 응답
+     */
     @GetMapping
     public CommonApiResponse<OrderListResponse> getOrders(
             @RequestParam(required = false) String keyword,
