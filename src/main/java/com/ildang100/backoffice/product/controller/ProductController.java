@@ -68,8 +68,10 @@ public class ProductController {
     }
 
     /**
-     * 상품 삭제 (물리 삭제).
-     * 참조 무결성 검증은 Story P-6에서 추가 예정.
+     * 상품 삭제 (소프트 삭제 / P-6).
+     * Aggregate의 {@code deletionStatus}를 {@code DELETED}로 전이시키며, 데이터는
+     * 물리적으로 삭제되지 않는다. 상품의 판매 상태({@code status})는 보존된다.
+     * 이미 {@code DELETED} 상태인 상품을 재삭제 요청하면 409 {@code PRODUCT_ALREADY_DELETED}.
      */
     @DeleteMapping("/{productId}")
     public CommonApiResponse<Void> delete(

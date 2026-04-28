@@ -36,6 +36,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      * </p>
      *
      * <p>
+     * 소프트 삭제({@code deletionStatus = DELETED})된 상품은 결과에서 자동 제외된다 (Story P-6).
+     * </p>
+     *
+     * <p>
      * count 쿼리는 별도로 분리하며, 페이지 메타 정보 계산용이라 fetch join을 제거한다
      * (Hibernate에서 fetch join + count 조합 시 발생할 수 있는 경고를 회피).
      * </p>
@@ -46,11 +50,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      */
     @Query(
             value = "SELECT p FROM Product p JOIN FETCH p.admin a "
-                    + "WHERE (:keyword IS NULL OR :keyword = '' OR p.name LIKE CONCAT('%', :keyword, '%')) "
+                    + "WHERE p.deletionStatus = com.ildang100.backoffice.common.enums.DeletionStatus.NOT_DELETED "
+                    + "AND (:keyword IS NULL OR :keyword = '' OR p.name LIKE CONCAT('%', :keyword, '%')) "
                     + "AND (:category IS NULL OR :category = '' OR p.category = :category) "
                     + "AND (:status IS NULL OR p.status = :status)",
             countQuery = "SELECT COUNT(p) FROM Product p "
-                    + "WHERE (:keyword IS NULL OR :keyword = '' OR p.name LIKE CONCAT('%', :keyword, '%')) "
+                    + "WHERE p.deletionStatus = com.ildang100.backoffice.common.enums.DeletionStatus.NOT_DELETED "
+                    + "AND (:keyword IS NULL OR :keyword = '' OR p.name LIKE CONCAT('%', :keyword, '%')) "
                     + "AND (:category IS NULL OR :category = '' OR p.category = :category) "
                     + "AND (:status IS NULL OR p.status = :status)"
     )
