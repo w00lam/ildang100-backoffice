@@ -60,6 +60,14 @@ public enum ErrorCode {
             "INVALID_QUANTITY",
             "주문 수량이 올바르지 않습니다."
     ),
+    /**
+     * 가입 거절 처리 시 거절 사유가 누락된 경우 (400 Bad Request)
+     */
+    REJECT_REASON_REQUIRED(
+            HttpStatus.BAD_REQUEST,
+            "REJECT_REASON_REQUIRED",
+            "거절 사유는 필수입니다."
+    ),
 
     // 401 UNAUTHORIZED
     UNAUTHORIZED(
@@ -141,11 +149,6 @@ public enum ErrorCode {
             "EMAIL_DUPLICATE",
             "이미 사용 중인 이메일입니다."
     ),
-    ALREADY_APPROVED_ADMIN(
-            HttpStatus.CONFLICT,
-            "ALREADY_APPROVED_ADMIN",
-            "이미 승인 처리된 관리자입니다."
-    ),
     INSUFFICIENT_STOCK(
             HttpStatus.CONFLICT,
             "INSUFFICIENT_STOCK",
@@ -200,14 +203,6 @@ public enum ErrorCode {
             HttpStatus.CONFLICT,
             "ALREADY_PROCESSED_ADMIN",
             "이미 승인 또는 거절 처리가 완료된 관리자입니다."
-    ),
-    /**
-     * 가입 거절 처리 시 거절 사유가 누락된 경우 (400 Bad Request)
-     */
-    REJECT_REASON_REQUIRED(
-            HttpStatus.BAD_REQUEST,
-            "REJECT_REASON_REQUIRED",
-            "거절 사유는 필수입니다."
     ),
     CUSTOMER_DELETE_NOT_ALLOWED(
             HttpStatus.CONFLICT,
