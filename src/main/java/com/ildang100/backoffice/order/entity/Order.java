@@ -98,4 +98,24 @@ public class Order extends BaseEntity {
 
         return order;
     }
+
+    public void updateStatus(OrderStatus nextStatus) {
+        if (!canChangeStatus(nextStatus)) {
+            throw new ServiceException(ErrorCode.INVALID_ORDER_STATUS_TRANSITION);
+        }
+
+        this.status = nextStatus;
+    }
+
+    private boolean canChangeStatus(OrderStatus nextStatus) {
+        if (this.status == OrderStatus.PREPARING && nextStatus == OrderStatus.SHIPPING) {
+            return true;
+        }
+
+        if (this.status == OrderStatus.SHIPPING && nextStatus == OrderStatus.DELIVERED) {
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -4,10 +4,12 @@ import com.ildang100.backoffice.auth.dto.LoginAdminDto;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
-import com.ildang100.backoffice.order.dto.OrderCreateRequest;
-import com.ildang100.backoffice.order.dto.OrderCreateResponse;
-import com.ildang100.backoffice.order.dto.OrderDetailResponse;
-import com.ildang100.backoffice.order.dto.OrderListResponse;
+import com.ildang100.backoffice.order.dto.request.OrderCreateRequest;
+import com.ildang100.backoffice.order.dto.request.OrderStatusUpdateRequest;
+import com.ildang100.backoffice.order.dto.response.OrderCreateResponse;
+import com.ildang100.backoffice.order.dto.response.OrderDetailResponse;
+import com.ildang100.backoffice.order.dto.response.OrderListResponse;
+import com.ildang100.backoffice.order.dto.response.OrderStatusUpdateResponse;
 import com.ildang100.backoffice.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -110,6 +112,23 @@ public class OrderController {
         return CommonApiResponse.success(
                 HttpStatus.OK,
                 "주문 상세 조회 성공",
+                response
+        );
+    }
+
+    @PutMapping("/{orderId}/status")
+    public CommonApiResponse<OrderStatusUpdateResponse> updateOrderStatus(
+            @PathVariable Long orderId,
+            @Valid @RequestBody OrderStatusUpdateRequest request,
+            HttpSession session
+    ) {
+        SessionUtils.getLoginAdmin(session);
+
+        OrderStatusUpdateResponse response = orderService.updateOrderStatus(orderId, request);
+
+        return CommonApiResponse.success(
+                HttpStatus.OK,
+                "주문 상태 수정 완료",
                 response
         );
     }

@@ -7,10 +7,12 @@ import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.entity.Customer;
 import com.ildang100.backoffice.customer.repository.CustomerRepository;
-import com.ildang100.backoffice.order.dto.OrderCreateRequest;
-import com.ildang100.backoffice.order.dto.OrderCreateResponse;
-import com.ildang100.backoffice.order.dto.OrderDetailResponse;
-import com.ildang100.backoffice.order.dto.OrderListResponse;
+import com.ildang100.backoffice.order.dto.request.OrderCreateRequest;
+import com.ildang100.backoffice.order.dto.request.OrderStatusUpdateRequest;
+import com.ildang100.backoffice.order.dto.response.OrderCreateResponse;
+import com.ildang100.backoffice.order.dto.response.OrderDetailResponse;
+import com.ildang100.backoffice.order.dto.response.OrderListResponse;
+import com.ildang100.backoffice.order.dto.response.OrderStatusUpdateResponse;
 import com.ildang100.backoffice.order.entity.Order;
 import com.ildang100.backoffice.order.repository.OrderRepository;
 import com.ildang100.backoffice.product.entity.Product;
@@ -40,14 +42,14 @@ public class OrderService {
      *
      * <p>관리자, 고객, 상품을 조회한 뒤 상품 재고를 차감하고 주문 정보를 저장합니다.</p>
      *
-     * @param adminid 주문을 생성하는 관리자 ID
+     * @param adminId 주문을 생성하는 관리자 ID
      * @param request 주문 생성 요청 정보
      * @return 생성된 주문 응답 DTO
      * @throws ServiceException 관리자를 찾을 수 없거나, 고객/상품을 찾을 수 없거나, 재고 차감이 불가능한 경우
      */
     @Transactional
-    public OrderCreateResponse createOrder(Long adminid, OrderCreateRequest request) {
-        Admin admin = adminRepository.findById(adminid)
+    public OrderCreateResponse createOrder(Long adminId, OrderCreateRequest request) {
+        Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.UNAUTHORIZED));
 
         Customer customer = customerRepository.findById(request.getCustomerId())
@@ -128,6 +130,21 @@ public class OrderService {
                 .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
 
         return OrderDetailResponse.from(order);
+    }
+
+    @Transactional
+    public OrderStatusUpdateResponse updateOrderStatus(
+            Long orderId,
+            OrderStatusUpdateRequest request
+    ) {
+        validateOrderId(orderId);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
+
+        order.updateStatus(request.getStatus());
+
+        return OrderStatusUpdateResponse.from(order);
     }
 
     private Long generateOrderNumber() {
