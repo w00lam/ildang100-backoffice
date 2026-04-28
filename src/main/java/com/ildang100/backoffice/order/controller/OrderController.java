@@ -6,6 +6,7 @@ import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.order.dto.OrderCreateRequest;
 import com.ildang100.backoffice.order.dto.OrderCreateResponse;
+import com.ildang100.backoffice.order.dto.OrderDetailResponse;
 import com.ildang100.backoffice.order.dto.OrderListResponse;
 import com.ildang100.backoffice.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
@@ -86,6 +87,29 @@ public class OrderController {
         return CommonApiResponse.success(
                 HttpStatus.OK,
                 "주문 리스트 조회 성공",
+                response
+        );
+    }
+
+    /**
+     * 주문 상세 정보를 조회합니다.
+     *
+     * @param orderId 조회할 주문 ID
+     * @param session 로그인 관리자 확인을 위한 HTTP 세션
+     * @return 주문 상세 정보를 포함한 응답
+     */
+    @GetMapping("/{orderId}")
+    public CommonApiResponse<OrderDetailResponse> getOrder(
+            @PathVariable Long orderId,
+            HttpSession session
+    ) {
+        SessionUtils.getLoginAdmin(session);
+
+        OrderDetailResponse response = orderService.getOrder(orderId);
+
+        return CommonApiResponse.success(
+                HttpStatus.OK,
+                "주문 상세 조회 성공",
                 response
         );
     }
