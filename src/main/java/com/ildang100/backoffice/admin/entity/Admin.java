@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -102,9 +103,15 @@ public class Admin extends BaseEntity {
      *
      */
     public void update(AdminInfoUpdateRequest request) {
-        this.name = request.getName();
-        this.email = request.getEmail();
-        this.tele = request.getTele();
+        if (StringUtils.hasText(request.getName())) {
+            this.name = request.getName();
+        }
+        if (StringUtils.hasText(request.getEmail())) {
+            this.email = request.getEmail();
+        }
+        if (StringUtils.hasText(request.getTele())) {
+            this.tele = request.getTele();
+        }
     }
 
     /**
