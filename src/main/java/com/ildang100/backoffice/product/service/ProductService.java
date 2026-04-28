@@ -7,6 +7,7 @@ import com.ildang100.backoffice.common.enums.ProductStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
+import com.ildang100.backoffice.product.dto.request.ProductStatusUpdateRequest;
 import com.ildang100.backoffice.product.dto.request.ProductStockUpdateRequest;
 import com.ildang100.backoffice.product.dto.request.ProductUpdateRequest;
 import com.ildang100.backoffice.product.dto.response.PageResponse;
@@ -126,5 +127,21 @@ public class ProductService {
         return ProductResponse.from(product);
     }
 
+    /**
+     * 상품 상태 변경 (운영자 채널 / P-5).
+     *
+     * <p>
+     * 운영자의 명시적 의사결정으로 상태를 변경한다. P-4의 자동 전이 정책과 독립적으로
+     * 동작하며, 본 메서드로 단종 설정 후 재고를 변경해도 상태는 단종으로 유지된다.
+     * </p>
+     */
+    public ProductResponse changeStatus(Long productId, ProductStatusUpdateRequest request) {
+        Product product = productRepository.findById(productId)
+                                           .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        product.changeStatus(request.getStatus());
+
+        return ProductResponse.from(product);
+    }
 
 }

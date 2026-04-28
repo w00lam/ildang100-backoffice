@@ -250,4 +250,24 @@ public class Product extends BaseEntity {
             throw new ServiceException(ErrorCode.INVALID_QUANTITY);
         }
     }
+
+    /**
+     * 상품 상태를 명시적으로 변경합니다 (운영자 의사결정 채널 / P-5).
+     *
+     * <p>
+     * 자동 전이 정책({@link #applyStockChange})과 독립적으로 동작합니다.
+     * 재고와 무관하게 어떤 상태로든 변경 가능하며, 본 메서드로 {@code DISCONTINUED}로
+     * 설정된 상품은 이후 재고 변경 시에도 자동 전이 대상에서 제외되어 단종으로 유지됩니다.
+     * </p>
+     *
+     * @param newStatus 새 판매 상태 (null 불가)
+     * @throws ServiceException newStatus가 null인 경우 ({@link ErrorCode#INVALID_PRODUCT_STATUS})
+     */
+    public void changeStatus(ProductStatus newStatus) {
+        if (newStatus == null) {
+            throw new ServiceException(ErrorCode.INVALID_PRODUCT_STATUS);
+        }
+        this.status = newStatus;
+    }
+
 }
