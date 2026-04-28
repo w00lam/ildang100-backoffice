@@ -1,5 +1,6 @@
 package com.ildang100.backoffice.dashboard.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.ildang100.backoffice.dashboard.entity.DashboardWidgetView;
 import lombok.Getter;
 
@@ -31,32 +32,41 @@ import lombok.Getter;
  * @since 2026-04-28
  */
 @Getter
+@JsonPropertyOrder({
+        "totalSales",
+        "todaySales",
+        "preparingOrderCount",
+        "shippingOrderCount",
+        "deliveredOrderCount",
+        "lowStockProductCount",
+        "outOfStockProductCount"
+})
 public class DashboardWidgetResponse {
 
     private final Long totalSales;
     private final Long todaySales;
     private final Long preparingOrderCount;
     private final Long shippingOrderCount;
-    private final Long deliveryOrderCount;
-    private final Long lowStockOrderCount;
-    private final Long outOfStockOrderCount;
+    private final Long deliveredOrderCount;
+    private final Long lowStockProductCount;
+    private final Long outOfStockProductCount;
 
     private DashboardWidgetResponse(
             Long totalSales,
             Long todaySales,
             Long preparingOrderCount,
             Long shippingOrderCount,
-            Long deliveryOrderCount,
-            Long lowStockOrderCount,
-            Long outOfStockOrderCount
+            Long deliveredOrderCount,
+            Long lowStockProductCount,
+            Long outOfStockProductCount
     ) {
         this.totalSales = totalSales;
         this.todaySales = todaySales;
         this.preparingOrderCount = preparingOrderCount;
         this.shippingOrderCount = shippingOrderCount;
-        this.deliveryOrderCount = deliveryOrderCount;
-        this.lowStockOrderCount = lowStockOrderCount;
-        this.outOfStockOrderCount = outOfStockOrderCount;
+        this.deliveredOrderCount = deliveredOrderCount;
+        this.lowStockProductCount = lowStockProductCount;
+        this.outOfStockProductCount = outOfStockProductCount;
     }
 
     /**
