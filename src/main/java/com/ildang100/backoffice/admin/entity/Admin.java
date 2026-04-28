@@ -1,13 +1,16 @@
 package com.ildang100.backoffice.admin.entity;
 
+import com.ildang100.backoffice.admin.dto.AdminInfoUpdateRequest;
 import com.ildang100.backoffice.common.entity.BaseEntity;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
 import com.ildang100.backoffice.common.exception.ServiceException;
+import com.ildang100.backoffice.common.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -100,14 +103,17 @@ public class Admin extends BaseEntity {
      * <li>JPA의 변경 감지(Dirty Checking)를 통해 트랜잭션 종료 시점에 반영됩니다.</li>
      * </ul>
      *
-     * @param name  수정할 이름
-     * @param email 수정할 이메일
-     * @param tele  수정할 전화번호
      */
-    public void update(String name, String email, String tele) {
-        this.name = name;
-        this.email = email;
-        this.tele = tele;
+    public void update(AdminInfoUpdateRequest request) {
+        if (StringUtils.hasText(request.getName())) {
+            this.name = request.getName();
+        }
+        if (StringUtils.hasText(request.getEmail())) {
+            this.email = request.getEmail();
+        }
+        if (StringUtils.hasText(request.getTele())) {
+            this.tele = request.getTele();
+        }
     }
 
     /**
@@ -135,20 +141,32 @@ public class Admin extends BaseEntity {
     public void updateStatus(AdminStatus status) {
         this.status = status;
     }
+
     /**
-     * 승인 시 호출: 상태를 ACTIVE로 변경하고 승인일 기록
+     * 관리자 승인 처리
+     * @param approvedAt 승인 일시
      */
     public void approve(LocalDateTime approvedAt) {
+        validatePendingStatus();
         this.status = AdminStatus.ACTIVE;
         this.approvedAt = approvedAt;
     }
 
     /**
-     * 거절 시 호출: 상태를 REJECTED로 변경 (승인일은 null 유지 혹은 처리일 기록)
+     * 관리자 거절 처리
      */
     public void reject() {
+        validatePendingStatus();
         this.status = AdminStatus.REJECTED;
-        // 필요 시 별도의 필드나 approvedAt에 처리 시점을 남길 수 있습니다.
+    }
+
+    /**
+     * 상태 변경 가능 여부 검증 (내부 캡슐화)
+     */
+    private void validatePendingStatus() {
+        if (this.status != AdminStatus.PENDING_APPROVAL) {
+            throw new ServiceException(ErrorCode.ALREADY_PROCESSED_ADMIN);
+        }
     }
 
     /**

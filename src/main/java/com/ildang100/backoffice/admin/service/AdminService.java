@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -94,7 +95,6 @@ public class AdminService {
         // 1. 페이지 번호 변환 (클라이언트 1-based -> JPA 0-based)
         int pageNumber = Math.max(0, page - 1);
 
-        // 2. 정렬 조건 설정
         Sort sort = Sort.unsorted();
         if (sortBy != null && !sortBy.isEmpty()) {
             Sort.Direction direction = "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
@@ -139,24 +139,31 @@ public class AdminService {
      */
     @Transactional
     public AdminResponse updateAdmin(Long adminId, AdminInfoUpdateRequest request) {
-        // 1. 대상 조회
+
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
 
-        // 2. 이메일 중복 체크 (본인 이메일이 아닌데 이미 존재하는 경우)
-        if (!admin.getEmail().equals(request.getEmail()) &&
-                adminRepository.existsByEmail(request.getEmail())) {
-            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
-        }
+        this.validateDuplicateEmail(request.getEmail());
 
-        // 3. 정보 업데이트 (Entity에 update 메서드가 있다고 가정)
-        admin.update(
-                request.getName(),
-                request.getEmail(),
-                request.getTele()
-        );
+        admin.update(request);
 
         return AdminResponse.from(admin);
+    }
+
+    /**
+     * 이메일 중복 여부 검증
+     *
+     * <p>
+     * 동일한 이메일을 가진 관리자 계정이 이미 존재하는 경우 예외를 발생시킵니다.
+     * </p>
+     *
+     * @param email 확인할 이메일
+     * @throws ServiceException 이메일이 이미 존재하는 경우
+     */
+    private void validateDuplicateEmail(String email) {
+        if (adminRepository.existsByEmail(email)) {
+            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
+        }
     }
 
     /**
@@ -264,33 +271,28 @@ public class AdminService {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
 
-        if (admin.getStatus() != AdminStatus.PENDING_APPROVAL) {
-            throw new ServiceException(ErrorCode.ALREADY_PROCESSED_ADMIN);
-        }
-
-        if (!request.getIsApproved() && (request.getRejectReason() == null || request.getRejectReason().isBlank())) {
-            throw new ServiceException(ErrorCode.REJECT_REASON_REQUIRED);
-        }
-
         LocalDateTime now = LocalDateTime.now();
-        AdminStatus targetStatus = request.getIsApproved() ? AdminStatus.ACTIVE : AdminStatus.REJECTED;
 
         if (request.getIsApproved()) {
             admin.approve(now);
         } else {
+            validateRejectReason(request.getRejectReason());
             admin.reject();
+
+            AdminApprovalHistory history = AdminApprovalHistory.createRejection(adminId, request.getRejectReason(), now);
+            approvalHistoryRepository.save(history);
         }
 
-        AdminApprovalHistory history = AdminApprovalHistory.builder()
-                .adminId(adminId)
-                .status(targetStatus)
-                .rejectReason(request.getRejectReason())
-                .rejectedAt(request.getIsApproved() ? null : now) // 거절일 때만 rejectedAt 설정
-                .build();
-
-        approvalHistoryRepository.save(history);
-
         return AdminApprovalResponse.from(admin, request.getRejectReason(), now);
+    }
+
+    /**
+     * 거절 사유 필수값 검증
+     */
+    private void validateRejectReason(String reason) {
+        if (reason == null || reason.isBlank()) {
+            throw new ServiceException(ErrorCode.REJECT_REASON_REQUIRED);
+        }
     }
 
     /**
@@ -308,6 +310,42 @@ public class AdminService {
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
 
         return AdminResponse.from(admin);
+    }
+
+    /**
+     * 관리자 프로필 수정 로직
+     * * @param adminId 세션에서 추출한 관리자 ID
+     * @param request 수정할 프로필 정보
+     * @return 수정 완료된 프로필 응답 객체
+     */
+    @Transactional
+    public AdminResponse updateAdminProfile(Long adminId, AdminInfoUpdateRequest request) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        this.validateDuplicateEmailAndId(request.getEmail(), admin);
+
+        admin.update(request);
+
+        return AdminResponse.from(admin);
+    }
+
+    /**
+     * 이메일 중복 여부 검증(본인 제외)
+     *
+     * <p>
+     * 자신을 제외한 동일한 이메일을 가진 관리자 계정이 이미 존재하는 경우 예외를 발생시킵니다.
+     * </p>
+     *
+     * @param newEmail 확인할 새로운 이메일
+     * @param admin 이메일 바꿀 관리자
+     * @throws ServiceException 이메일이 이미 존재하는 경우
+     */
+    private void validateDuplicateEmailAndId(String newEmail, Admin admin) {
+        if (StringUtils.hasText(newEmail) && !newEmail.equals(admin.getEmail())
+                && adminRepository.existsByEmailAndIdNot(newEmail, admin.getId())) {
+            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
+        }
     }
 
     /**
@@ -332,21 +370,5 @@ public class AdminService {
     public Admin getByEmail(String email) {
         return adminRepository.findByEmail(email)
                 .orElseThrow(() -> new ServiceException(ErrorCode.INVALID_CREDENTIALS));
-    }
-
-    /**
-     * 이메일 중복 여부 검증
-     *
-     * <p>
-     * 동일한 이메일을 가진 관리자 계정이 이미 존재하는 경우 예외를 발생시킵니다.
-     * </p>
-     *
-     * @param email 확인할 이메일
-     * @throws ServiceException 이메일이 이미 존재하는 경우
-     */
-    private void validateDuplicateEmail(String email) {
-        if (adminRepository.existsByEmail(email)) {
-            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
-        }
     }
 }

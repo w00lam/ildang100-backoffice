@@ -1,4 +1,4 @@
-package com.ildang100.backoffice.order.dto;
+package com.ildang100.backoffice.order.dto.response;
 
 import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.order.entity.Order;
