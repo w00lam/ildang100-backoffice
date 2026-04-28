@@ -175,7 +175,7 @@ public enum ErrorCode {
     CANNOT_DELETE_ACTIVE_ADMIN(
             HttpStatus.CONFLICT,
             "CANNOT_DELETE_ACTIVE_ADMIN",
-            "활동 중인 관리자 계정은 삭제할 수 없습니다. 비활성화 후 다시 시도해주세요."
+            "활동 중인 관리자 계정은 삭제할 수 없습니다. 정지 후 다시 시도해주세요."
     ),
     /**
      * 승인 대기 중인 계정 삭제 시도 시 (프로세스 유지)

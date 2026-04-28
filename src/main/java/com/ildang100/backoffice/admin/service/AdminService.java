@@ -198,6 +198,6 @@ public class AdminService {
             throw new ServiceException(ErrorCode.CANNOT_DELETE_REJECTED_ADMIN);
         }
 
-        adminRepository.delete(admin);
+        admin.updateStatus(AdminStatus.INACTIVE);
     }
 }
