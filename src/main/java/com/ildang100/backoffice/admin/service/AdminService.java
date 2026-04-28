@@ -249,4 +249,21 @@ public class AdminService {
 
         return AdminApprovalResponse.from(admin, request.getRejectReason(), now);
     }
+
+    /**
+     * 현재 로그인한 관리자의 프로필 정보를 조회합니다.
+     *
+     * <p>조회용 메서드이므로 성능 최적화를 위해 readOnly = true를 적용합니다.</p>
+     *
+     * @param adminId 조회할 관리자의 고유 ID (세션에서 추출)
+     * @return 관리자 프로필 정보 응답 DTO
+     * @throws ServiceException 관리자 정보를 찾을 수 없을 때 발생
+     */
+    @Transactional(readOnly = true)
+    public AdminResponse getAdminProfile(Long adminId) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        return AdminResponse.from(admin);
+    }
 }
