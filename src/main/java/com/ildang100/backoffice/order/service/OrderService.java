@@ -9,6 +9,7 @@ import com.ildang100.backoffice.customer.entity.Customer;
 import com.ildang100.backoffice.customer.repository.CustomerRepository;
 import com.ildang100.backoffice.order.dto.OrderCreateRequest;
 import com.ildang100.backoffice.order.dto.OrderCreateResponse;
+import com.ildang100.backoffice.order.dto.OrderDetailResponse;
 import com.ildang100.backoffice.order.dto.OrderListResponse;
 import com.ildang100.backoffice.order.entity.Order;
 import com.ildang100.backoffice.order.repository.OrderRepository;
@@ -112,6 +113,23 @@ public class OrderService {
         return OrderListResponse.from(orders);
     }
 
+    /**
+     * 주문 ID로 주문 상세 정보를 조회합니다.
+     *
+     * @param orderId 조회할 주문 ID
+     * @return 주문 상세 응답 DTO
+     * @throws ServiceException 주문 ID가 유효하지 않거나 주문을 찾을 수 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public OrderDetailResponse getOrder(Long orderId) {
+        validateOrderId(orderId);
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
+
+        return OrderDetailResponse.from(order);
+    }
+
     private Long generateOrderNumber() {
         return Long.parseLong(
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
@@ -164,5 +182,12 @@ public class OrderService {
         }
 
         throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+    }
+
+    private void validateOrderId(Long orderId) {
+        if (orderId == null || orderId <= 0) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+
+        }
     }
 }
