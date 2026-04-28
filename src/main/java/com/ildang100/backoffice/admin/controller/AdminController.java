@@ -265,4 +265,19 @@ public class AdminController {
 
         return CommonApiResponse.success(OK, "프로필 수정 완료", response);
     }
+
+    /**
+     * 내 비밀번호 변경 API
+     */
+    @PatchMapping("/me/password")
+    public CommonApiResponse<Void> updateMyPassword(
+            @RequestBody @Valid AdminPasswordUpdateRequest request,
+            HttpSession session
+    ) {
+        LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);
+
+        adminService.updatePassword(loginAdmin.getId(), request);
+
+        return CommonApiResponse.success(OK, "비밀번호 변경 완료", null);
+    }
 }
