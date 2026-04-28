@@ -4,10 +4,10 @@ import com.ildang100.backoffice.auth.dto.LoginAdminDto;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
-import com.ildang100.backoffice.order.dto.OrderCreateRequest;
-import com.ildang100.backoffice.order.dto.OrderCreateResponse;
-import com.ildang100.backoffice.order.dto.OrderDetailResponse;
-import com.ildang100.backoffice.order.dto.OrderListResponse;
+import com.ildang100.backoffice.order.dto.request.OrderCancelRequest;
+import com.ildang100.backoffice.order.dto.request.OrderCreateRequest;
+import com.ildang100.backoffice.order.dto.request.OrderStatusUpdateRequest;
+import com.ildang100.backoffice.order.dto.response.*;
 import com.ildang100.backoffice.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -110,6 +110,60 @@ public class OrderController {
         return CommonApiResponse.success(
                 HttpStatus.OK,
                 "주문 상세 조회 성공",
+                response
+        );
+    }
+
+    /**
+     * 주문 상태를 수정합니다.
+     *
+     * <p>허용된 주문 상태 전이만 반영합니다.</p>
+     *
+     * @param orderId 상태를 수정할 주문 ID
+     * @param request 변경할 주문 상태 정보
+     * @param session 로그인 관리자 확인을 위한 HTTP 세션
+     * @return 변경된 주문 상태 정보를 포함한 응답
+     */
+    @PutMapping("/{orderId}/status")
+    public CommonApiResponse<OrderStatusUpdateResponse> updateOrderStatus(
+            @PathVariable Long orderId,
+            @Valid @RequestBody OrderStatusUpdateRequest request,
+            HttpSession session
+    ) {
+        SessionUtils.getLoginAdmin(session);
+
+        OrderStatusUpdateResponse response = orderService.updateOrderStatus(orderId, request);
+
+        return CommonApiResponse.success(
+                HttpStatus.OK,
+                "주문 상태 수정 완료",
+                response
+        );
+    }
+
+    /**
+     * 주문을 취소합니다.
+     *
+     * <p>취소 가능한 주문을 취소 처리하고 주문 수량만큼 상품 재고를 복구합니다.</p>
+     *
+     * @param orderId 취소할 주문 ID
+     * @param request 주문 취소 사유 정보
+     * @param session 로그인 관리자 확인을 위한 HTTP 세션
+     * @return 취소된 주문 정보를 포함한 응답
+     */
+    @PatchMapping("/{orderId}/cancel")
+    public CommonApiResponse<OrderCancelResponse> cancelOrder(
+            @PathVariable Long orderId,
+            @Valid @RequestBody OrderCancelRequest request,
+            HttpSession session
+    ) {
+        SessionUtils.getLoginAdmin(session);
+
+        OrderCancelResponse response = orderService.cancelOrder(orderId, request);
+
+        return CommonApiResponse.success(
+                HttpStatus.OK,
+                "주문 취소 성공",
                 response
         );
     }

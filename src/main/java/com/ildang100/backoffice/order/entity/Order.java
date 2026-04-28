@@ -98,4 +98,53 @@ public class Order extends BaseEntity {
 
         return order;
     }
+
+    /**
+     * 주문 상태를 수정합니다.
+     *
+     * <p>현재는 {@code PREPARING -> SHIPPING}, {@code SHIPPING -> DELIVERED} 전이만 허용합니다.</p>
+     *
+     * @param nextStatus 변경할 주문 상태
+     * @throws ServiceException 허용되지 않은 상태 전이인 경우
+     */
+    public void updateStatus(OrderStatus nextStatus) {
+        if (!canChangeStatus(nextStatus)) {
+            throw new ServiceException(ErrorCode.INVALID_ORDER_STATUS_TRANSITION);
+        }
+
+        this.status = nextStatus;
+    }
+
+    private boolean canChangeStatus(OrderStatus nextStatus) {
+        if (this.status == OrderStatus.PREPARING && nextStatus == OrderStatus.SHIPPING) {
+            return true;
+        }
+
+        if (this.status == OrderStatus.SHIPPING && nextStatus == OrderStatus.DELIVERED) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 주문을 취소합니다.
+     *
+     * <p>{@code PREPARING} 상태의 주문만 취소할 수 있으며, 취소 사유는 앞뒤 공백을 제거해 저장합니다.</p>
+     *
+     * @param cancelReason 주문 취소 사유
+     * @throws ServiceException 취소할 수 없는 상태이거나 취소 사유가 유효하지 않은 경우
+     */
+    public void cancel(String cancelReason) {
+        if (this.status != OrderStatus.PREPARING) {
+            throw new ServiceException(ErrorCode.ORDER_CANCEL_NOT_ALLOWED);
+        }
+
+        if (cancelReason == null || cancelReason.isBlank()) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+        }
+
+        this.status = OrderStatus.CANCELLED;
+        this.cancelReason = cancelReason.trim();
+    }
 }
