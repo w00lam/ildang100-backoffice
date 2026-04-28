@@ -91,10 +91,11 @@ public class ProductService {
     @Transactional(readOnly = true)
     public PageResponse<ProductResponse> search(
             String keyword,
+            String category,
             ProductStatus status,
             Pageable pageable
                                                ) {
-        Page<Product> products = productRepository.searchProducts(keyword, status, pageable);
+        Page<Product> products = productRepository.searchProducts(keyword, category, status, pageable);
         return PageResponse.from(products.map(ProductResponse::from));
     }
 

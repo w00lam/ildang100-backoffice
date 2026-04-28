@@ -92,6 +92,7 @@ public class ProductController {
     @GetMapping
     public CommonApiResponse<PageResponse<ProductResponse>> search(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,            // ⬅ 추가
             @RequestParam(required = false) ProductStatus status,
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
@@ -99,14 +100,13 @@ public class ProductController {
             @RequestParam(defaultValue = "desc") String sortOrder,
             HttpSession session
                                                                   ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드
+        SessionUtils.getLoginAdmin(session);
 
-        // 트랜잭션 밖에서 sort 검증 + pageable 조립 (1-based → 0-based 변환 포함)
-        // 입력 검증 여기서 종료
         Sort sort = ProductSortPolicy.resolve(sortBy, sortOrder);
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        PageResponse<ProductResponse> response = productService.search(keyword, status, pageable);
+        PageResponse<ProductResponse> response =
+                productService.search(keyword, category, status, pageable);   // ⬅ category 전달
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 목록 조회 성공", response);
     }

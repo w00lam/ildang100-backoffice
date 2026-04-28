@@ -31,13 +31,16 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query(
             value = "SELECT p FROM Product p JOIN FETCH p.admin a "
                     + "WHERE (:keyword IS NULL OR :keyword = '' OR p.name LIKE CONCAT('%', :keyword, '%')) "
+                    + "AND (:category IS NULL OR :category = '' OR p.category = :category) "
                     + "AND (:status IS NULL OR p.status = :status)",
             countQuery = "SELECT COUNT(p) FROM Product p "
                     + "WHERE (:keyword IS NULL OR :keyword = '' OR p.name LIKE CONCAT('%', :keyword, '%')) "
+                    + "AND (:category IS NULL OR :category = '' OR p.category = :category) "
                     + "AND (:status IS NULL OR p.status = :status)"
     )
     Page<Product> searchProducts(
             @Param("keyword") String keyword,
+            @Param("category") String category,
             @Param("status") ProductStatus status,
             Pageable pageable
                                 );
