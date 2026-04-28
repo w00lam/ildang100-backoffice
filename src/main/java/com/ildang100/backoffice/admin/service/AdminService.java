@@ -2,7 +2,7 @@ package com.ildang100.backoffice.admin.service;
 
 import com.ildang100.backoffice.admin.dto.AdminListResponse;
 import com.ildang100.backoffice.admin.dto.AdminResponse;
-import com.ildang100.backoffice.admin.dto.AdminUpdateRequest;
+import com.ildang100.backoffice.admin.dto.AdminInfoUpdateRequest;
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.common.enums.AdminRole;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class AdminManageService {
+public class AdminService {
 
     private final AdminRepository adminRepository;
 
@@ -93,7 +93,7 @@ public class AdminManageService {
      * @throws ServiceException 관리자가 없거나(ADMIN_NOT_FOUND), 이메일이 중복된 경우(EMAIL_DUPLICATE) 발생
      */
     @Transactional
-    public AdminResponse updateAdmin(Long adminId, AdminUpdateRequest request) {
+    public AdminResponse updateAdmin(Long adminId, AdminInfoUpdateRequest request) {
         // 1. 대상 조회
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));

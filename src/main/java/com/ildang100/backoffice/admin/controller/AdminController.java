@@ -2,8 +2,8 @@ package com.ildang100.backoffice.admin.controller;
 
 import com.ildang100.backoffice.admin.dto.AdminListResponse;
 import com.ildang100.backoffice.admin.dto.AdminResponse;
-import com.ildang100.backoffice.admin.dto.AdminUpdateRequest;
-import com.ildang100.backoffice.admin.service.AdminManageService;
+import com.ildang100.backoffice.admin.dto.AdminInfoUpdateRequest;
+import com.ildang100.backoffice.admin.service.AdminService;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
@@ -25,7 +25,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final AdminManageService adminManageService;
+    private final AdminService adminService;
     /**
      * 관리자 리스트 조회 (슈퍼 관리자용)
      *
@@ -62,7 +62,7 @@ public class AdminController {
         SessionUtils.getLoginAdmin(session);
 
         AdminListResponse response =
-                adminManageService.getAdminList(keyword, role, status, page, size, sortBy, sortOrder);
+                adminService.getAdminList(keyword, role, status, page, size, sortBy, sortOrder);
 
         return CommonApiResponse.success(OK, "관리자 리스트 조회 성공", response);
     }
@@ -77,7 +77,7 @@ public class AdminController {
 
         SessionUtils.getLoginAdmin(session);
 
-        AdminResponse response = adminManageService.getAdmin(adminId);
+        AdminResponse response = adminService.getAdmin(adminId);
 
         return CommonApiResponse.success(OK, "관리자 상세 조회 성공", response);
     }
@@ -106,12 +106,12 @@ public class AdminController {
     @PutMapping("/{adminId}")
     public CommonApiResponse<AdminResponse> updateAdmin(
             @PathVariable Long adminId,
-            @RequestBody @Valid AdminUpdateRequest request,
+            @RequestBody @Valid AdminInfoUpdateRequest request,
             HttpSession session) {
 
         SessionUtils.getLoginAdmin(session);
 
-        AdminResponse response = adminManageService.updateAdmin(adminId, request);
+        AdminResponse response = adminService.updateAdmin(adminId, request);
 
         return CommonApiResponse.success(HttpStatus.OK, "관리자 정보 수정 성공", response);
     }
