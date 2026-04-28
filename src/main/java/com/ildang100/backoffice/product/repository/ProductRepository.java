@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     /**
@@ -58,4 +60,20 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("status") ProductStatus status,
             Pageable pageable
                                 );
+
+    /**
+     * 상품 상세 조회 (단건).
+     *
+     * <p>
+     * 등록 관리자(admin)를 fetch join으로 함께 로딩하여 단일 쿼리로 N+1 문제를 회피한다.
+     * 응답({@link com.ildang100.backoffice.product.dto.response.ProductDetailResponse})에
+     * 등록 관리자의 이름·이메일이 포함되므로 fetch join이 필수다.
+     * </p>
+     *
+     * @param productId 조회할 상품 ID
+     * @return 상품 (없으면 {@code Optional.empty()})
+     */
+    @Query("SELECT p FROM Product p JOIN FETCH p.admin a WHERE p.id = :productId")
+    Optional<Product> findDetailById(@Param("productId") Long productId);
+
 }
