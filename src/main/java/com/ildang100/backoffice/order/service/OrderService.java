@@ -2,17 +2,23 @@ package com.ildang100.backoffice.order.service;
 
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
+import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.entity.Customer;
 import com.ildang100.backoffice.customer.repository.CustomerRepository;
 import com.ildang100.backoffice.order.dto.OrderCreateRequest;
 import com.ildang100.backoffice.order.dto.OrderCreateResponse;
+import com.ildang100.backoffice.order.dto.OrderListResponse;
 import com.ildang100.backoffice.order.entity.Order;
 import com.ildang100.backoffice.order.repository.OrderRepository;
 import com.ildang100.backoffice.product.entity.Product;
 import com.ildang100.backoffice.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,10 +68,78 @@ public class OrderService {
         return OrderCreateResponse.from(orderRepository.save(order));
     }
 
+    @Transactional(readOnly = true)
+    public OrderListResponse getOrders(
+            String keyword,
+            int page,
+            int size,
+            String sortBy,
+            String sortOrder,
+            OrderStatus status
+    ) {
+        if (page < 1 || size < 1) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+        }
+
+        String sortProperty = convertOrderSortProperty(sortBy);
+        Sort.Direction direction = convertSortDirection(sortOrder);
+
+        Pageable pageable = PageRequest.of(
+                page - 1,
+                size,
+                Sort.by(direction, sortProperty)
+        );
+
+        Long orderNumber = parseOrderNumber(keyword);
+        Page<Order> orders = orderRepository.searchOrders(
+                keyword, orderNumber, status, pageable);
+
+        return OrderListResponse.from(orders);
+    }
+
     private Long generateOrderNumber() {
         return Long.parseLong(
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
         );
     }
 
+    private Long parseOrderNumber(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Long.parseLong(keyword);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private String convertOrderSortProperty(String sortBy) {
+        if ("quantity".equals(sortBy)) {
+            return "quantity";
+        }
+
+        if ("totalPrice".equals(sortBy)) {
+            return "totalPrice";
+        }
+
+        if ("createdAt".equals(sortBy)) {
+            return "createdAt";
+        }
+
+        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+    }
+
+    private Sort.Direction convertSortDirection(String sortOrder) {
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            return Sort.Direction.ASC;
+        }
+
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            return Sort.Direction.DESC;
+        }
+
+        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+    }
 }
