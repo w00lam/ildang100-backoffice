@@ -5,10 +5,12 @@ import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.admin.entity.AdminApprovalHistory;
 import com.ildang100.backoffice.admin.repository.AdminApprovalHistoryRepository;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
+import com.ildang100.backoffice.auth.dto.AdminSignUpRequest;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
+import com.ildang100.backoffice.config.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +26,47 @@ import java.time.LocalDateTime;
 public class AdminService {
 
     private final AdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
     private final AdminApprovalHistoryRepository approvalHistoryRepository;
+
+    /**
+     * 관리자 계정을 생성합니다.
+     *
+     * <p>
+     * 관리자 회원가입 시 호출되는 메서드로,
+     * 이메일 중복 검증 → 비밀번호 암호화 → 관리자 엔티티 생성 → 저장
+     * 순서로 처리됩니다.
+     * </p>
+     *
+     * <p>
+     * 비밀번호는 반드시 평문이 아닌 {@link PasswordEncoder}를 통해 암호화된 상태로 저장됩니다.
+     * </p>
+     *
+     * <p>
+     * 또한, 동일한 이메일을 가진 계정이 존재할 경우
+     * 중복 가입을 방지하기 위해 예외를 발생시킵니다.
+     * </p>
+     *
+     * @param request 관리자 회원가입 요청 DTO
+     * @throws ServiceException 이메일이 이미 존재하는 경우
+     */
+    @Transactional
+    public void createAdmin(AdminSignUpRequest request) {
+
+        this.validateDuplicateEmail(request.getEmail());
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
+        Admin admin = Admin.create(
+                request.getName(),
+                request.getEmail(),
+                encodedPassword,
+                request.getTele(),
+                request.getRole()
+        );
+
+        adminRepository.save(admin);
+    }
 
     /**
      * 조건에 맞는 관리자 목록 페이징 조회 로직
@@ -33,15 +75,14 @@ public class AdminService {
      * 컨트롤러로부터 전달받은 검색 및 페이징 파라미터를 기반으로 DB에서 관리자 데이터를 조회합니다.
      * </p>
      *
-     * @param keyword 검색어 (이름 또는 이메일)
-     * @param role 관리자 권한 (Enum 문자열)
-     * @param status 관리자 계정 상태 (Enum 문자열)
-     * @param page 요청 페이지 번호 (1부터 시작)
-     * @param size 페이지당 데이터 개수
-     * @param sortBy 정렬 기준 필드명
+     * @param keyword   검색어 (이름 또는 이메일)
+     * @param role      관리자 권한 (Enum 문자열)
+     * @param status    관리자 계정 상태 (Enum 문자열)
+     * @param page      요청 페이지 번호 (1부터 시작)
+     * @param size      페이지당 데이터 개수
+     * @param sortBy    정렬 기준 필드명
      * @param sortOrder 정렬 방향 (asc/desc)
      * @return 페이징 메타 정보와 관리자 응답 DTO 리스트가 포함된 PageResponse 객체
-     *
      * @author 박채빈
      * @since 2026-04-27
      */
@@ -69,6 +110,7 @@ public class AdminService {
 
     /**
      * 관리자 단건 조회
+     *
      * @param adminId 조회할 관리자의 고유 ID
      * @return 관리자 응답 DTO
      * @throws ServiceException 관리자를 찾을 수 없는 경우 발생
@@ -164,6 +206,7 @@ public class AdminService {
 
         return AdminResponse.from(admin);
     }
+
     /**
      * 관리자 삭제 비즈니스 로직
      *
@@ -265,5 +308,45 @@ public class AdminService {
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
 
         return AdminResponse.from(admin);
+    }
+
+    /**
+     * 이메일을 기준으로 관리자를 조회합니다.
+     *
+     * <p>
+     * 로그인 과정에서 사용자 인증을 위해 사용되는 메서드입니다.
+     * 전달받은 이메일에 해당하는 관리자가 존재하지 않을 경우,
+     * 보안상 이유로 "존재하지 않는 계정"과 "비밀번호 불일치"를 구분하지 않고
+     * 동일한 예외를 발생시킵니다.
+     * </p>
+     *
+     * <p>
+     * 즉, 계정 존재 여부를 외부에 노출하지 않기 위해
+     * {@link ErrorCode#INVALID_CREDENTIALS}를 사용합니다.
+     * </p>
+     *
+     * @param email 조회할 관리자 이메일
+     * @return 조회된 관리자 엔티티
+     * @throws ServiceException 이메일에 해당하는 관리자가 존재하지 않는 경우
+     */
+    public Admin getByEmail(String email) {
+        return adminRepository.findByEmail(email)
+                .orElseThrow(() -> new ServiceException(ErrorCode.INVALID_CREDENTIALS));
+    }
+
+    /**
+     * 이메일 중복 여부 검증
+     *
+     * <p>
+     * 동일한 이메일을 가진 관리자 계정이 이미 존재하는 경우 예외를 발생시킵니다.
+     * </p>
+     *
+     * @param email 확인할 이메일
+     * @throws ServiceException 이메일이 이미 존재하는 경우
+     */
+    private void validateDuplicateEmail(String email) {
+        if (adminRepository.existsByEmail(email)) {
+            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
+        }
     }
 }
