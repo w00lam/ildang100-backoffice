@@ -6,6 +6,7 @@ import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
+import com.ildang100.backoffice.config.PasswordEncoder;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -167,5 +168,22 @@ public class Admin extends BaseEntity {
         if (this.status != AdminStatus.PENDING_APPROVAL) {
             throw new ServiceException(ErrorCode.ALREADY_PROCESSED_ADMIN);
         }
+    }
+
+    /**
+     * 비밀번호 변경 (객체지향적 설계)
+     * <p>엔티티 스스로 현재 비밀번호를 검증하고, 통과 시 새 비밀번호를 암호화하여 업데이트합니다.</p>
+     *
+     * @param currentPassword 입력받은 현재 비밀번호 (평문)
+     * @param newPassword     변경할 새 비밀번호 (평문)
+     * @param passwordEncoder 암호화 모듈
+     */
+    public void changePassword(String currentPassword, String newPassword, PasswordEncoder passwordEncoder) {
+
+        if (!passwordEncoder.matches(currentPassword, this.password)) {
+            throw new ServiceException(ErrorCode.PASSWORD_CONFIRM_MISMATCH);
+        }
+
+        this.password = passwordEncoder.encode(newPassword);
     }
 }
