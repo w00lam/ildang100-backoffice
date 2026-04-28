@@ -134,4 +134,19 @@ public class Admin extends BaseEntity {
     public void updateStatus(AdminStatus status) {
         this.status = status;
     }
+    /**
+     * 승인 시 호출: 상태를 ACTIVE로 변경하고 승인일 기록
+     */
+    public void approve(LocalDateTime approvedAt) {
+        this.status = AdminStatus.ACTIVE;
+        this.approvedAt = approvedAt;
+    }
+
+    /**
+     * 거절 시 호출: 상태를 REJECTED로 변경 (승인일은 null 유지 혹은 처리일 기록)
+     */
+    public void reject() {
+        this.status = AdminStatus.REJECTED;
+        // 필요 시 별도의 필드나 approvedAt에 처리 시점을 남길 수 있습니다.
+    }
 }

@@ -2,6 +2,8 @@ package com.ildang100.backoffice.admin.service;
 
 import com.ildang100.backoffice.admin.dto.*;
 import com.ildang100.backoffice.admin.entity.Admin;
+import com.ildang100.backoffice.admin.entity.AdminApprovalHistory;
+import com.ildang100.backoffice.admin.repository.AdminApprovalHistoryRepository;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
@@ -15,11 +17,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AdminService {
 
     private final AdminRepository adminRepository;
+    private final AdminApprovalHistoryRepository approvalHistoryRepository;
 
     /**
      * 조건에 맞는 관리자 목록 페이징 조회 로직
@@ -199,5 +204,49 @@ public class AdminService {
         }
 
         admin.updateStatus(AdminStatus.INACTIVE);
+    }
+
+    /**
+     * 관리자 가입 승인/거절 처리 및 이력 기록
+     *
+     * <p>승인 시 관리자 엔티티의 {@code approvedAt}을 업데이트하고,
+     * 거절 시 이력 엔티티의 {@code rejectedAt}을 업데이트합니다.</p>
+     *
+     * @param adminId 처리 대상 관리자 PK
+     * @param request 승인 여부 및 사유
+     * @return 각 상태에 맞는 날짜가 포함된 응답 DTO
+     */
+    @Transactional
+    public AdminApprovalResponse approveAdmin(Long adminId, AdminApprovalRequest request) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        if (admin.getStatus() != AdminStatus.PENDING_APPROVAL) {
+            throw new ServiceException(ErrorCode.ALREADY_PROCESSED_ADMIN);
+        }
+
+        if (!request.getIsApproved() && (request.getRejectReason() == null || request.getRejectReason().isBlank())) {
+            throw new ServiceException(ErrorCode.REJECT_REASON_REQUIRED);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        AdminStatus targetStatus = request.getIsApproved() ? AdminStatus.ACTIVE : AdminStatus.REJECTED;
+
+        if (request.getIsApproved()) {
+            admin.approve(now);
+        } else {
+            admin.reject();
+        }
+
+        AdminApprovalHistory history = AdminApprovalHistory.builder()
+                .adminId(adminId)
+                .status(targetStatus)
+                .rejectReason(request.getRejectReason())
+                .rejectedAt(request.getIsApproved() ? null : now) // 거절일 때만 rejectedAt 설정
+                .build();
+
+        approvalHistoryRepository.save(history);
+
+        return AdminApprovalResponse.from(admin, request.getRejectReason(), now);
     }
 }

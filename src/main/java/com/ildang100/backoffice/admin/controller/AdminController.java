@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 //import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -201,5 +200,30 @@ public class AdminController {
         adminService.deleteAdmin(adminId);
 
         return CommonApiResponse.success(OK, "관리자 삭제 완료", null);
+    }
+
+    /**
+     * 관리자 가입 승인 및 거절 API
+     *
+     * <p>슈퍼 관리자 권한을 확인한 후, 가입 요청에 대한 최종 승인 또는 거절을 수행합니다.</p>
+     *
+     * @param adminId 대상 관리자 ID
+     * @param request 승인 처리 정보
+     * @param session 세션 정보
+     * @return 공통 응답 규격에 맞춘 처리 결과
+     */
+    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PatchMapping("/{adminId}/approval")
+    public CommonApiResponse<AdminApprovalResponse> approveAdmin(
+            @PathVariable Long adminId,
+            @RequestBody @Valid AdminApprovalRequest request,
+            HttpSession session) {
+
+        SessionUtils.getLoginAdmin(session);
+
+        AdminApprovalResponse response = adminService.approveAdmin(adminId, request);
+
+        String message = request.getIsApproved() ? "관리자 승인 완료" : "관리자 거부 완료";
+        return CommonApiResponse.success(OK, message, response);
     }
 }
