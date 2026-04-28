@@ -161,10 +161,37 @@ public enum ErrorCode {
             "ORDER_CANCEL_NOT_ALLOWED",
             "이미 취소되었거나 취소할 수 없는 주문입니다."
     ),
-    ADMIN_DELETE_NOT_ALLOWED(
+    /**
+     * 슈퍼 관리자 삭제 시도 시 (시스템 보호)
+     */
+    CANNOT_DELETE_SUPER_ADMIN(
             HttpStatus.CONFLICT,
-            "ADMIN_DELETE_NOT_ALLOWED",
-            "삭제할 수 없는 관리자 상태입니다."
+            "CANNOT_DELETE_SUPER_ADMIN",
+            "시스템 보호를 위해 슈퍼 관리자 계정은 삭제할 수 없습니다."
+    ),
+    /**
+     * 활성 상태인 관리자 삭제 시도 시 (운영 실수 방지)
+     */
+    CANNOT_DELETE_ACTIVE_ADMIN(
+            HttpStatus.CONFLICT,
+            "CANNOT_DELETE_ACTIVE_ADMIN",
+            "활동 중인 관리자 계정은 삭제할 수 없습니다. 비활성화 후 다시 시도해주세요."
+    ),
+    /**
+     * 승인 대기 중인 계정 삭제 시도 시 (프로세스 유지)
+     */
+    CANNOT_DELETE_PENDING_ADMIN(
+            HttpStatus.CONFLICT,
+            "CANNOT_DELETE_PENDING_ADMIN",
+            "승인 대기 중인 계정은 삭제할 수 없습니다. 삭제 대신 거절 처리를 해주세요."
+    ),
+    /**
+     * 거절된 계정 삭제 시도 시 (기록 보관 정책)
+     */
+    CANNOT_DELETE_REJECTED_ADMIN(
+            HttpStatus.CONFLICT,
+            "CANNOT_DELETE_REJECTED_ADMIN",
+            "거절된 계정은 보안 기록 유지를 위해 즉시 삭제할 수 없습니다."
     ),
     CUSTOMER_DELETE_NOT_ALLOWED(
             HttpStatus.CONFLICT,
