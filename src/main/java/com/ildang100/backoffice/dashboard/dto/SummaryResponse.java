@@ -21,7 +21,8 @@ import lombok.Getter;
         "totalCustomers",
         "activeCustomers",
         "totalProducts",
-        "lowStockProducts"
+        "lowStockProducts",
+
 })
 public class SummaryResponse {
 
@@ -31,6 +32,8 @@ public class SummaryResponse {
     private final Long activeCustomers;
     private final Long totalProducts;
     private final Long lowStockProducts;
+    private final Long totalOrders;
+    private final Long todayOrders;
 
     private SummaryResponse(
             Long totalAdmins,
@@ -38,7 +41,9 @@ public class SummaryResponse {
             Long totalCustomers,
             Long activeCustomers,
             Long totalProducts,
-            Long lowStockProducts
+            Long lowStockProducts,
+            Long totalOrders,
+            Long todayOrders
     ) {
         this.totalAdmins = totalAdmins;
         this.activeAdmins = activeAdmins;
@@ -46,10 +51,12 @@ public class SummaryResponse {
         this.activeCustomers = activeCustomers;
         this.totalProducts = totalProducts;
         this.lowStockProducts = lowStockProducts;
+        this.totalOrders = totalOrders;
+        this.todayOrders = todayOrders;
     }
 
     /**
-     * 현재 단계에서 관리자, 고객, 상품 통계만 반환하는 팩토리 메서드입니다.
+     * 현재 단계에서 관리자, 고객, 상품, 주문 통계만 반환하는 팩토리 메서드입니다.
      */
     public static SummaryResponse of(
             Long totalAdmins,
@@ -57,7 +64,9 @@ public class SummaryResponse {
             Long totalCustomers,
             Long activeCustomers,
             Long totalProducts,
-            Long lowStockProducts
+            Long lowStockProducts,
+            Long totalOrders,
+            Long todayOrders
     ) {
         return new SummaryResponse(
                 totalAdmins,
@@ -65,7 +74,9 @@ public class SummaryResponse {
                 totalCustomers,
                 activeCustomers,
                 totalProducts,
-                lowStockProducts
+                lowStockProducts,
+                totalOrders,
+                todayOrders
         );
     }
 }

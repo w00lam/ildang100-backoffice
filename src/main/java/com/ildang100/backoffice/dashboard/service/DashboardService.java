@@ -6,6 +6,7 @@ import com.ildang100.backoffice.common.enums.CustomerStatus;
 import com.ildang100.backoffice.customer.repository.CustomerRepository;
 import com.ildang100.backoffice.dashboard.dto.DashboardResponse;
 import com.ildang100.backoffice.dashboard.dto.SummaryResponse;
+import com.ildang100.backoffice.order.repository.OrderRepository;
 import com.ildang100.backoffice.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,13 +25,14 @@ public class DashboardService {
     private final AdminRepository adminRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
 
     /**
      * 대시보드 Summary 데이터를 조회합니다.
      *
      * <p>
-     * 현재는 관리자, 고객, 상품 통계만 제공하며,
-     * 추후 주문/리뷰 통계를 확장할 예정입니다.
+     * 현재는 관리자, 고객, 상품, 주문 통계만 제공하며,
+     * 추후 리뷰 통계를 확장할 예정입니다.
      * </p>
      */
     @Transactional(readOnly = true)
@@ -45,13 +47,18 @@ public class DashboardService {
         long totalProducts = productRepository.count();
         long lowStockProducts = productRepository.countByStockLessThanEqual(5);
 
+        long totalOrders = orderRepository.count();
+        long todayOrders = orderRepository.countTodayOrders();
+
         SummaryResponse summary = SummaryResponse.of(
                 totalAdmins,
                 activeAdmins,
                 totalCustomers,
                 activeCustomers,
                 totalProducts,
-                lowStockProducts
+                lowStockProducts,
+                totalOrders,
+                todayOrders
         );
 
         return DashboardResponse.of(summary);
