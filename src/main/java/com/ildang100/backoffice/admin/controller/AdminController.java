@@ -246,4 +246,23 @@ public class AdminController {
         // 3. 성공 응답 반환
         return CommonApiResponse.success(OK, "관리자 프로필 조회 성공", response);
     }
+
+    /**
+     * 내 프로필 수정 API
+     *
+     * @param request 수정할 필드 데이터를 담은 객체
+     * @param session 현재 사용자 세션
+     * @return 업데이트된 프로필 정보 반환
+     */
+    @PutMapping("/me")
+    public CommonApiResponse<AdminResponse> updateMyProfile(
+            @RequestBody @Valid AdminProfileUpdateRequest request,
+            HttpSession session) {
+
+        LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);
+
+        AdminResponse response = adminService.updateAdminProfile(loginAdmin.getId(), request);
+
+        return CommonApiResponse.success(OK, "프로필 수정 완료", response);
+    }
 }

@@ -266,4 +266,42 @@ public class AdminService {
 
         return AdminResponse.from(admin);
     }
+
+    /**
+     * 관리자 프로필 수정 로직
+     * * @param adminId 세션에서 추출한 관리자 ID
+     * @param request 수정할 프로필 정보
+     * @return 수정 완료된 프로필 응답 객체
+     */
+    @Transactional
+    public AdminResponse updateAdminProfile(Long adminId, AdminProfileUpdateRequest request) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        this.validateDuplicateEmail(request.getEmail());
+
+        admin.update(
+                request.getName(),
+                request.getEmail(),
+                request.getTele()
+        );
+
+        return AdminResponse.from(admin);
+    }
+
+    /**
+     * 이메일 중복 여부 검증
+     *
+     * <p>
+     * 동일한 이메일을 가진 관리자 계정이 이미 존재하는 경우 예외를 발생시킵니다.
+     * </p>
+     *
+     * @param email 확인할 이메일
+     * @throws ServiceException 이메일이 이미 존재하는 경우
+     */
+    private void validateDuplicateEmail(String email) {
+        if (adminRepository.existsByEmail(email)) {
+            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
+        }
+    }
 }
