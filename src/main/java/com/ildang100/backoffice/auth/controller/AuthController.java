@@ -5,13 +5,11 @@ import com.ildang100.backoffice.auth.dto.AdminLoginResponse;
 import com.ildang100.backoffice.auth.dto.AdminSignUpRequest;
 import com.ildang100.backoffice.auth.service.AuthService;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -46,14 +44,16 @@ public class AuthController {
     }
 
     @PostMapping("/admins/login")
-    public CommonApiResponse<AdminLoginResponse> login(@RequestBody @Valid AdminLoginRequest request, HttpSession session) {
-        AdminLoginResponse response = authService.login(request, session);
+    public CommonApiResponse<AdminLoginResponse> login(@RequestBody @Valid AdminLoginRequest request) {
+        AdminLoginResponse response = authService.login(request);
 
         return CommonApiResponse.success(HttpStatus.OK, "로그인에 성공했습니다.", response);
     }
 
     @PostMapping("/admins/logout")
     public CommonApiResponse<Void> logout() {
+        authService.logout();
+
         return CommonApiResponse.success(HttpStatus.OK, "로그아웃이 완료되었습니다.", null);
     }
 }
