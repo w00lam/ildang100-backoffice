@@ -2,6 +2,7 @@ package com.ildang100.backoffice.order.repository;
 
 import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.customer.dto.CustomerOrderStats;
+import com.ildang100.backoffice.dashboard.dto.RecentOrderResponse;
 import com.ildang100.backoffice.order.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -111,4 +112,33 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             @Param("customerId") Long customerId,
             @Param("excludedStatus") OrderStatus excludedStatus
     );
+
+    /**
+     * 대시보드에 표시할 최근 주문 목록을 조회합니다.
+     *
+     * <p>
+     * 최근 생성된 준비중인 주문을 기준으로 정렬하며,
+     * 조회 개수는 {@link Pageable}을 통해 제한합니다.
+     * </p>
+     *
+     * <p>
+     * 주문번호, 고객명, 상품명, 주문 금액, 주문 상태만 조회하여
+     * 대시보드 전용 응답 DTO로 직접 매핑합니다.
+     * </p>
+     *
+     * @param pageable 조회 개수 및 페이징 정보
+     * @return 최근 주문 응답 목록
+     *
+     * @author 이우람
+     * @since 2026-04-29
+     */
+    @Query("""
+        SELECT o
+        FROM Order o
+        JOIN FETCH o.customer c
+        JOIN FETCH o.product p
+        WHERE o.status = 'PREPARING'
+        ORDER BY o.createdAt DESC
+        """)
+    List<Order> findRecentOrdersBySortByDesc(Pageable pageable);
 }

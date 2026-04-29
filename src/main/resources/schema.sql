@@ -200,21 +200,21 @@ SELECT 1                                           AS id,
 
 CREATE VIEW review_rating_distribution_view AS
 SELECT r.rating AS rating,
-       COUNT(*) AS review_count
+       COUNT(*) AS count
 FROM reviews r
 WHERE r.deletion_status != 'DELETED'
 GROUP BY r.rating;
 
 CREATE VIEW customer_status_distribution_view AS
 SELECT c.status AS status,
-       COUNT(*) AS customer_count
+       COUNT(*) AS count
 FROM customers c
 WHERE c.status != 'INACTIVE'
 GROUP BY c.status;
 
 CREATE VIEW product_category_distribution_view AS
 SELECT p.category AS category,
-       COUNT(*)   AS product_count
+       COUNT(*)   AS count
 FROM products p
 WHERE p.deletion_status != 'DELETED'
 GROUP BY p.category;

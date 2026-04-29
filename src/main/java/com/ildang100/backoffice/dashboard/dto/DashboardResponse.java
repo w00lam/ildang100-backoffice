@@ -3,6 +3,8 @@ package com.ildang100.backoffice.dashboard.dto;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
+import java.util.List;
+
 /**
  * 대시보드 통합 응답 DTO입니다.
  *
@@ -12,12 +14,12 @@ import lombok.Getter;
  * </p>
  *
  * <p>
- * 현재는 요약 통계({@link DashboardSummaryResponse}),
- * 위젯 통계({@link DashboardWidgetResponse}),
- * 차트 통계({@link DashboardChartResponse}만 포함되어 있으며,
- * 이후 단계적으로 다음 데이터가 확장될 예정입니다:
+ * 현재는 다음 데이터를 포함합니다:
  * <ul>
- *     <li>Recent Orders: 최근 주문 목록</li>
+ *     <li>{@link DashboardSummaryResponse} : 요약 통계</li>
+ *     <li>{@link DashboardWidgetResponse} : 위젯 통계</li>
+ *     <li>{@link DashboardChartResponse} : 차트 통계</li>
+ *     <li>{@link RecentOrderResponse} : 최근 주문 목록</li>
  * </ul>
  * </p>
  *
@@ -29,7 +31,12 @@ import lombok.Getter;
  * <p>
  * 불변(immutable) 객체로 설계되어 외부에서 상태 변경을 방지하며,
  * 생성은 정적 팩토리 메서드
- * {@link #of(DashboardSummaryResponse, DashboardWidgetResponse, DashboardChartResponse)}를 통해서만 가능합니다.
+ * {@link #of(DashboardSummaryResponse, DashboardWidgetResponse, DashboardChartResponse, List)}
+ * 를 통해서만 가능합니다.
+ * </p>
+ *
+ * <p>
+ * 최근 주문 목록은 {@code List<RecentOrderResponse>} 형태로 전달됩니다.
  * </p>
  *
  * @author 이우람
@@ -39,36 +46,26 @@ import lombok.Getter;
 @JsonPropertyOrder({
         "summary",
         "widgets",
-        "charts"
+        "charts",
+        "recentOrders"
 })
 public class DashboardResponse {
 
     private final DashboardSummaryResponse summary;
     private final DashboardWidgetResponse widgets;
     private final DashboardChartResponse charts;
-
-    // TODO: 이후 구현 예정
-    // List<RecentOrderResponse> recentOrders;
-
-    /**
-     * TODO: 이후 구현 예정
-     *
-     * <p>
-     * 향후 확장될 대시보드 구성 요소:
-     * <ul>
-     *     <li>List&lt;RecentOrderResponse&gt; recentOrders</li>
-     * </ul>
-     * </p>
-     */
+    private final List<RecentOrderResponse> recentOrders;
 
     private DashboardResponse(
             DashboardSummaryResponse summary,
             DashboardWidgetResponse widgets,
-            DashboardChartResponse charts
+            DashboardChartResponse charts,
+            List<RecentOrderResponse> recentOrders
     ) {
         this.summary = summary;
         this.widgets = widgets;
         this.charts = charts;
+        this.recentOrders = recentOrders;
     }
 
     /**
@@ -79,16 +76,18 @@ public class DashboardResponse {
      * 향후 필드가 확장될 경우 해당 메서드도 함께 확장됩니다.
      * </p>
      *
-     * @param summary 대시보드 요약 통계 데이터
-     * @param widgets 대시보드 위젯 통계 데이터
-     * @param chart   대시보드 차트 통계 데이터
+     * @param summary      대시보드 요약 통계 데이터
+     * @param widgets      대시보드 위젯 통계 데이터
+     * @param charts       대시보드 차트 통계 데이터
+     * @param recentOrders 대시보드 최근 주문 리스트 데이터
      * @return DashboardResponse 생성된 응답 객체
      */
     public static DashboardResponse of(
             DashboardSummaryResponse summary,
             DashboardWidgetResponse widgets,
-            DashboardChartResponse chart
+            DashboardChartResponse charts,
+            List<RecentOrderResponse> recentOrders
     ) {
-        return new DashboardResponse(summary, widgets, chart);
+        return new DashboardResponse(summary, widgets, charts, recentOrders);
     }
 }
