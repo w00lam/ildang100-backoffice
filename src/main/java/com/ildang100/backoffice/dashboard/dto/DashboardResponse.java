@@ -11,10 +11,10 @@ import lombok.Getter;
  * </p>
  *
  * <p>
- * 현재는 위젯 통계({@link DashboardWidgetResponse})만 포함되어 있으며,
+ * 현재는 요약 통계({@link DashboardSummaryResponse}),
+ * 위젯 통계({@link DashboardWidgetResponse})만 포함되어 있으며,
  * 이후 단계적으로 다음 데이터가 확장될 예정입니다:
  * <ul>
- *     <li>Summary: 관리자, 고객, 상품, 주문, 리뷰 요약 통계</li>
  *     <li>Charts: 분포 기반 차트 데이터 (평점, 상태, 카테고리 등)</li>
  *     <li>Recent Orders: 최근 주문 목록</li>
  * </ul>
@@ -36,10 +36,10 @@ import lombok.Getter;
 @Getter
 public class DashboardResponse {
 
+    private final DashboardSummaryResponse summary;
     private final DashboardWidgetResponse widgets;
 
     // TODO: 이후 구현 예정
-    // DashboardSummaryResponse summary;
     // DashboardChartResponse charts;
     // List<RecentOrderResponse> recentOrders;
 
@@ -56,7 +56,11 @@ public class DashboardResponse {
      * </p>
      */
 
-    private DashboardResponse(DashboardWidgetResponse widgets) {
+    private DashboardResponse(
+            DashboardSummaryResponse summary,
+            DashboardWidgetResponse widgets
+    ) {
+        this.summary = summary;
         this.widgets = widgets;
     }
 
@@ -68,10 +72,14 @@ public class DashboardResponse {
      * 향후 필드가 확장될 경우 해당 메서드도 함께 확장됩니다.
      * </p>
      *
+     * @param summary 대시보드 요약 통계 데이터
      * @param widgets 대시보드 위젯 통계 데이터
      * @return DashboardResponse 생성된 응답 객체
      */
-    public static DashboardResponse of(DashboardWidgetResponse widgets) {
-        return new DashboardResponse(widgets);
+    public static DashboardResponse of(
+            DashboardSummaryResponse summary,
+            DashboardWidgetResponse widgets
+    ) {
+        return new DashboardResponse(summary, widgets);
     }
 }
