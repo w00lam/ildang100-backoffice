@@ -1,5 +1,6 @@
 package com.ildang100.backoffice.dashboard.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
 /**
@@ -12,10 +13,10 @@ import lombok.Getter;
  *
  * <p>
  * 현재는 요약 통계({@link DashboardSummaryResponse}),
- * 위젯 통계({@link DashboardWidgetResponse})만 포함되어 있으며,
+ * 위젯 통계({@link DashboardWidgetResponse}),
+ * 차트 통계({@link DashboardChartResponse}만 포함되어 있으며,
  * 이후 단계적으로 다음 데이터가 확장될 예정입니다:
  * <ul>
- *     <li>Charts: 분포 기반 차트 데이터 (평점, 상태, 카테고리 등)</li>
  *     <li>Recent Orders: 최근 주문 목록</li>
  * </ul>
  * </p>
@@ -27,20 +28,26 @@ import lombok.Getter;
  *
  * <p>
  * 불변(immutable) 객체로 설계되어 외부에서 상태 변경을 방지하며,
- * 생성은 정적 팩토리 메서드 {@link #of(DashboardWidgetResponse)}를 통해서만 가능합니다.
+ * 생성은 정적 팩토리 메서드
+ * {@link #of(DashboardSummaryResponse, DashboardWidgetResponse, DashboardChartResponse)}를 통해서만 가능합니다.
  * </p>
  *
  * @author 이우람
  * @since 2026-04-28
  */
 @Getter
+@JsonPropertyOrder({
+        "summary",
+        "widgets",
+        "charts"
+})
 public class DashboardResponse {
 
     private final DashboardSummaryResponse summary;
     private final DashboardWidgetResponse widgets;
+    private final DashboardChartResponse charts;
 
     // TODO: 이후 구현 예정
-    // DashboardChartResponse charts;
     // List<RecentOrderResponse> recentOrders;
 
     /**
@@ -49,8 +56,6 @@ public class DashboardResponse {
      * <p>
      * 향후 확장될 대시보드 구성 요소:
      * <ul>
-     *     <li>DashboardSummaryResponse summary</li>
-     *     <li>DashboardChartResponse charts</li>
      *     <li>List&lt;RecentOrderResponse&gt; recentOrders</li>
      * </ul>
      * </p>
@@ -58,10 +63,12 @@ public class DashboardResponse {
 
     private DashboardResponse(
             DashboardSummaryResponse summary,
-            DashboardWidgetResponse widgets
+            DashboardWidgetResponse widgets,
+            DashboardChartResponse charts
     ) {
         this.summary = summary;
         this.widgets = widgets;
+        this.charts = charts;
     }
 
     /**
@@ -74,12 +81,14 @@ public class DashboardResponse {
      *
      * @param summary 대시보드 요약 통계 데이터
      * @param widgets 대시보드 위젯 통계 데이터
+     * @param chart   대시보드 차트 통계 데이터
      * @return DashboardResponse 생성된 응답 객체
      */
     public static DashboardResponse of(
             DashboardSummaryResponse summary,
-            DashboardWidgetResponse widgets
+            DashboardWidgetResponse widgets,
+            DashboardChartResponse chart
     ) {
-        return new DashboardResponse(summary, widgets);
+        return new DashboardResponse(summary, widgets, chart);
     }
 }
