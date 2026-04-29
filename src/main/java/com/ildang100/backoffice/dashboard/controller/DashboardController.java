@@ -43,7 +43,7 @@ public class DashboardController {
      * <p>
      * 반환 데이터 구성:
      * <ul>
-     *     <li>Summary: 관리자, 고객, 상품, 주문, 리뷰 요약 통계 (추후 추가)</li>
+     *     <li>Summary: 관리자, 고객, 상품, 주문, 리뷰 요약 통계</li>
      *     <li>Widgets: 매출, 주문 상태, 재고 상태 통계</li>
      *     <li>Charts: 분포 기반 차트 데이터 (추후 추가)</li>
      *     <li>Recent Orders: 최근 주문 목록 (추후 추가)</li>
@@ -60,7 +60,7 @@ public class DashboardController {
     @GetMapping("/admin/dashboard")
     public CommonApiResponse<DashboardResponse> getDashboard(HttpSession session) {
 
-        SessionUtils.getLoginAdmin(session);
+        SessionUtils.getLoginAdmin(session); // security 기반으로 전환 시 수정 예정
 
         DashboardResponse response = dashboardService.getDashBoard();
 

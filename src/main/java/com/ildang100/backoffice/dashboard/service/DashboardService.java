@@ -1,10 +1,11 @@
 package com.ildang100.backoffice.dashboard.service;
 
-import com.ildang100.backoffice.common.enums.AdminStatus;
-import com.ildang100.backoffice.common.enums.CustomerStatus;
 import com.ildang100.backoffice.dashboard.dto.DashboardResponse;
+import com.ildang100.backoffice.dashboard.dto.DashboardSummaryResponse;
 import com.ildang100.backoffice.dashboard.dto.DashboardWidgetResponse;
+import com.ildang100.backoffice.dashboard.entity.DashboardSummaryView;
 import com.ildang100.backoffice.dashboard.entity.DashboardWidgetView;
+import com.ildang100.backoffice.dashboard.repository.DashboardSummaryViewRepository;
 import com.ildang100.backoffice.dashboard.repository.DashboardWidgetViewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DashboardService {
 
+    private final DashboardSummaryViewRepository dashBoardSummaryViewRepository;
     private final DashboardWidgetViewRepository dashboardWidgetViewRepository;
 
     /**
@@ -29,15 +31,16 @@ public class DashboardService {
      */
     @Transactional(readOnly = true)
     public DashboardResponse getDashBoard() {
+        DashboardSummaryView summaryView = dashBoardSummaryViewRepository.findById(1L).orElseThrow();
         DashboardWidgetView widgetView = dashboardWidgetViewRepository.findById(1L).orElseThrow();
 
+        DashboardSummaryResponse summary = DashboardSummaryResponse.from(summaryView);
         DashboardWidgetResponse widgets = DashboardWidgetResponse.from(widgetView);
 
         // TODO: 이후 구현 예정
-        // DashboardSummaryResponse summary;
         // DashboardChartResponse charts;
         // List<RecentOrderResponse> recentOrders;
 
-        return DashboardResponse.of(widgets);
+        return DashboardResponse.of(summary, widgets);
     }
 }
