@@ -46,82 +46,85 @@ CREATE TABLE customers
     updated_at DATETIME    NOT NULL
 );
 
-CREATE TABLE products (
-                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                          admin_id BIGINT NOT NULL,
-                          name VARCHAR(30) NOT NULL,
-                          category VARCHAR(30) NOT NULL,
-                          price INT NOT NULL,
-                          stock INT NOT NULL,
-                          status VARCHAR(20) NOT NULL,
-                          deletion_status VARCHAR(20) NOT NULL DEFAULT 'NOT_DELETED',  -- ⬅ 추가 (P-6)
-                          created_at DATETIME NOT NULL,
-                          updated_at DATETIME NOT NULL,
-                          CONSTRAINT fk_products_admin
-                              FOREIGN KEY (admin_id) REFERENCES admins(id)
+CREATE TABLE products
+(
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    admin_id        BIGINT      NOT NULL,
+    name            VARCHAR(30) NOT NULL,
+    category        VARCHAR(30) NOT NULL,
+    price           INT         NOT NULL,
+    stock           INT         NOT NULL,
+    status          VARCHAR(20) NOT NULL,
+    deletion_status VARCHAR(20) NOT NULL DEFAULT 'NOT_DELETED', -- ⬅ 추가 (P-6)
+    created_at      DATETIME    NOT NULL,
+    updated_at      DATETIME    NOT NULL,
+    CONSTRAINT fk_products_admin
+        FOREIGN KEY (admin_id) REFERENCES admins (id)
 );
 
-CREATE TABLE orders (
-                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                        admin_id BIGINT,
-                        customer_id BIGINT NOT NULL,
-                        product_id BIGINT NOT NULL,
-                        quantity INT NOT NULL,
-                        status VARCHAR(20) NOT NULL,
-                        created_at DATETIME NOT NULL,
-                        updated_at DATETIME NOT NULL,
-                        order_number BIGINT NOT NULL,
-                        unit_price INT NOT NULL,
-                        total_price INT NOT NULL,
-                        cancel_reason VARCHAR(255),
-                        CONSTRAINT uk_orders_order_number
-                            UNIQUE (order_number),
-                        CONSTRAINT fk_orders_admin
-                            FOREIGN KEY (admin_id) REFERENCES admins(id),
-                        CONSTRAINT fk_orders_customer
-                            FOREIGN KEY (customer_id) REFERENCES customers(id),
-                        CONSTRAINT fk_orders_product
-                            FOREIGN KEY (product_id) REFERENCES products(id)
+CREATE TABLE orders
+(
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    admin_id      BIGINT,
+    customer_id   BIGINT      NOT NULL,
+    product_id    BIGINT      NOT NULL,
+    quantity      INT         NOT NULL,
+    status        VARCHAR(20) NOT NULL,
+    created_at    DATETIME    NOT NULL,
+    updated_at    DATETIME    NOT NULL,
+    order_number  BIGINT      NOT NULL,
+    unit_price    INT         NOT NULL,
+    total_price   INT         NOT NULL,
+    cancel_reason VARCHAR(255),
+    CONSTRAINT uk_orders_order_number
+        UNIQUE (order_number),
+    CONSTRAINT fk_orders_admin
+        FOREIGN KEY (admin_id) REFERENCES admins (id),
+    CONSTRAINT fk_orders_customer
+        FOREIGN KEY (customer_id) REFERENCES customers (id),
+    CONSTRAINT fk_orders_product
+        FOREIGN KEY (product_id) REFERENCES products (id)
 );
 
-CREATE TABLE reviews (
-                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                         customer_id BIGINT NOT NULL,
-                         product_id BIGINT NOT NULL,
-                         order_id BIGINT NOT NULL,                                       -- ⬅ 추가 (Review entity 정합)
-                         rating INT NOT NULL,
-                         content VARCHAR(500) NOT NULL,                                  -- ⬅ 변경 255 → 500 (entity 정합)
-                         deletion_status VARCHAR(20) NOT NULL DEFAULT 'NOT_DELETED',     -- ⬅ 추가 (R-3)
-                         created_at DATETIME NOT NULL,
-                         updated_at DATETIME NOT NULL,
-                         CONSTRAINT fk_reviews_customer
-                             FOREIGN KEY (customer_id) REFERENCES customers(id),
-                         CONSTRAINT fk_reviews_product
-                             FOREIGN KEY (product_id) REFERENCES products(id),
-                         CONSTRAINT fk_reviews_order
-                             FOREIGN KEY (order_id) REFERENCES orders(id)               -- ⬅ 추가
+CREATE TABLE reviews
+(
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_id     BIGINT       NOT NULL,
+    product_id      BIGINT       NOT NULL,
+    order_id        BIGINT       NOT NULL,                       -- ⬅ 추가 (Review entity 정합)
+    rating          INT          NOT NULL,
+    content         VARCHAR(500) NOT NULL,                       -- ⬅ 변경 255 → 500 (entity 정합)
+    deletion_status VARCHAR(20)  NOT NULL DEFAULT 'NOT_DELETED', -- ⬅ 추가 (R-3)
+    created_at      DATETIME     NOT NULL,
+    updated_at      DATETIME     NOT NULL,
+    CONSTRAINT fk_reviews_customer
+        FOREIGN KEY (customer_id) REFERENCES customers (id),
+    CONSTRAINT fk_reviews_product
+        FOREIGN KEY (product_id) REFERENCES products (id),
+    CONSTRAINT fk_reviews_order
+        FOREIGN KEY (order_id) REFERENCES orders (id)            -- ⬅ 추가
 );
 
 CREATE VIEW dashboard_summary_view AS
-SELECT 1                                                   AS id,
+SELECT 1                                                    AS id,
 
        COALESCE((SELECT COUNT(*)
                  FROM admins a
                  WHERE a.status != 'INACTIVE'
-             ), 0)         AS total_admin_count,
+             ), 0)          AS total_admin_count,
 
        COALESCE((SELECT COUNT(*)
                  FROM admins a
-                 WHERE a.status = 'ACTIVE'), 0)            AS active_admin_count,
+                 WHERE a.status = 'ACTIVE'), 0)             AS active_admin_count,
 
        COALESCE((SELECT COUNT(*)
                  FROM customers c
                  WHERE c.status != 'INACTIVE'
-             ), 0)         AS total_customer_count,
+             ), 0)          AS total_customer_count,
 
        COALESCE((SELECT COUNT(*)
                  FROM customers c
-                 WHERE c.status = 'ACTIVE'), 0)            AS active_customer_count,
+                 WHERE c.status = 'ACTIVE'), 0)             AS active_customer_count,
 
        COALESCE((SELECT COUNT(*)
                  FROM products p
@@ -138,13 +141,13 @@ SELECT 1                                                   AS id,
        COALESCE((SELECT COUNT(*)
                  FROM orders o
                  WHERE o.status != 'CANCELLED'
-             ), 0) AS total_order_count,
+             ), 0)          AS total_order_count,
 
        COALESCE((SELECT COUNT(*)
                  FROM orders o
                  WHERE DATE (o.created_at) = CURRENT_DATE
                     AND o.status != 'CANCELLED'
-        ), 0)     AS today_order_count,
+        ), 0)              AS today_order_count,
 
        COALESCE((SELECT COUNT(*)
                  FROM reviews r
