@@ -14,7 +14,7 @@ import lombok.Getter;
 public class CustomerUpdateRequest {
 
     @Pattern(regexp = ".*\\S.*", message = "이름은 공백일 수 없습니다.")
-    @Size(max = 30)
+    @Size(max = 30, message = "이름은 최대 30자까지 입력할 수 있습니다.")
     private String name;
 
     @Pattern(regexp = ".*\\S.*", message = "이메일은 공백일 수 없습니다.")
