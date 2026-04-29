@@ -7,6 +7,7 @@ import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.entity.Customer;
 import com.ildang100.backoffice.customer.service.CustomerService;
+import com.ildang100.backoffice.dashboard.dto.RecentOrderResponse;
 import com.ildang100.backoffice.order.dto.request.OrderCancelRequest;
 import com.ildang100.backoffice.order.dto.request.OrderCreateRequest;
 import com.ildang100.backoffice.order.dto.request.OrderStatusUpdateRequest;
@@ -17,12 +18,14 @@ import com.ildang100.backoffice.product.entity.Product;
 import com.ildang100.backoffice.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -33,6 +36,8 @@ public class OrderService {
     private final AdminService adminService;
     private final CustomerService customerService;
     private final ProductService productService;
+
+    private static final int DASHBOARD_RECENT_ORDER_LIMIT = 10;
 
     /**
      * 주문을 생성합니다.
@@ -91,8 +96,8 @@ public class OrderService {
      *
      * <p>검색어와 주문 상태 조건을 적용합니다. 숫자 검색어는 주문 번호 검색에도 사용합니다.</p>
      *
-     * @param keyword 고객 이름 또는 주문 번호 검색어. {@code null} 또는 빈 문자열이면 검색 조건 없음
-     * @param status 조회할 주문 상태. {@code null}이면 상태 조건 없음
+     * @param keyword  고객 이름 또는 주문 번호 검색어. {@code null} 또는 빈 문자열이면 검색 조건 없음
+     * @param status   조회할 주문 상태. {@code null}이면 상태 조건 없음
      * @param pageable 페이지 및 정렬 정보
      * @return 주문 목록 응답 DTO
      */
@@ -208,5 +213,48 @@ public class OrderService {
         if (orderId == null || orderId <= 0) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
         }
+    }
+
+    /**
+     * 대시보드에 표시할 최근 주문 목록을 조회합니다.
+     *
+     * <p>
+     * 현재 처리 대상인 주문(예: PREPARING 상태)을 기준으로 최신 순으로 조회하며,
+     * 설정된 최대 개수(DASHBOARD_RECENT_ORDER_LIMIT)만큼 반환합니다.
+     * </p>
+     *
+     * <p>
+     * 조회된 주문 엔티티는 외부에 직접 노출하지 않고,
+     * {@link RecentOrderResponse} DTO로 변환하여 반환합니다.
+     * </p>
+     *
+     * <p><b>처리 흐름</b></p>
+     * <ol>
+     *     <li>최근 주문을 최신 생성일 기준으로 조회 (Pageable 적용)</li>
+     *     <li>각 주문의 고객명, 상품명 등 필요한 데이터 추출</li>
+     *     <li>{@code RecentOrderResponse} DTO로 변환</li>
+     * </ol>
+     *
+     * <p>
+     * 대시보드 특성상 실시간성이 중요하므로, 별도의 수정 작업 없이
+     * 조회 전용 트랜잭션({@code readOnly = true})으로 수행됩니다.
+     * </p>
+     *
+     * @return 최근 주문 목록 (DTO 리스트)
+     */
+    @Transactional(readOnly = true)
+    public List<RecentOrderResponse> getRecentOrdersForDashboard() {
+        return orderRepository.findRecentOrdersBySortByDesc(
+                        PageRequest.of(0, DASHBOARD_RECENT_ORDER_LIMIT)
+                )
+                .stream()
+                .map(order -> RecentOrderResponse.of(
+                        order.getOrderNumber(),
+                        order.getCustomer().getName(),
+                        order.getProduct().getName(),
+                        order.getTotalPrice(),
+                        order.getStatus()
+                ))
+                .toList();
     }
 }
