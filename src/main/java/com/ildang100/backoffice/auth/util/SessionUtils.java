@@ -5,6 +5,8 @@ import com.ildang100.backoffice.auth.session.SessionConst;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public final class SessionUtils {
 
@@ -29,22 +31,35 @@ public final class SessionUtils {
      * @since 2026-04-26
      */
     public static LoginAdminDto getLoginAdmin(HttpSession session) {
-        LoginAdminDto loginAdmin = (LoginAdminDto) session.getAttribute(SessionConst.LOGIN_ADMIN);
+        LoginAdminDto jwtLoginAdmin = getLoginAdminFromSecurityContext();
 
-        if (loginAdmin == null) {
+        if (jwtLoginAdmin != null) {
+            return jwtLoginAdmin;
+        }
+
+        LoginAdminDto sessionLoginAdmin =
+                (LoginAdminDto) session.getAttribute(SessionConst.LOGIN_ADMIN);
+
+        if (sessionLoginAdmin == null) {
             throw new ServiceException(ErrorCode.UNAUTHORIZED);
         }
 
-        return loginAdmin;
+        return sessionLoginAdmin;
     }
 
-    /**
-     * 로그인 여부를 확인합니다.
-     *
-     * @param session HttpSession
-     * @return 로그인 상태 여부 (true: 로그인됨, false: 로그인 안됨)
-     */
-    public static boolean isLoggedIn(HttpSession session) {
-        return session.getAttribute(SessionConst.LOGIN_ADMIN) != null;
+    private static LoginAdminDto getLoginAdminFromSecurityContext() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (!(principal instanceof LoginAdminDto loginAdmin)) {
+            return null;
+        }
+
+        return loginAdmin;
     }
 }

@@ -165,6 +165,26 @@ public enum ErrorCode {
             "REVIEW_NOT_FOUND",
             "리뷰가 존재하지 않습니다."
     ),
+    TOKEN_REQUIRED(
+            HttpStatus.UNAUTHORIZED,
+            "TOKEN_REQUIRED",
+            "인증 토큰이 필요합니다."
+    ),
+    TOKEN_EXPIRED(
+            HttpStatus.UNAUTHORIZED,
+            "TOKEN_EXPIRED",
+            "인증 토큰이 만료되었습니다."
+    ),
+    INVALID_TOKEN(
+            HttpStatus.UNAUTHORIZED,
+            "INVALID_TOKEN",
+            "유효하지 않은 토큰입니다."
+    ),
+    INVALID_TOKEN_FORMAT(
+            HttpStatus.UNAUTHORIZED,
+            "INVALID_TOKEN_FORMAT",
+            "토큰 형식이 올바르지 않습니다."
+    ),
 
     // 409 CONFLICT
     EMAIL_DUPLICATE(
