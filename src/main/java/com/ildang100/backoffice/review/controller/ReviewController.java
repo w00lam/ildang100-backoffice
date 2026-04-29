@@ -105,4 +105,33 @@ public class ReviewController {
 
         return CommonApiResponse.success(HttpStatus.OK, "리뷰 상세 조회 성공", response);
     }
+
+    /**
+     * 리뷰 소프트 삭제 (Story R-3).
+     *
+     * <p>
+     * 어드민 채널 — 부적절한 리뷰를 운영자가 삭제 처리합니다. 데이터는 물리적으로 삭제되지
+     * 않으며 {@code deletionStatus}만 {@code DELETED}로 전이됩니다. 작성 정보
+     * (rating·content·createdAt 등)는 변경되지 않고 그대로 보존됩니다 — 어뷰징 추적 및
+     * 통계 보존 목적. - 추후의 로직 수정을 위해서
+     * </p>
+     *
+     * <p>
+     * 이미 삭제된 리뷰를 다시 요청하면 409 {@code REVIEW_ALREADY_DELETED}로 응답합니다.
+     * 응답 본문의 {@code data}는 {@code null}이며 {@code @JsonInclude(NON_NULL)} 정책으로
+     * 응답에서 제외됩니다.
+     * </p>
+     */
+    @DeleteMapping("/{reviewId}")
+    public CommonApiResponse<Void> delete(
+            @PathVariable Long productId,
+            @PathVariable Long reviewId,
+            HttpSession session
+                                         ) {
+        SessionUtils.getLoginAdmin(session); // 인증 가드 (미인증 시 401 자동 발생)
+
+        reviewService.delete(productId, reviewId);
+
+        return CommonApiResponse.success(HttpStatus.OK, "리뷰 삭제 완료", null);
+    }
 }

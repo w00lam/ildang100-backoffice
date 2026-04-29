@@ -97,6 +97,22 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             @Param("reviewId") Long reviewId
                                                );
 
+    /**
+     * 리뷰 삭제용 단건 조회 (Story R-3).
+     *
+     * @param productId 대상 상품 ID
+     * @param reviewId  조회할 리뷰 ID
+     */
+    @Query(
+            "SELECT r FROM Review r "
+                    + "WHERE r.id = :reviewId "
+                    + "AND r.product.id = :productId"
+    )
+    Optional<Review> findByProductIdAndId(
+            @Param("productId") Long productId,
+            @Param("reviewId") Long reviewId
+                                         );
+
 
 
 }
