@@ -30,7 +30,7 @@ public class AuthUtils {
     public static LoginAdminDto getLoginAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             throw new ServiceException(ErrorCode.UNAUTHORIZED);
         }
 
