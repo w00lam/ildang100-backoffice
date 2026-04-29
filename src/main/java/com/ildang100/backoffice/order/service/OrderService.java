@@ -55,6 +55,8 @@ public class OrderService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
 
+        product.assertOrderable();   // ⬅ 추가 (P-7): 단종/삭제 사전 차단 - 가드
+
         product.decreaseStock(request.getQuantity());
 
         Order order = Order.create(

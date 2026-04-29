@@ -39,11 +39,11 @@ VALUES
     (10, '한하늘', 'customer10@example.com', '010-1000-0010', 'ACTIVE', NOW(), NOW());
 
 INSERT INTO products
-(id, admin_id, name, category, price, stock, status, created_at, updated_at)
+(id, admin_id, name, category, price, stock, status, deletion_status, created_at, updated_at)
 VALUES
-    (1, 1, '무선 키보드', '전자기기', 59000, 100, 'ON_SALE', NOW(), NOW()),
-    (2, 1, '블루투스 마우스', '전자기기', 39000, 80, 'ON_SALE', NOW(), NOW()),
-    (3, 1, '텀블러', '생활용품', 18000, 50, 'ON_SALE', NOW(), NOW());
+    (1, 1, '무선 키보드',     '전자기기', 59000, 100, 'ON_SALE', 'NOT_DELETED', NOW(), NOW()),
+    (2, 1, '블루투스 마우스', '전자기기', 39000,  80, 'ON_SALE', 'NOT_DELETED', NOW(), NOW()),
+    (3, 1, '텀블러',         '생활용품', 18000,  50, 'ON_SALE', 'NOT_DELETED', NOW(), NOW());
 
 --- 재고 부족
 INSERT INTO products
@@ -106,15 +106,15 @@ INSERT INTO orders (
      100005, 10000, 10000, '테스트 취소');
 
 INSERT INTO reviews
-(id, customer_id, product_id, rating, content, created_at, updated_at)
+(id, customer_id, product_id, order_id, rating, content, deletion_status, created_at, updated_at)
 VALUES
-    (1, 1, 1, 5, '아주 만족합니다.', NOW(), NOW()),
-    (2, 2, 1, 4, '배송도 빠르고 쓸만해요.', NOW(), NOW()),
-    (3, 3, 2, 5, '사용하기 편하고 디자인이 좋습니다.', NOW(), NOW()),
-    (4, 4, 2, 3, '무난한 상품입니다.', NOW(), NOW()),
-    (5, 5, 3, 4, '가격 대비 괜찮습니다.', NOW(), NOW()),
-    (6, 6, 3, 5, '재구매 의사 있습니다.', NOW(), NOW()),
-    (7, 7, 1, 4, '전반적으로 만족합니다.', NOW(), NOW()),
-    (8, 8, 2, 2, '생각보다 아쉬웠습니다.', NOW(), NOW()),
-    (9, 9, 3, 5, '선물용으로 좋습니다.', NOW(), NOW()),
-    (10, 10, 1, 5, '추천합니다.', NOW(), NOW());
+    ( 1,  1, 1,  1, 5, '아주 만족합니다.',                'NOT_DELETED', NOW(), NOW()),
+    ( 2,  2, 1,  2, 4, '배송도 빠르고 쓸만해요.',         'NOT_DELETED', NOW(), NOW()),
+    ( 3,  3, 2,  3, 5, '사용하기 편하고 디자인이 좋습니다.', 'NOT_DELETED', NOW(), NOW()),
+    ( 4,  4, 2,  4, 3, '무난한 상품입니다.',              'NOT_DELETED', NOW(), NOW()),
+    ( 5,  5, 3,  5, 4, '가격 대비 괜찮습니다.',            'NOT_DELETED', NOW(), NOW()),
+    ( 6,  6, 3,  6, 5, '재구매 의사 있습니다.',            'NOT_DELETED', NOW(), NOW()),
+    ( 7,  7, 1,  7, 4, '전반적으로 만족합니다.',           'NOT_DELETED', NOW(), NOW()),
+    ( 8,  8, 2,  8, 2, '생각보다 아쉬웠습니다.',           'NOT_DELETED', NOW(), NOW()),
+    ( 9,  9, 3,  9, 5, '선물용으로 좋습니다.',             'NOT_DELETED', NOW(), NOW()),
+    (10, 10, 1, 10, 5, '추천합니다.',                     'NOT_DELETED', NOW(), NOW());
