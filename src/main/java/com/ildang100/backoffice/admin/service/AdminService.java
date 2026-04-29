@@ -349,6 +349,29 @@ public class AdminService {
     }
 
     /**
+     * 관리자 비밀번호 변경 로직
+     */
+    @Transactional
+    public void updatePassword(Long adminId, AdminPasswordUpdateRequest request) {
+
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        validateNewPasswordConfirm(request.getNewPassword(), request.getNewPasswordConfirm());
+
+        admin.changePassword(request.getCurrentPassword(), request.getNewPassword(), passwordEncoder);
+    }
+
+    /**
+     * 새 비밀번호와 확인용 비밀번호 일치 여부 검증
+     */
+    private void validateNewPasswordConfirm(String newPassword, String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) {
+            throw new ServiceException(ErrorCode.PASSWORD_NEW_CONFIRM_MISMATCH);
+        }
+    }
+
+    /**
      * 이메일을 기준으로 관리자를 조회합니다.
      *
      * <p>
