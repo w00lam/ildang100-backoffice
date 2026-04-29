@@ -2,6 +2,7 @@ package com.ildang100.backoffice.common.exception;
 
 import com.ildang100.backoffice.common.enums.*;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
@@ -114,6 +115,14 @@ public class GlobalExceptionHandler {
                 .body(CommonApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
+    /**
+     * 요청 파라미터 타입 변환 실패 예외 처리
+     *
+     * <p>Enum 요청 파라미터 값이 유효하지 않은 경우 대상 타입에 맞는 에러 코드를 반환합니다.</p>
+     *
+     * @param e MethodArgumentTypeMismatchException
+     * @return 공통 에러 응답
+     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<CommonApiResponse<Void>> handleTypeMismatchException(
             MethodArgumentTypeMismatchException e
@@ -195,5 +204,22 @@ public class GlobalExceptionHandler {
         }
 
         return ErrorCode.VALIDATION_FAILED;
+    }
+
+    /**
+     * 요청 파라미터 제약 조건 검증 실패 예외 처리
+     *
+     * <p>{@code @RequestParam} 등에 선언한 {@code @Min}, {@code @Max} 검증 실패를 처리합니다.</p>
+     *
+     * @param e ConstraintViolationException
+     * @return 공통 에러 응답
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<CommonApiResponse<Void>> handleConstraintViolationException(
+            ConstraintViolationException e
+    ) {
+        return ResponseEntity
+                .status(ErrorCode.VALIDATION_FAILED.getHttpStatus())
+                .body(CommonApiResponse.error(ErrorCode.VALIDATION_FAILED));
     }
 }

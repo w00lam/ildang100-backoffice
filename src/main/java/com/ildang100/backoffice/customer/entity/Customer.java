@@ -2,6 +2,8 @@ package com.ildang100.backoffice.customer.entity;
 
 import com.ildang100.backoffice.common.entity.BaseEntity;
 import com.ildang100.backoffice.common.enums.CustomerStatus;
+import com.ildang100.backoffice.common.exception.ErrorCode;
+import com.ildang100.backoffice.common.exception.ServiceException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
@@ -64,7 +66,18 @@ public class Customer extends BaseEntity {
         this.status = status;
     }
 
+    /**
+     * 고객을 탈퇴 처리합니다.
+     *
+     * <p>고객 데이터를 삭제하지 않고 상태를 {@code INACTIVE}로 변경합니다.</p>
+     *
+     * @throws ServiceException 이미 비활성 상태인 고객인 경우
+     */
     public void withdraw() {
+        if (status == CustomerStatus.INACTIVE) {
+            throw new ServiceException(ErrorCode.CUSTOMER_DELETE_NOT_ALLOWED);
+        }
+
         this.status = CustomerStatus.INACTIVE;
     }
 }
