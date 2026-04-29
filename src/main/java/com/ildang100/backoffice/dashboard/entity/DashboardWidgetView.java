@@ -42,25 +42,25 @@ public class DashboardWidgetView {
     /**
      * 준비중 주문 수
      */
-    private Long preparingOrderCount;
+    private Long preparingOrders;
 
     /**
      * 배송중 주문 수
      */
-    private Long shippingOrderCount;
+    private Long shippingOrders;
 
     /**
      * 배송완료 주문 수
      */
-    private Long deliveredOrderCount;
+    private Long deliveredOrders;
 
     /**
      * 재고 부족 상품 수 (1~5개)
      */
-    private Long lowStockProductCount;
+    private Long lowStockProducts;
 
     /**
      * 품절 상품 수
      */
-    private Long outOfStockProductCount;
+    private Long outOfStockProducts;
 }

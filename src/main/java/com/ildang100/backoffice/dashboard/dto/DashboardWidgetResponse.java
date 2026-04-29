@@ -35,38 +35,38 @@ import lombok.Getter;
 @JsonPropertyOrder({
         "totalSales",
         "todaySales",
-        "preparingOrderCount",
-        "shippingOrderCount",
-        "deliveredOrderCount",
-        "lowStockProductCount",
-        "outOfStockProductCount"
+        "preparingOrders",
+        "shippingOrders",
+        "deliveredOrders",
+        "lowStockProducts",
+        "outOfStockProducts"
 })
 public class DashboardWidgetResponse {
 
     private final Long totalSales;
     private final Long todaySales;
-    private final Long preparingOrderCount;
-    private final Long shippingOrderCount;
-    private final Long deliveredOrderCount;
-    private final Long lowStockProductCount;
-    private final Long outOfStockProductCount;
+    private final Long preparingOrders;
+    private final Long shippingOrders;
+    private final Long deliveredOrders;
+    private final Long lowStockProducts;
+    private final Long outOfStockProducts;
 
     private DashboardWidgetResponse(
             Long totalSales,
             Long todaySales,
-            Long preparingOrderCount,
-            Long shippingOrderCount,
-            Long deliveredOrderCount,
-            Long lowStockProductCount,
-            Long outOfStockProductCount
+            Long preparingOrders,
+            Long shippingOrders,
+            Long deliveredOrders,
+            Long lowStockProducts,
+            Long outOfStockProducts
     ) {
         this.totalSales = totalSales;
         this.todaySales = todaySales;
-        this.preparingOrderCount = preparingOrderCount;
-        this.shippingOrderCount = shippingOrderCount;
-        this.deliveredOrderCount = deliveredOrderCount;
-        this.lowStockProductCount = lowStockProductCount;
-        this.outOfStockProductCount = outOfStockProductCount;
+        this.preparingOrders = preparingOrders;
+        this.shippingOrders = shippingOrders;
+        this.deliveredOrders = deliveredOrders;
+        this.lowStockProducts = lowStockProducts;
+        this.outOfStockProducts = outOfStockProducts;
     }
 
     /**
@@ -83,11 +83,11 @@ public class DashboardWidgetResponse {
         return new DashboardWidgetResponse(
                 view.getTotalSales(),
                 view.getTodaySales(),
-                view.getPreparingOrderCount(),
-                view.getShippingOrderCount(),
-                view.getDeliveredOrderCount(),
-                view.getLowStockProductCount(),
-                view.getOutOfStockProductCount()
+                view.getPreparingOrders(),
+                view.getShippingOrders(),
+                view.getDeliveredOrders(),
+                view.getLowStockProducts(),
+                view.getOutOfStockProducts()
         );
     }
 }
