@@ -55,7 +55,7 @@ public class ReviewListItemResponse {
     public static ReviewListItemResponse from(Review review) {
         return new ReviewListItemResponse(
                 review.getId(),
-                review.getOrder().getId(),
+                review.getOrder().getOrderNumber(),
                 review.getCustomer().getName(),
                 review.getProduct().getName(),
                 review.getRating(),
