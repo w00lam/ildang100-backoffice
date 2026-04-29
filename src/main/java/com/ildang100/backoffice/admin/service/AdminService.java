@@ -35,35 +35,36 @@ public class AdminService {
      *
      * <p>
      * 관리자 회원가입 시 호출되는 메서드로,
-     * 이메일 중복 검증 → 비밀번호 암호화 → 관리자 엔티티 생성 → 저장
-     * 순서로 처리됩니다.
+     * 이메일 중복 검증 → 관리자 엔티티 생성(비밀번호 암호화 위임) → DB 저장
+     * 순서로 흐름을 제어합니다.
      * </p>
      *
      * <p>
-     * 비밀번호는 반드시 평문이 아닌 {@link PasswordEncoder}를 통해 암호화된 상태로 저장됩니다.
+     * 객체지향적 설계(Tell, Don't Ask)에 따라 서비스 레이어에서 직접 비밀번호를 암호화하지 않습니다.
+     * 대신 {@link org.springframework.security.crypto.password.PasswordEncoder}를
+     * 엔티티의 팩토리 메서드로 전달하여, 객체 스스로 평문 비밀번호를 암호화하도록 책임을 위임합니다.
      * </p>
      *
      * <p>
-     * 또한, 동일한 이메일을 가진 계정이 존재할 경우
+     * 가입 전 동일한 이메일을 가진 계정이 이미 존재할 경우,
      * 중복 가입을 방지하기 위해 예외를 발생시킵니다.
      * </p>
      *
      * @param request 관리자 회원가입 요청 DTO
-     * @throws ServiceException 이메일이 이미 존재하는 경우
+     * @throws ServiceException 이메일이 이미 존재하는 경우 (DUPLICATE_EMAIL)
      */
     @Transactional
     public void createAdmin(AdminSignUpRequest request) {
 
         this.validateDuplicateEmail(request.getEmail());
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-
         Admin admin = Admin.create(
                 request.getName(),
                 request.getEmail(),
-                encodedPassword,
+                request.getPassword(),
                 request.getTele(),
-                request.getRole()
+                request.getRole(),
+                passwordEncoder
         );
 
         adminRepository.save(admin);
