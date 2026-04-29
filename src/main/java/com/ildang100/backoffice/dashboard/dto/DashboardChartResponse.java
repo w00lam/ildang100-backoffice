@@ -49,20 +49,20 @@ public class DashboardChartResponse {
     /**
      * 대시보드 차트 응답 객체를 생성합니다.
      *
-     * @param reviewRatings 리뷰 평점 분포
-     * @param customerStatuses 고객 상태 분포
-     * @param productCategories 상품 카테고리 분포
+     * @param reviewRatingDistribution 리뷰 평점 분포
+     * @param customerStatusDistribution 고객 상태 분포
+     * @param productCategoryDistribution 상품 카테고리 분포
      * @return 대시보드 차트 응답 DTO
      */
     public static DashboardChartResponse of(
-            List<ReviewRatingDistributionResponse> reviewRatings,
-            List<CustomerStatusDistributionResponse> customerStatuses,
-            List<ProductCategoryDistributionResponse> productCategories
+            List<ReviewRatingDistributionResponse> reviewRatingDistribution,
+            List<CustomerStatusDistributionResponse> customerStatusDistribution,
+            List<ProductCategoryDistributionResponse> productCategoryDistribution
     ) {
         return new DashboardChartResponse(
-                reviewRatings,
-                customerStatuses,
-                productCategories
+                reviewRatingDistribution,
+                customerStatusDistribution,
+                productCategoryDistribution
         );
     }
 }

@@ -37,5 +37,5 @@ public class ReviewRatingDistributionView {
     /**
      * 해당 평점의 리뷰 개수입니다.
      */
-    private Long reviewCount;
+    private Long count;
 }

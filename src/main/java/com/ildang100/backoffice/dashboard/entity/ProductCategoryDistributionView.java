@@ -36,5 +36,5 @@ public class ProductCategoryDistributionView {
     /**
      * 해당 카테고리의 상품 수입니다.
      */
-    private Long productCount;
+    private Long count;
 }

@@ -24,11 +24,11 @@ public class ReviewRatingDistributionResponse {
     /**
      * 해당 평점의 리뷰 개수입니다.
      */
-    private final Long reviewCount;
+    private final Long count;
 
-    private ReviewRatingDistributionResponse(Integer rating, Long reviewCount) {
+    private ReviewRatingDistributionResponse(Integer rating, Long count) {
         this.rating = rating;
-        this.reviewCount = reviewCount;
+        this.count = count;
     }
 
     /**
@@ -40,7 +40,7 @@ public class ReviewRatingDistributionResponse {
     public static ReviewRatingDistributionResponse from(ReviewRatingDistributionView view) {
         return new ReviewRatingDistributionResponse(
                 view.getRating(),
-                view.getReviewCount()
+                view.getCount()
         );
     }
 }

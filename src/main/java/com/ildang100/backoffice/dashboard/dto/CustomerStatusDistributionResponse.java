@@ -24,11 +24,11 @@ public class CustomerStatusDistributionResponse {
     /**
      * 해당 상태의 고객 수입니다.
      */
-    private final Long customerCount;
+    private final Long count;
 
-    private CustomerStatusDistributionResponse(String status, Long customerCount) {
+    private CustomerStatusDistributionResponse(String status, Long count) {
         this.status = status;
-        this.customerCount = customerCount;
+        this.count = count;
     }
 
     /**
@@ -40,7 +40,7 @@ public class CustomerStatusDistributionResponse {
     public static CustomerStatusDistributionResponse from(CustomerStatusDistributionView view) {
         return new CustomerStatusDistributionResponse(
                 view.getStatus(),
-                view.getCustomerCount()
+                view.getCount()
         );
     }
 }

@@ -24,11 +24,11 @@ public class ProductCategoryDistributionResponse {
     /**
      * 해당 카테고리의 상품 수입니다.
      */
-    private final Long productCount;
+    private final Long count;
 
-    private ProductCategoryDistributionResponse(String category, Long productCount) {
+    private ProductCategoryDistributionResponse(String category, Long count) {
         this.category = category;
-        this.productCount = productCount;
+        this.count = count;
     }
 
     /**
@@ -40,7 +40,7 @@ public class ProductCategoryDistributionResponse {
     public static ProductCategoryDistributionResponse from(ProductCategoryDistributionView view) {
         return new ProductCategoryDistributionResponse(
                 view.getCategory(),
-                view.getProductCount()
+                view.getCount()
         );
     }
 }

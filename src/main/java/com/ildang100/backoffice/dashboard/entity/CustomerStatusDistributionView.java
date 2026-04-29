@@ -37,5 +37,5 @@ public class CustomerStatusDistributionView {
     /**
      * 해당 상태의 고객 수입니다.
      */
-    private Long customerCount;
+    private Long count;
 }
