@@ -25,7 +25,7 @@ import com.ildang100.backoffice.common.exception.ServiceException;
  *
  * @author 이우람
  * @since 2026-04-25
- */
+*/
 public enum AdminRole {
 
     /**

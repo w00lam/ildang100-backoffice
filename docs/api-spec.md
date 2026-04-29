@@ -1500,6 +1500,8 @@
 ### 기능
 
 고객 목록을 조회합니다.
+각 고객의 주문 기반 집계 정보(`totalOrderCount`, `totalOrderAmount`)를 함께 제공합니다.
+취소된 주문(`CANCELLED`)은 주문 수와 구매 금액 집계에서 제외합니다.
 
 ### Method / URL
 
@@ -1546,7 +1548,9 @@
         "tele": "010-1234-0000",
         "status": "ACTIVE",
         "createdAt": "2026-04-10T10:00:00",
-        "updatedAt": "2026-04-23T12:00:00"
+        "updatedAt": "2026-04-23T12:00:00",
+        "totalOrderCount": 3,
+        "totalOrderAmount": 120000
       }
     ],
     "page": 1,
@@ -1571,6 +1575,8 @@
 ### 기능
 
 특정 고객의 상세 정보를 조회합니다.
+해당 고객의 주문 기반 집계 정보(`totalOrderCount`, `totalOrderAmount`)를 함께 제공합니다.
+취소된 주문(`CANCELLED`)은 주문 수와 구매 금액 집계에서 제외합니다.
 
 ### Method / URL
 
@@ -1605,7 +1611,9 @@
     "tele": "010-1234-0000",
     "status": "ACTIVE",
     "createdAt": "2026-04-10T10:00:00",
-    "updatedAt": "2026-04-23T12:00:00"
+    "updatedAt": "2026-04-23T12:00:00",
+    "totalOrderCount": 3,
+    "totalOrderAmount": 120000
   }
 }
 ```
@@ -1668,7 +1676,9 @@
     "tele": "010-5555-6666",
     "status": "ACTIVE",
     "createdAt": "2026-04-10T10:00:00",
-    "updatedAt": "2026-04-23T16:00:00"
+    "updatedAt": "2026-04-23T16:00:00",
+    "totalOrderCount": 3,
+    "totalOrderAmount": 120000
   }
 }
 ```
@@ -1728,7 +1738,9 @@
     "tele": "010-1234-0000",
     "status": "INACTIVE",
     "createdAt": "2026-04-10T10:00:00",
-    "updatedAt": "2026-04-23T16:05:00"
+    "updatedAt": "2026-04-23T16:05:00",
+    "totalOrderCount": 3,
+    "totalOrderAmount": 120000
   }
 }
 ```
