@@ -1,7 +1,7 @@
 INSERT INTO admins
 (id, name, email, password, tele, status, role, created_at, approved_at, updated_at)
 VALUES
-    (1, 'admin', 'admin@sparta.com', '$2a$04$0slsLbTBojZGxBjb/sQ5he4U28QNqFn0bzwSae8LcqTDKwtlqFCC2', '010-0000-0000',
+    (1, 'admin', 'admin@sparta.com', '$2a$10$TSPNz8qpjtfwiUbVZxI2LOWBMEGZ03OeXaQzvF19j8tkMOOT9wTfe', '010-0000-0000',
      'ACTIVE', 'SUPER_ADMIN', NOW(), NOW(), NOW()),
     (2, '김운영', 'operation@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-1111-1111',
      'ACTIVE', 'OPERATIONS_ADMIN', NOW(), NOW(), NOW()),
