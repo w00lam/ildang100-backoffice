@@ -1,36 +1,40 @@
 package com.ildang100.backoffice.auth.service;
 
 import com.ildang100.backoffice.admin.entity.Admin;
-import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.admin.service.AdminService;
 import com.ildang100.backoffice.auth.dto.AdminLoginRequest;
+import com.ildang100.backoffice.auth.dto.AdminLoginResponse;
 import com.ildang100.backoffice.auth.dto.AdminSignUpRequest;
 import com.ildang100.backoffice.auth.dto.LoginAdminDto;
+import com.ildang100.backoffice.auth.jwt.JwtProvider;
 import com.ildang100.backoffice.auth.session.SessionConst;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
-import com.ildang100.backoffice.config.PasswordEncoder;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.ildang100.backoffice.common.enums.AdminStatus.ACTIVE;
-
 /**
- * 관리자 인증 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
+ * 관리자 로그인 처리
  *
  * <p>
- * 관리자 회원가입을 포함한 인증 관련 기능을 담당하며,
- * 데이터 검증 및 엔티티 생성, 저장 로직을 수행합니다.
+ * 이메일과 비밀번호를 검증한 후 JWT Access Token을 발급합니다.
  * </p>
  *
- * <p><b>주요 기능</b></p>
- * <ul>
- *     <li>관리자 회원가입 처리</li>
- *     <li>이메일 중복 검증</li>
- *     <li>비밀번호 암호화</li>
- * </ul>
+ * <p><b>처리 흐름</b></p>
+ * <ol>
+ *     <li>이메일 기반 관리자 조회</li>
+ *     <li>비밀번호 검증</li>
+ *     <li>계정 상태 검증 (로그인 가능 여부)</li>
+ *     <li>JWT Access Token 생성</li>
+ * </ol>
+ *
+ * <p>
+ * 기존 세션 기반 인증 대신, 클라이언트는 발급된 토큰을
+ * Authorization 헤더에 담아 이후 요청을 수행해야 합니다.
+ * </p>
  *
  * @author 이우람
  * @since 2026-04-27
@@ -38,6 +42,7 @@ import static com.ildang100.backoffice.common.enums.AdminStatus.ACTIVE;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private final JwtProvider jwtProvider;
     private final AdminService adminService;
     private final PasswordEncoder passwordEncoder;
 
@@ -70,18 +75,23 @@ public class AuthService {
     }
 
     @Transactional
-    public void login(AdminLoginRequest request, HttpSession session) {
-
+    public AdminLoginResponse  login(AdminLoginRequest request, HttpSession session) {
         Admin admin = adminService.getByEmail(request.getEmail());
 
         validatePassword(request.getPassword(), admin.getPassword());
 
         admin.validateLoginAvailable();
 
+        // TODO(auth-jwt): JWT 전환 기간 동안만 기존 세션 로그인을 함께 유지한다.
+        // 모든 보호 API가 Authorization Bearer 토큰으로 검증되면 이 세션 저장 로직을 제거한다.
         session.setAttribute(
                 SessionConst.LOGIN_ADMIN,
                 LoginAdminDto.from(admin)
         );
+
+        String accessToken = jwtProvider.createAccessToken(admin);
+
+        return new AdminLoginResponse(accessToken);
     }
 
     /**
@@ -96,6 +106,8 @@ public class AuthService {
      */
     @Transactional
     public void logout(HttpSession session) {
+        // TODO(auth-jwt): JWT 전용 인증으로 전환되면 로그아웃은 클라이언트 토큰 삭제 정책으로 변경한다.
+        // Refresh Token을 도입하면 서버 저장소에서 refresh token을 폐기하는 방식으로 확장한다.
         session.invalidate();
     }
 
