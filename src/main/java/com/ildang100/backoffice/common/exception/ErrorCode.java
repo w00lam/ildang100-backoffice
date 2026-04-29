@@ -35,6 +35,11 @@ public enum ErrorCode {
             "INVALID_PRODUCT_STATUS",
             "유효하지 않은 상품 상태입니다."
     ),
+    PRODUCT_ALREADY_DELETED(
+            HttpStatus.CONFLICT,
+            "PRODUCT_ALREADY_DELETED",
+            "이미 삭제된 상품입니다."
+    ),
     INVALID_ORDER_STATUS(
             HttpStatus.BAD_REQUEST,
             "INVALID_ORDER_STATUS",
@@ -49,6 +54,14 @@ public enum ErrorCode {
             HttpStatus.BAD_REQUEST,
             "PASSWORD_CONFIRM_MISMATCH",
             "비밀번호 확인이 일치하지 않습니다."
+    ),
+    /**
+     * 비밀번호 변경 시, 새 비밀번호와 비밀번호 확인 값이 일치하지 않을 때
+     */
+    PASSWORD_NEW_CONFIRM_MISMATCH(
+            HttpStatus.BAD_REQUEST,
+            "PASSWORD_NEW_CONFIRM_MISMATCH",
+            "새 비밀번호와 비밀번호 확인이 일치하지 않습니다."
     ),
     INVALID_STOCK_VALUE(
             HttpStatus.BAD_REQUEST,

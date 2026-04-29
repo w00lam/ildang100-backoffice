@@ -43,6 +43,22 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
     boolean existsByEmail(String email);
 
     /**
+     * 이메일 중복 여부 확인(본인 제외)
+     *
+     * <p>
+     * 정보변경 시 본인의 이메일을 제외한 동일한 이메일이 이미 존재하는지 확인하기 위해 사용됩니다.
+     * </p>
+     *
+     * @param email 확인할 이메일
+     * @param id 확인 제외할 관리자 아이디
+     * @return 중복이면 {@code true}, 아니면 {@code false}
+     *
+     * @author 박채빈
+     * @since 2026-04-28
+     */
+    boolean existsByEmailAndIdNot(String email, Long id);
+
+    /**
      * 이메일로 관리자 조회
      *
      * <p>

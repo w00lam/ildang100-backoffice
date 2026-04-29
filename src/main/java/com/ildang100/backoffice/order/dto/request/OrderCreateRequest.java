@@ -1,4 +1,4 @@
-package com.ildang100.backoffice.order.dto;
+package com.ildang100.backoffice.order.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

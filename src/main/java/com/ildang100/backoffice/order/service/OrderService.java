@@ -7,10 +7,10 @@ import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.entity.Customer;
 import com.ildang100.backoffice.customer.service.CustomerService;
-import com.ildang100.backoffice.order.dto.OrderCreateRequest;
-import com.ildang100.backoffice.order.dto.OrderCreateResponse;
-import com.ildang100.backoffice.order.dto.OrderDetailResponse;
-import com.ildang100.backoffice.order.dto.OrderListResponse;
+import com.ildang100.backoffice.order.dto.request.OrderCancelRequest;
+import com.ildang100.backoffice.order.dto.request.OrderCreateRequest;
+import com.ildang100.backoffice.order.dto.request.OrderStatusUpdateRequest;
+import com.ildang100.backoffice.order.dto.response.*;
 import com.ildang100.backoffice.order.entity.Order;
 import com.ildang100.backoffice.order.repository.OrderRepository;
 import com.ildang100.backoffice.product.entity.Product;
@@ -40,14 +40,14 @@ public class OrderService {
      *
      * <p>관리자, 고객, 상품을 조회한 뒤 상품 재고를 차감하고 주문 정보를 저장합니다.</p>
      *
-     * @param adminid 주문을 생성하는 관리자 ID
+     * @param adminId 주문을 생성하는 관리자 ID
      * @param request 주문 생성 요청 정보
      * @return 생성된 주문 응답 DTO
      * @throws ServiceException 관리자를 찾을 수 없거나, 고객/상품을 찾을 수 없거나, 재고 차감이 불가능한 경우
      */
     @Transactional
-    public OrderCreateResponse createOrder(Long adminid, OrderCreateRequest request) {
-        Admin admin = adminRepository.findById(adminid)
+    public OrderCreateResponse createOrder(Long adminId, OrderCreateRequest request) {
+        Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.UNAUTHORIZED));
 
         Customer customer = customerService.getCustomerOrThrow(request.getCustomerId());
@@ -121,12 +121,50 @@ public class OrderService {
      */
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrder(Long orderId) {
-        validateOrderId(orderId);
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
+        Order order = getOrderOrThrow(orderId);
 
         return OrderDetailResponse.from(order);
+    }
+
+    /**
+     * 주문 상태를 수정합니다.
+     *
+     * @param orderId 상태를 수정할 주문 ID
+     * @param request 변경할 주문 상태 정보
+     * @return 변경된 주문 상태 응답 DTO
+     * @throws ServiceException 주문 ID가 유효하지 않거나, 주문을 찾을 수 없거나, 허용되지 않은 상태 전이인 경우
+     */
+    @Transactional
+    public OrderStatusUpdateResponse updateOrderStatus(
+            Long orderId,
+            OrderStatusUpdateRequest request
+    ) {
+        Order order = getOrderOrThrow(orderId);
+
+        order.updateStatus(request.getStatus());
+
+        return OrderStatusUpdateResponse.from(order);
+    }
+
+    /**
+     * 주문을 취소하고 상품 재고를 복구합니다.
+     *
+     * @param orderId 취소할 주문 ID
+     * @param request 주문 취소 사유 정보
+     * @return 취소된 주문 응답 DTO
+     * @throws ServiceException 주문 ID가 유효하지 않거나, 주문을 찾을 수 없거나, 취소할 수 없는 주문인 경우
+     */
+    @Transactional
+    public OrderCancelResponse cancelOrder(
+            Long orderId,
+            OrderCancelRequest request
+    ) {
+        Order order = getOrderOrThrow(orderId);
+
+        order.cancel(request.getCancelReason());
+        order.getProduct().restoreStock(order.getQuantity());
+
+        return OrderCancelResponse.from(order);
     }
 
     private Long generateOrderNumber() {
@@ -183,10 +221,17 @@ public class OrderService {
         throw new ServiceException(ErrorCode.VALIDATION_FAILED);
     }
 
+    @Transactional(readOnly = true)
+    public Order getOrderOrThrow(Long orderId) {
+        validateOrderId(orderId);
+
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
+    }
+
     private void validateOrderId(Long orderId) {
         if (orderId == null || orderId <= 0) {
             throw new ServiceException(ErrorCode.VALIDATION_FAILED);
-
         }
     }
 }

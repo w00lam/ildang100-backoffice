@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
  *
  * <p><b>제약 조건</b></p>
  * <ul>
- * <li>name: 필수 입력, 최대 30자</li>
- * <li>email: 필수 입력, 이메일 형식 준수, 최대 50자</li>
- * <li>tele: 필수 입력, 최대 20자</li>
+ * <li>name: 선택 입력, 최대 30자</li>
+ * <li>email: 선택 입력, 이메일 형식 준수, 최대 50자</li>
+ * <li>tele: 선택 입력, 최대 20자</li>
  * </ul>
  *
  * @author 박채빈
@@ -24,16 +24,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class AdminInfoUpdateRequest {
-    @NotBlank(message = "이름은 필수입니다.")
+
     @Size(max = 30, message = "이름은 최대 30자까지 입력할 수 있습니다.")
     private String name;
 
-    @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "이메일 형식이 올바르지 않습니다.")
     @Size(max = 50, message = "이메일은 최대 50자까지 입력할 수 있습니다.")
     private String email;
 
-    @NotBlank(message = "전화번호는 필수입니다.")
     @Pattern(
             regexp = "^010-\\d{4}-\\d{4}$",
             message = "전화번호는 010-XXXX-XXXX 형식이어야 합니다."
