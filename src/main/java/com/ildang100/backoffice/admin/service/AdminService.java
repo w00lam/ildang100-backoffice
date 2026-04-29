@@ -116,8 +116,8 @@ public class AdminService {
      * @throws ServiceException 관리자를 찾을 수 없는 경우 발생
      */
     public AdminResponse getAdmin(Long adminId) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         return AdminResponse.from(admin);
     }
@@ -140,8 +140,7 @@ public class AdminService {
     @Transactional
     public AdminResponse updateAdmin(Long adminId, AdminInfoUpdateRequest request) {
 
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+        Admin admin = adminRepository.getById(adminId);
 
         this.validateDuplicateEmail(request.getEmail());
 
@@ -182,8 +181,8 @@ public class AdminService {
      */
     @Transactional
     public AdminResponse updateAdminRole(Long adminId, AdminRoleUpdateRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         admin.updateRole(request.getRole());
 
@@ -206,8 +205,8 @@ public class AdminService {
      */
     @Transactional
     public AdminResponse updateAdminStatus(Long adminId, AdminStatusUpdateRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         admin.updateStatus(request.getStatus());
 
@@ -230,8 +229,7 @@ public class AdminService {
     @Transactional
     public void deleteAdmin(Long adminId) {
 
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+        Admin admin = adminRepository.getById(adminId);
 
         // 1. 슈퍼 관리자 삭제 방지
         if (admin.getRole() == AdminRole.SUPER_ADMIN) {
@@ -268,8 +266,8 @@ public class AdminService {
      */
     @Transactional
     public AdminApprovalResponse approveAdmin(Long adminId, AdminApprovalRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -306,8 +304,8 @@ public class AdminService {
      */
     @Transactional(readOnly = true)
     public AdminResponse getAdminProfile(Long adminId) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         return AdminResponse.from(admin);
     }
@@ -320,8 +318,8 @@ public class AdminService {
      */
     @Transactional
     public AdminResponse updateAdminProfile(Long adminId, AdminInfoUpdateRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         this.validateDuplicateEmailAndId(request.getEmail(), admin);
 
@@ -354,8 +352,7 @@ public class AdminService {
     @Transactional
     public void updatePassword(Long adminId, AdminPasswordUpdateRequest request) {
 
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+        Admin admin = adminRepository.getById(adminId);
 
         validateNewPasswordConfirm(request.getNewPassword(), request.getNewPasswordConfirm());
 

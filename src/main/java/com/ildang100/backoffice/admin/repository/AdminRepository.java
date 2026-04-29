@@ -3,6 +3,8 @@ package com.ildang100.backoffice.admin.repository;
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
+import com.ildang100.backoffice.common.exception.ErrorCode;
+import com.ildang100.backoffice.common.exception.ServiceException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -117,4 +119,14 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
      * @since 2026-04-27
      */
     long countByStatus(AdminStatus status);
+
+    /**
+     * 예외 처리까지 완료된 엔티티를 반환하는 공통 메서드
+     * @author 박채빈
+     * @since 2026-04-29
+     */
+    default Admin getById(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+    }
 }
