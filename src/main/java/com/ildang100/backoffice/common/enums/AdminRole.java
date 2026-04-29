@@ -25,23 +25,49 @@ import com.ildang100.backoffice.common.exception.ServiceException;
  *
  * @author 이우람
  * @since 2026-04-25
+ * -----------------------------------------------------------
+ * <p>
+ * Spring Security 및 JWT 인증/인가 과정에서의 호환성을 위해
+ * 모든 권한 상수는 'ROLE_' 접두사를 포함하여 정의합니다.
+ * </p>
+ *
+ * <p>
+ * [설계 변경 이유]
+ * Spring Security의 {@code hasRole()} 또는 {@code @PreAuthorize("hasRole(...)")} 메서드는
+ * 내부적으로 사용자의 권한 문자열 앞에 자동으로 'ROLE_' 접두사를 붙여서 검증 로직을 수행합니다.
+ *
+ * 기존처럼 접두사 없이 저장할 경우, JWT 토큰을 발급하거나 시큐리티 컨텍스트(SecurityContext)에
+ * 권한을 주입할 때마다 매번 "ROLE_" 문자열을 수동으로 결합해야 하는 번거로움이 발생합니다.
+ *
+ * 이를 방지하고 애플리케이션 전반에서 권한 문자열의 일관성을 유지하기 위해,
+ * 도메인(Enum) 계층에서부터 시큐리티 표준 규격에 맞춘 네이밍을 사용하도록 구조를 개선했습니다.
+ * </p>
+ *
+ * <ul>
+ *     <li>ROLE_SUPER_ADMIN - 전체 시스템 관리 권한을 가진 최고 관리자</li>
+ *     <li>ROLE_OPERATIONS_ADMIN - 운영 관련 기능을 담당하는 관리자</li>
+ *     <li>ROLE_CS_ADMIN - 고객 응대 및 문의 처리를 담당하는 관리자</li>
+ * </ul>
+ *
+ * @author 박채빈
+ * @since 2026-04-29
  */
 public enum AdminRole {
 
     /**
      * 전체 시스템 관리 권한을 가진 최고 관리자입니다.
      */
-    SUPER_ADMIN("최고 관리자"),
+    ROLE_SUPER_ADMIN("최고 관리자"),
 
     /**
      * 상품, 주문 등 운영 관련 기능을 담당하는 관리자입니다.
      */
-    OPERATIONS_ADMIN("운영 관리자"),
+    ROLE_OPERATIONS_ADMIN("운영 관리자"),
 
     /**
      * 고객 문의 및 응대 관련 기능을 담당하는 관리자입니다.
      */
-    CS_ADMIN("고객 응대 관리자");
+    ROLE_CS_ADMIN("고객 응대 관리자");
 
     /**
      * 화면 표시 또는 응답 DTO에서 사용할 역할 설명입니다.

@@ -233,7 +233,7 @@ public class AdminService {
         Admin admin = adminRepository.getById(adminId);
 
         // 1. 슈퍼 관리자 삭제 방지
-        if (admin.getRole() == AdminRole.SUPER_ADMIN) {
+        if (admin.getRole() == AdminRole.ROLE_SUPER_ADMIN) {
             throw new ServiceException(ErrorCode.CANNOT_DELETE_SUPER_ADMIN);
         }
 
