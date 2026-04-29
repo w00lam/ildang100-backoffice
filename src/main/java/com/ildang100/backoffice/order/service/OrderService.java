@@ -6,7 +6,7 @@ import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.entity.Customer;
-import com.ildang100.backoffice.customer.repository.CustomerRepository;
+import com.ildang100.backoffice.customer.service.CustomerService;
 import com.ildang100.backoffice.order.dto.OrderCreateRequest;
 import com.ildang100.backoffice.order.dto.OrderCreateResponse;
 import com.ildang100.backoffice.order.dto.OrderDetailResponse;
@@ -32,7 +32,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final AdminRepository adminRepository;
-    private final CustomerRepository customerRepository;
+    private final CustomerService customerService;
     private final ProductRepository productRepository;
 
     /**
@@ -50,8 +50,7 @@ public class OrderService {
         Admin admin = adminRepository.findById(adminid)
                 .orElseThrow(() -> new ServiceException(ErrorCode.UNAUTHORIZED));
 
-        Customer customer = customerRepository.findById(request.getCustomerId())
-                .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
+        Customer customer = customerService.getCustomerOrThrow(request.getCustomerId());
 
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
