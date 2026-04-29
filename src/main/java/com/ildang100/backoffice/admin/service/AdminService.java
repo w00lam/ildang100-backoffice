@@ -35,35 +35,36 @@ public class AdminService {
      *
      * <p>
      * 관리자 회원가입 시 호출되는 메서드로,
-     * 이메일 중복 검증 → 비밀번호 암호화 → 관리자 엔티티 생성 → 저장
-     * 순서로 처리됩니다.
+     * 이메일 중복 검증 → 관리자 엔티티 생성(비밀번호 암호화 위임) → DB 저장
+     * 순서로 흐름을 제어합니다.
      * </p>
      *
      * <p>
-     * 비밀번호는 반드시 평문이 아닌 {@link PasswordEncoder}를 통해 암호화된 상태로 저장됩니다.
+     * 객체지향적 설계(Tell, Don't Ask)에 따라 서비스 레이어에서 직접 비밀번호를 암호화하지 않습니다.
+     * 대신 {@link org.springframework.security.crypto.password.PasswordEncoder}를
+     * 엔티티의 팩토리 메서드로 전달하여, 객체 스스로 평문 비밀번호를 암호화하도록 책임을 위임합니다.
      * </p>
      *
      * <p>
-     * 또한, 동일한 이메일을 가진 계정이 존재할 경우
+     * 가입 전 동일한 이메일을 가진 계정이 이미 존재할 경우,
      * 중복 가입을 방지하기 위해 예외를 발생시킵니다.
      * </p>
      *
      * @param request 관리자 회원가입 요청 DTO
-     * @throws ServiceException 이메일이 이미 존재하는 경우
+     * @throws ServiceException 이메일이 이미 존재하는 경우 (DUPLICATE_EMAIL)
      */
     @Transactional
     public void createAdmin(AdminSignUpRequest request) {
 
         this.validateDuplicateEmail(request.getEmail());
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-
         Admin admin = Admin.create(
                 request.getName(),
                 request.getEmail(),
-                encodedPassword,
+                request.getPassword(),
                 request.getTele(),
-                request.getRole()
+                request.getRole(),
+                passwordEncoder
         );
 
         adminRepository.save(admin);
@@ -116,8 +117,8 @@ public class AdminService {
      * @throws ServiceException 관리자를 찾을 수 없는 경우 발생
      */
     public AdminResponse getAdmin(Long adminId) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         return AdminResponse.from(admin);
     }
@@ -140,8 +141,7 @@ public class AdminService {
     @Transactional
     public AdminResponse updateAdmin(Long adminId, AdminInfoUpdateRequest request) {
 
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+        Admin admin = adminRepository.getById(adminId);
 
         this.validateDuplicateEmail(request.getEmail());
 
@@ -182,8 +182,8 @@ public class AdminService {
      */
     @Transactional
     public AdminResponse updateAdminRole(Long adminId, AdminRoleUpdateRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         admin.updateRole(request.getRole());
 
@@ -206,8 +206,8 @@ public class AdminService {
      */
     @Transactional
     public AdminResponse updateAdminStatus(Long adminId, AdminStatusUpdateRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         admin.updateStatus(request.getStatus());
 
@@ -230,8 +230,7 @@ public class AdminService {
     @Transactional
     public void deleteAdmin(Long adminId) {
 
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+        Admin admin = adminRepository.getById(adminId);
 
         // 1. 슈퍼 관리자 삭제 방지
         if (admin.getRole() == AdminRole.SUPER_ADMIN) {
@@ -268,8 +267,8 @@ public class AdminService {
      */
     @Transactional
     public AdminApprovalResponse approveAdmin(Long adminId, AdminApprovalRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -306,8 +305,8 @@ public class AdminService {
      */
     @Transactional(readOnly = true)
     public AdminResponse getAdminProfile(Long adminId) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         return AdminResponse.from(admin);
     }
@@ -320,8 +319,8 @@ public class AdminService {
      */
     @Transactional
     public AdminResponse updateAdminProfile(Long adminId, AdminInfoUpdateRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+
+        Admin admin = adminRepository.getById(adminId);
 
         this.validateDuplicateEmailAndId(request.getEmail(), admin);
 
@@ -345,6 +344,28 @@ public class AdminService {
         if (StringUtils.hasText(newEmail) && !newEmail.equals(admin.getEmail())
                 && adminRepository.existsByEmailAndIdNot(newEmail, admin.getId())) {
             throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
+        }
+    }
+
+    /**
+     * 관리자 비밀번호 변경 로직
+     */
+    @Transactional
+    public void updatePassword(Long adminId, AdminPasswordUpdateRequest request) {
+
+        Admin admin = adminRepository.getById(adminId);
+
+        validateNewPasswordConfirm(request.getNewPassword(), request.getNewPasswordConfirm());
+
+        admin.changePassword(request.getCurrentPassword(), request.getNewPassword(), passwordEncoder);
+    }
+
+    /**
+     * 새 비밀번호와 확인용 비밀번호 일치 여부 검증
+     */
+    private void validateNewPasswordConfirm(String newPassword, String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) {
+            throw new ServiceException(ErrorCode.PASSWORD_NEW_CONFIRM_MISMATCH);
         }
     }
 

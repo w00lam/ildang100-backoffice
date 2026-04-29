@@ -6,7 +6,7 @@ import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.customer.entity.Customer;
-import com.ildang100.backoffice.customer.repository.CustomerRepository;
+import com.ildang100.backoffice.customer.service.CustomerService;
 import com.ildang100.backoffice.order.dto.request.OrderCancelRequest;
 import com.ildang100.backoffice.order.dto.request.OrderCreateRequest;
 import com.ildang100.backoffice.order.dto.request.OrderStatusUpdateRequest;
@@ -32,7 +32,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final AdminRepository adminRepository;
-    private final CustomerRepository customerRepository;
+    private final CustomerService customerService;
     private final ProductRepository productRepository;
 
     /**
@@ -50,8 +50,7 @@ public class OrderService {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new ServiceException(ErrorCode.UNAUTHORIZED));
 
-        Customer customer = customerRepository.findById(request.getCustomerId())
-                .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
+        Customer customer = customerService.getCustomerOrThrow(request.getCustomerId());
 
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -113,96 +112,6 @@ public class OrderService {
         return OrderListResponse.from(orders);
     }
 
-    /**
-     * 주문 ID로 주문 상세 정보를 조회합니다.
-     *
-     * @param orderId 조회할 주문 ID
-     * @return 주문 상세 응답 DTO
-     * @throws ServiceException 주문 ID가 유효하지 않거나 주문을 찾을 수 없는 경우
-     */
-    @Transactional(readOnly = true)
-    public OrderDetailResponse getOrder(Long orderId) {
-        validateOrderId(orderId);
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
-
-        return OrderDetailResponse.from(order);
-    }
-
-    /**
-     * 주문 상태를 수정합니다.
-     *
-     * @param orderId 상태를 수정할 주문 ID
-     * @param request 변경할 주문 상태 정보
-     * @return 변경된 주문 상태 응답 DTO
-     * @throws ServiceException 주문 ID가 유효하지 않거나, 주문을 찾을 수 없거나, 허용되지 않은 상태 전이인 경우
-     */
-    @Transactional
-    public OrderStatusUpdateResponse updateOrderStatus(
-            Long orderId,
-            OrderStatusUpdateRequest request
-    ) {
-        validateOrderId(orderId);
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
-
-        order.updateStatus(request.getStatus());
-
-        return OrderStatusUpdateResponse.from(order);
-    }
-
-    /**
-     * 주문을 취소하고 상품 재고를 복구합니다.
-     *
-     * @param orderId 취소할 주문 ID
-     * @param request 주문 취소 사유 정보
-     * @return 취소된 주문 응답 DTO
-     * @throws ServiceException 주문 ID가 유효하지 않거나, 주문을 찾을 수 없거나, 취소할 수 없는 주문인 경우
-     */
-    @Transactional
-    public OrderCancelResponse cancelOrder(
-            Long orderId,
-            OrderCancelRequest request
-    ) {
-        validateOrderId(orderId);
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
-
-        order.cancel(request.getCancelReason());
-        order.getProduct().restoreStock(order.getQuantity());
-
-        return OrderCancelResponse.from(order);
-    }
-
-    private Long generateOrderNumber() {
-        return Long.parseLong(
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
-        );
-    }
-
-    /**
-     * 검색어를 주문 번호 검색 조건으로 변환합니다.
-     *
-     * <p>검색어가 비어 있거나 숫자로 변환할 수 없으면 주문 번호 조건을 적용하지 않도록 {@code null}을 반환합니다.</p>
-     *
-     * @param keyword 주문 목록 검색어
-     * @return 주문 번호 검색에 사용할 값. 변환할 수 없으면 {@code null}
-     */
-    private Long parseOrderNumber(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
-            return null;
-        }
-
-        try {
-            return Long.parseLong(keyword);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
     private String convertOrderSortProperty(String sortBy) {
         if ("quantity".equals(sortBy)) {
             return "quantity";
@@ -229,6 +138,95 @@ public class OrderService {
         }
 
         throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+    }
+
+    /**
+     * 검색어를 주문 번호 검색 조건으로 변환합니다.
+     *
+     * <p>검색어가 비어 있거나 숫자로 변환할 수 없으면 주문 번호 조건을 적용하지 않도록 {@code null}을 반환합니다.</p>
+     *
+     * @param keyword 주문 목록 검색어
+     * @return 주문 번호 검색에 사용할 값. 변환할 수 없으면 {@code null}
+     */
+    private Long parseOrderNumber(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Long.parseLong(keyword);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 주문 ID로 주문 상세 정보를 조회합니다.
+     *
+     * @param orderId 조회할 주문 ID
+     * @return 주문 상세 응답 DTO
+     * @throws ServiceException 주문 ID가 유효하지 않거나 주문을 찾을 수 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public OrderDetailResponse getOrder(Long orderId) {
+        Order order = getOrderOrThrow(orderId);
+
+        return OrderDetailResponse.from(order);
+    }
+
+    /**
+     * 주문 상태를 수정합니다.
+     *
+     * @param orderId 상태를 수정할 주문 ID
+     * @param request 변경할 주문 상태 정보
+     * @return 변경된 주문 상태 응답 DTO
+     * @throws ServiceException 주문 ID가 유효하지 않거나, 주문을 찾을 수 없거나, 허용되지 않은 상태 전이인 경우
+     */
+    @Transactional
+    public OrderStatusUpdateResponse updateOrderStatus(
+            Long orderId,
+            OrderStatusUpdateRequest request
+    ) {
+        Order order = getOrderOrThrow(orderId);
+
+        order.updateStatus(request.getStatus());
+
+        return OrderStatusUpdateResponse.from(order);
+    }
+
+    /**
+     * 주문을 취소하고 상품 재고를 복구합니다.
+     *
+     * @param orderId 취소할 주문 ID
+     * @param request 주문 취소 사유 정보
+     * @return 취소된 주문 응답 DTO
+     * @throws ServiceException 주문 ID가 유효하지 않거나, 주문을 찾을 수 없거나, 취소할 수 없는 주문인 경우
+     */
+    @Transactional
+    public OrderCancelResponse cancelOrder(
+            Long orderId,
+            OrderCancelRequest request
+    ) {
+        Order order = getOrderOrThrow(orderId);
+
+        order.cancel(request.getCancelReason());
+        order.getProduct().restoreStock(order.getQuantity());
+
+        return OrderCancelResponse.from(order);
+    }
+
+    private Long generateOrderNumber() {
+        return Long.parseLong(
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Order getOrderOrThrow(Long orderId) {
+        validateOrderId(orderId);
+
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ORDER_NOT_FOUND));
     }
 
     private void validateOrderId(Long orderId) {

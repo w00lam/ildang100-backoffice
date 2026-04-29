@@ -4,8 +4,9 @@ import com.ildang100.backoffice.admin.dto.AdminInfoUpdateRequest;
 import com.ildang100.backoffice.common.entity.BaseEntity;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
-import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.common.exception.ErrorCode;
+import com.ildang100.backoffice.common.exception.ServiceException;
+import com.ildang100.backoffice.config.PasswordEncoder;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -73,21 +74,29 @@ public class Admin extends BaseEntity {
     }
 
     /**
-     * 관리자 엔티티 생성 팩토리 메서드
+     * 관리자 엔티티 생성 정적 팩토리 메서드
      *
      * <p>
-     * 회원가입 시 호출되며, 생성 시 관리자 상태는 자동으로 PENDING_APPROVAL로 설정됩니다.
+     * 회원가입 시 호출되며, 생성 시 관리자 상태는 자동으로 승인 대기(PENDING_APPROVAL)로 설정됩니다.
+     * 외부에서 암호화된 비밀번호를 주입받지 않고, 객체 내부에서 스스로 평문 비밀번호를 암호화합니다.
      * </p>
      *
-     * @param name     관리자 이름
-     * @param email    관리자 이메일
-     * @param password 관리자 비밀번호
-     * @param tele     관리자 전화번호
-     * @param role     관리자 권한
-     * @return 생성된 Admin 엔티티
+     * @param name            관리자 이름
+     * @param email           관리자 이메일
+     * @param rawPassword     관리자 비밀번호 (평문)
+     * @param tele            관리자 연락처
+     * @param role            관리자 권한
+     * @param passwordEncoder 비밀번호 암호화 모듈
+     * @return 암호화된 비밀번호와 대기 상태가 적용된 Admin 엔티티
      */
-    public static Admin create(String name, String email, String password, String tele, AdminRole role) {
-        return new Admin(name, email, password, tele, role);
+    public static Admin create(String name, String email, String rawPassword, String tele, AdminRole role, PasswordEncoder passwordEncoder) {
+        return new Admin(
+                name,
+                email,
+                passwordEncoder.encode(rawPassword),
+                tele,
+                role
+        );
     }
 
     /**
@@ -191,5 +200,22 @@ public class Admin extends BaseEntity {
      */
     public void validateLoginAvailable() {
         this.status.validateLoginable();
+    }
+
+    /**
+     * 비밀번호 변경 (객체지향적 설계)
+     * <p>엔티티 스스로 현재 비밀번호를 검증하고, 통과 시 새 비밀번호를 암호화하여 업데이트합니다.</p>
+     *
+     * @param currentPassword 입력받은 현재 비밀번호 (평문)
+     * @param newPassword     변경할 새 비밀번호 (평문)
+     * @param passwordEncoder 암호화 모듈
+     */
+    public void changePassword(String currentPassword, String newPassword, PasswordEncoder passwordEncoder) {
+
+        if (!passwordEncoder.matches(currentPassword, this.password)) {
+            throw new ServiceException(ErrorCode.PASSWORD_CONFIRM_MISMATCH);
+        }
+
+        this.password = passwordEncoder.encode(newPassword);
     }
 }

@@ -4,7 +4,9 @@ import com.ildang100.backoffice.customer.entity.Customer;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 고객 목록 조회 응답 DTO입니다.
@@ -42,9 +44,32 @@ public class CustomerListResponse {
      * @return 고객 목록 응답 DTO
      */
     public static CustomerListResponse from(Page<Customer> customers) {
-        List<CustomerResponse> content = customers.getContent().stream()
-                .map(CustomerResponse::from)
-                .toList();
+        return from(customers, Map.of());
+    }
+
+    /**
+     * 고객 엔티티 페이지와 고객별 주문 통계를 고객 목록 응답 DTO로 변환합니다.
+     *
+     * <p>주문 통계가 없는 고객은 주문 건수와 주문 금액을 0으로 응답합니다.</p>
+     *
+     * @param customers 고객 엔티티 페이지
+     * @param orderStatsMap 고객 ID를 key로 하는 주문 통계 Map
+     * @return 고객 목록 응답 DTO
+     */
+    public static CustomerListResponse from(
+            Page<Customer> customers,
+            Map<Long, CustomerOrderStats> orderStatsMap
+    ) {
+        List<CustomerResponse> content = new ArrayList<>();
+
+        for (Customer customer : customers.getContent()) {
+            CustomerOrderStats orderStats = orderStatsMap.getOrDefault(
+                    customer.getId(),
+                    CustomerOrderStats.empty(customer.getId())
+            );
+
+            content.add(CustomerResponse.from(customer, orderStats));
+        }
 
         return new CustomerListResponse(
                 content,
