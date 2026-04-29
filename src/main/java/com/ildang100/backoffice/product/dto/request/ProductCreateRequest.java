@@ -11,27 +11,9 @@ import lombok.Getter;
  * 상품 등록 요청 DTO입니다.
  *
  * <p>
- * 새 상품을 등록할 때 클라이언트가 전달하는 입력 값을 담습니다.
- * 모든 필드는 {@code @Valid} 검증을 통해 형식 검증이 수행되며,
- * 검증 실패 시 {@code GlobalExceptionHandler}에서 {@code VALIDATION_FAILED} 응답으로 처리됩니다.
+ * 등록 관리자 ID는 요청 본문으로 받지 않고,
+ * JWT 인증 후 SecurityContext에 저장된 로그인 관리자 정보에서 가져옵니다.
  * </p>
- *
- * <p>
- * 등록 관리자(adminId)는 본 DTO에 포함되지 않으며,
- * Controller에서 세션 인증 정보(SessionUtils.getLoginAdmin)로 식별됩니다.
- * </p>
- *
- * <p><b>요청 필드</b></p>
- * <ul>
- *     <li>name: 상품명</li>
- *     <li>category: 카테고리</li>
- *     <li>price: 판매 가격</li>
- *     <li>stock: 재고 수량</li>
- *     <li>status: 요청 판매 상태 (도메인 정책에 따라 자동 보정될 수 있음)</li>
- * </ul>
- *
- * @author js-kim-arc
- * @since 2026-04-27
  */
 @Getter
 public class ProductCreateRequest {
