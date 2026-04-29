@@ -7,16 +7,24 @@ import com.ildang100.backoffice.customer.dto.CustomerListResponse;
 import com.ildang100.backoffice.customer.dto.CustomerResponse;
 import com.ildang100.backoffice.customer.dto.CustomerStatusUpdateRequest;
 import com.ildang100.backoffice.customer.dto.CustomerUpdateRequest;
+import com.ildang100.backoffice.customer.policy.CustomerSortPolicy;
 import com.ildang100.backoffice.customer.service.CustomerService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/customers")
+@Validated
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -29,7 +37,7 @@ public class CustomerController {
      *
      * @param keyword 고객 이름 또는 이메일 검색어. 생략 시 검색 조건 없이 조회
      * @param page 조회할 페이지 번호. 1부터 시작
-     * @param size 페이지당 조회할 고객 수
+     * @param size 페이지당 조회할 고객 수. 최대 100
      * @param sortBy 정렬 기준. 허용 값: {@code name}, {@code email}, {@code createdAt}
      * @param sortOrder 정렬 방향. 허용 값: {@code asc}, {@code desc}
      * @param status 조회할 고객 상태. 생략 시 전체 상태 조회
@@ -39,8 +47,8 @@ public class CustomerController {
     @GetMapping
     public CommonApiResponse<CustomerListResponse> getCustomers(
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortOrder,
             @RequestParam(required = false) CustomerStatus status,
@@ -48,13 +56,13 @@ public class CustomerController {
     ){
         SessionUtils.getLoginAdmin(session);
 
+        Sort sort = CustomerSortPolicy.resolve(sortBy, sortOrder);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+
         CustomerListResponse response = customerService.getCustomers(
                 keyword,
-                page,
-                size,
-                sortBy,
-                sortOrder,
-                status
+                status,
+                pageable
         );
 
         return CommonApiResponse.success(
@@ -137,6 +145,15 @@ public class CustomerController {
         );
     }
 
+    /**
+     * 고객을 삭제 처리합니다.
+     *
+     * <p>실제 데이터를 삭제하지 않고 고객 상태를 비활성 상태로 변경합니다.</p>
+     *
+     * @param customerId 삭제 처리할 고객 ID
+     * @param session 로그인 관리자 확인을 위한 HTTP 세션
+     * @return 응답 데이터가 없는 성공 응답
+     */
     @DeleteMapping("/{customerId}")
     public CommonApiResponse<Void> deleteCustomer(
             @PathVariable Long customerId,

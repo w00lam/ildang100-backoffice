@@ -14,9 +14,7 @@ import com.ildang100.backoffice.customer.repository.CustomerRepository;
 import com.ildang100.backoffice.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,42 +30,21 @@ public class CustomerService {
     private final OrderRepository orderRepository;
 
     /**
-     * 고객 목록 조회 조건을 검증하고 페이지 요청 정보로 변환한 뒤 고객 목록을 조회합니다.
+     * 고객 목록을 페이지 단위로 조회합니다.
      *
-     * <p>{@code page}는 1부터 시작하며, 내부 조회 시 Spring Data의 0 기반 페이지 번호로 변환합니다.</p>
+     * <p>검색어와 고객 상태 조건을 적용하고, 조회된 고객별 주문 통계를 함께 포함합니다.</p>
      *
      * @param keyword 고객 이름 또는 이메일 검색어. {@code null} 또는 빈 문자열이면 검색 조건 없음
-     * @param page 조회할 페이지 번호. 1 이상이어야 함
-     * @param size 페이지당 조회할 고객 수. 1 이상이어야 함
-     * @param sortBy 정렬 기준. 허용 값: {@code name}, {@code email}, {@code createdAt}
-     * @param sortOrder 정렬 방향. 허용 값: {@code asc}, {@code desc}
      * @param status 조회할 고객 상태. {@code null}이면 상태 조건 없음
+     * @param pageable 페이지 및 정렬 정보
      * @return 고객 목록 응답 DTO
-     * @throws ServiceException 페이지, 크기, 정렬 기준 또는 정렬 방향이 유효하지 않은 경우
      */
     @Transactional(readOnly = true)
     public CustomerListResponse getCustomers(
             String keyword,
-            int page,
-            int size,
-            String sortBy,
-            String sortOrder,
-            CustomerStatus status
+            CustomerStatus status,
+            Pageable pageable
     ) {
-        if (page < 1 || size < 1) {
-            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
-        }
-
-        String sortProperty = convertSortProperty(sortBy);
-        Sort.Direction direction = convertSortDirection(sortOrder);
-
-        // API의 1 기반 페이지 번호를 Spring Data의 0 기반 페이지 번호로 변환한다.
-        Pageable pageable = PageRequest.of(
-                page - 1,
-                size,
-                Sort.by(direction, sortProperty)
-        );
-
         Page<Customer> customers = customerRepository.searchCustomers(
                 keyword,
                 status,
@@ -77,34 +54,6 @@ public class CustomerService {
         Map<Long, CustomerOrderStats> orderStatsMap = findCustomerOrderStatsMap(customers);
 
         return CustomerListResponse.from(customers, orderStatsMap);
-    }
-
-    private Sort.Direction convertSortDirection(String sortOrder) {
-        if ("asc".equalsIgnoreCase(sortOrder)) {
-            return Sort.Direction.ASC;
-        }
-
-        if ("desc".equalsIgnoreCase(sortOrder)) {
-            return Sort.Direction.DESC;
-        }
-
-        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
-    }
-
-    private String convertSortProperty(String sortBy) {
-        if ("name".equals(sortBy)) {
-            return "name";
-        }
-
-        if ("email".equals(sortBy)) {
-            return "email";
-        }
-
-        if ("createdAt".equals(sortBy)) {
-            return "createdAt";
-        }
-
-        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
     }
 
     /**
@@ -151,10 +100,7 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public CustomerResponse getCustomer(Long customerId) {
         Customer customer = getCustomerOrThrow(customerId);
-
-        CustomerOrderStats orderStats = findCustomerOrderStats(customerId);
-
-        return CustomerResponse.from(customer, orderStats);
+        return toCustomerResponse(customer);
     }
 
     /**
@@ -173,14 +119,9 @@ public class CustomerService {
             Long customerId,
             CustomerUpdateRequest request
     ) {
-        validateUpdateRequest(request);
-
         Customer customer = getCustomerOrThrow(customerId);
 
-        if (request.getEmail() != null
-                && customerRepository.existsByEmailAndIdNot(request.getEmail(), customerId)) {
-            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
-        }
+        validateDuplicateEmail(request.getEmail(), customerId);
 
         customer.updateInfo(
                 request.getName(),
@@ -188,18 +129,12 @@ public class CustomerService {
                 request.getTele()
         );
 
-        CustomerOrderStats orderStats = findCustomerOrderStats(customerId);
-
-        return CustomerResponse.from(customer, orderStats);
+        return toCustomerResponse(customer);
     }
 
-    private void validateUpdateRequest(CustomerUpdateRequest request) {
-        if (
-                request.getName() != null && request.getName().isBlank() ||
-                        request.getEmail() != null && request.getEmail().isBlank()||
-                        request.getTele() != null && request.getTele().isBlank()
-        ) {
-            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+    private void validateDuplicateEmail(String email, Long customerId) {
+        if (email != null && customerRepository.existsByEmailAndIdNot(email, customerId)) {
+            throw new ServiceException(ErrorCode.EMAIL_DUPLICATE);
         }
     }
 
@@ -220,22 +155,31 @@ public class CustomerService {
 
         customer.updateStatus(request.getStatus());
 
-        CustomerOrderStats orderStats = findCustomerOrderStats(customerId);
-
-        return CustomerResponse.from(customer, orderStats);
+        return toCustomerResponse(customer);
     }
 
+    /**
+     * 고객을 삭제 처리합니다.
+     *
+     * <p>고객 데이터를 물리 삭제하지 않고 비활성 상태로 변경합니다.</p>
+     *
+     * @param customerId 삭제 처리할 고객 ID
+     * @throws ServiceException 고객 ID가 유효하지 않거나, 고객을 찾을 수 없거나, 이미 비활성 상태인 경우
+     */
     @Transactional
     public void deleteCustomer(Long customerId) {
         Customer customer = getCustomerOrThrow(customerId);
 
-        if (customer.getStatus() == CustomerStatus.INACTIVE) {
-            throw new ServiceException(ErrorCode.CUSTOMER_DELETE_NOT_ALLOWED);
-        }
-
         customer.withdraw();
     }
 
+    /**
+     * 고객 ID로 고객을 조회하고, 없으면 예외를 발생시킵니다.
+     *
+     * @param customerId 조회할 고객 ID
+     * @return 조회된 고객 엔티티
+     * @throws ServiceException 고객 ID가 유효하지 않거나 고객을 찾을 수 없는 경우
+     */
     @Transactional(readOnly = true)
     public Customer getCustomerOrThrow(Long customerId) {
         validateCustomerId(customerId);
@@ -256,5 +200,10 @@ public class CustomerService {
                         OrderStatus.CANCELLED
                 )
                 .orElse(CustomerOrderStats.empty(customerId));
+    }
+
+    private CustomerResponse toCustomerResponse(Customer customer) {
+        CustomerOrderStats orderStats = findCustomerOrderStats(customer.getId());
+        return CustomerResponse.from(customer, orderStats);
     }
 }
