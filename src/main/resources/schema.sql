@@ -100,12 +100,14 @@ SELECT
     COALESCE((
                  SELECT SUM(o.total_price)
                  FROM orders o
+                 WHERE o.status != 'CANCELLED'
              ), 0) AS total_sales,
 
     COALESCE((
                  SELECT SUM(o.total_price)
                  FROM orders o
                  WHERE DATE(o.created_at) = CURRENT_DATE
+                    AND o.status != 'CANCELLED'
         ), 0) AS today_sales,
 
     (
