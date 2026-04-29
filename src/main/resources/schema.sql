@@ -48,12 +48,12 @@ CREATE TABLE products (
                           price INT NOT NULL,
                           stock INT NOT NULL,
                           status VARCHAR(20) NOT NULL,
+                          deletion_status VARCHAR(20) NOT NULL DEFAULT 'NOT_DELETED',  -- ⬅ 추가 (P-6)
                           created_at DATETIME NOT NULL,
                           updated_at DATETIME NOT NULL,
                           CONSTRAINT fk_products_admin
                               FOREIGN KEY (admin_id) REFERENCES admins(id)
 );
-
 CREATE TABLE orders (
                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
                         admin_id BIGINT,
@@ -81,12 +81,16 @@ CREATE TABLE reviews (
                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
                          customer_id BIGINT NOT NULL,
                          product_id BIGINT NOT NULL,
+                         order_id BIGINT NOT NULL,                                       -- ⬅ 추가 (Review entity 정합)
                          rating INT NOT NULL,
-                         content VARCHAR(255) NOT NULL,
+                         content VARCHAR(500) NOT NULL,                                  -- ⬅ 변경 255 → 500 (entity 정합)
+                         deletion_status VARCHAR(20) NOT NULL DEFAULT 'NOT_DELETED',     -- ⬅ 추가 (R-3)
                          created_at DATETIME NOT NULL,
                          updated_at DATETIME NOT NULL,
                          CONSTRAINT fk_reviews_customer
                              FOREIGN KEY (customer_id) REFERENCES customers(id),
                          CONSTRAINT fk_reviews_product
-                             FOREIGN KEY (product_id) REFERENCES products(id)
+                             FOREIGN KEY (product_id) REFERENCES products(id),
+                         CONSTRAINT fk_reviews_order
+                             FOREIGN KEY (order_id) REFERENCES orders(id)               -- ⬅ 추가
 );
