@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 import java.util.List;
 
@@ -117,7 +118,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonApiResponse<Void>> handleTypeMismatchException(
             MethodArgumentTypeMismatchException e
     ) {
-        ErrorCode errorCode = resolveTypeMismatchErrorCode(e.getRequiredType());
+        ErrorCode errorCode = resolveEnumErrorCode(e.getRequiredType());
 
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
@@ -150,12 +151,25 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonApiResponse<Void>> handleJsonParseException(
             HttpMessageNotReadableException e
     ) {
+
+        Throwable cause = e.getCause();
+
+        if (cause instanceof InvalidFormatException invalidFormatException
+                && invalidFormatException.getTargetType().isEnum()) {
+
+            ErrorCode errorCode = resolveEnumErrorCode(invalidFormatException.getTargetType());
+
+            return ResponseEntity
+                    .status(errorCode.getHttpStatus())
+                    .body(CommonApiResponse.error(errorCode));
+        }
+
         return ResponseEntity
                 .status(ErrorCode.VALIDATION_FAILED.getHttpStatus())
                 .body(CommonApiResponse.error(ErrorCode.INVALID_ROLE));
     }
 
-    private ErrorCode resolveTypeMismatchErrorCode(Class<?> requiredType) {
+    private ErrorCode resolveEnumErrorCode(Class<?> requiredType) {
         if (requiredType == null) {
             return ErrorCode.VALIDATION_FAILED;
         }
