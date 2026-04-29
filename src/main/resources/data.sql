@@ -112,9 +112,4 @@ VALUES
     ( 2,  2, 1,  2, 4, '배송도 빠르고 쓸만해요.',         'NOT_DELETED', NOW(), NOW()),
     ( 3,  3, 2,  3, 5, '사용하기 편하고 디자인이 좋습니다.', 'NOT_DELETED', NOW(), NOW()),
     ( 4,  4, 2,  4, 3, '무난한 상품입니다.',              'NOT_DELETED', NOW(), NOW()),
-    ( 5,  5, 3,  5, 4, '가격 대비 괜찮습니다.',            'NOT_DELETED', NOW(), NOW()),
-    ( 6,  6, 3,  6, 5, '재구매 의사 있습니다.',            'NOT_DELETED', NOW(), NOW()),
-    ( 7,  7, 1,  7, 4, '전반적으로 만족합니다.',           'NOT_DELETED', NOW(), NOW()),
-    ( 8,  8, 2,  8, 2, '생각보다 아쉬웠습니다.',           'NOT_DELETED', NOW(), NOW()),
-    ( 9,  9, 3,  9, 5, '선물용으로 좋습니다.',             'NOT_DELETED', NOW(), NOW()),
-    (10, 10, 1, 10, 5, '추천합니다.',                     'NOT_DELETED', NOW(), NOW());
+    ( 5,  5, 3,  5, 4, '가격 대비 괜찮습니다.',            'NOT_DELETED', NOW(), NOW());
