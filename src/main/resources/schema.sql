@@ -111,48 +111,48 @@ SELECT 1                                                    AS id,
        COALESCE((SELECT COUNT(*)
                  FROM admins a
                  WHERE a.status != 'INACTIVE'
-             ), 0)          AS total_admin_count,
+             ), 0)          AS total_admins,
 
        COALESCE((SELECT COUNT(*)
                  FROM admins a
-                 WHERE a.status = 'ACTIVE'), 0)             AS active_admin_count,
+                 WHERE a.status = 'ACTIVE'), 0)             AS active_admins,
 
        COALESCE((SELECT COUNT(*)
                  FROM customers c
                  WHERE c.status != 'INACTIVE'
-             ), 0)          AS total_customer_count,
+             ), 0)          AS total_customers,
 
        COALESCE((SELECT COUNT(*)
                  FROM customers c
-                 WHERE c.status = 'ACTIVE'), 0)             AS active_customer_count,
+                 WHERE c.status = 'ACTIVE'), 0)             AS active_customers,
 
        COALESCE((SELECT COUNT(*)
                  FROM products p
                  WHERE p.deletion_status != 'DELETED'
-             ), 0) AS total_product_count,
+             ), 0) AS total_products,
 
        COALESCE((SELECT COUNT(*)
                  FROM products p
                  WHERE p.deletion_status != 'DELETED'
                    AND p.stock <= 5
                    AND p.stock > 0
-             ), 0) AS low_stock_product_count,
+             ), 0) AS low_stock_products,
 
        COALESCE((SELECT COUNT(*)
                  FROM orders o
                  WHERE o.status != 'CANCELLED'
-             ), 0)          AS total_order_count,
+             ), 0)          AS total_orders,
 
        COALESCE((SELECT COUNT(*)
                  FROM orders o
                  WHERE DATE (o.created_at) = CURRENT_DATE
                     AND o.status != 'CANCELLED'
-        ), 0)              AS today_order_count,
+        ), 0)              AS today_orders,
 
        COALESCE((SELECT COUNT(*)
                  FROM reviews r
                  WHERE r.deletion_status != 'DELETED'
-             ), 0) AS total_review_count,
+             ), 0) AS total_reviews,
 
        COALESCE((SELECT AVG(r.rating)
                  FROM reviews r
@@ -175,22 +175,22 @@ SELECT 1                                           AS id,
 
        (SELECT COUNT(*)
         FROM orders o
-        WHERE o.status = 'PREPARING')              AS preparing_order_count,
+        WHERE o.status = 'PREPARING')              AS preparing_orders,
 
        (SELECT COUNT(*)
         FROM orders o
-        WHERE o.status = 'SHIPPING')               AS shipping_order_count,
+        WHERE o.status = 'SHIPPING')               AS shipping_orders,
 
        (SELECT COUNT(*)
         FROM orders o
-        WHERE o.status = 'DELIVERED')              AS delivered_order_count,
+        WHERE o.status = 'DELIVERED')              AS delivered_orders,
 
        (SELECT COUNT(*)
         FROM products p
         WHERE p.stock <= 5
-          AND p.stock > 0)                         AS low_stock_product_count,
+          AND p.stock > 0)                         AS low_stock_products,
 
        (SELECT COUNT(*)
         FROM products p
         WHERE p.stock = 0
-           OR p.status = 'OUT_OF_STOCK')           AS out_of_stock_product_count;
+           OR p.status = 'OUT_OF_STOCK')           AS out_of_stock_products;

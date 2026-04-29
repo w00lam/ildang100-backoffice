@@ -40,31 +40,31 @@ public class DashboardSummaryView {
     private Long id;
 
     /** 전체 관리자 수 */
-    private Long totalAdminCount;
+    private Long totalAdmins;
 
     /** 활성 관리자 수 */
-    private Long activeAdminCount;
+    private Long activeAdmins;
 
     /** 전체 고객 수 */
-    private Long totalCustomerCount;
+    private Long totalCustomers;
 
     /** 활성 고객 수 */
-    private Long activeCustomerCount;
+    private Long activeCustomers;
 
     /** 전체 상품 수 (삭제 제외) */
-    private Long totalProductCount;
+    private Long totalProducts;
 
     /** 재고 부족 상품 수 (재고 1~5개) */
-    private Long lowStockProductCount;
+    private Long lowStockProducts;
 
     /** 전체 주문 수 (취소 및 삭제 제외) */
-    private Long totalOrderCount;
+    private Long totalOrders;
 
     /** 오늘 주문 수 */
-    private Long todayOrderCount;
+    private Long todayOrders;
 
     /** 전체 리뷰 수 */
-    private Long totalReviewCount;
+    private Long totalReviews;
 
     /** 평균 평점 */
     private Double averageRating;

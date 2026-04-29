@@ -86,15 +86,15 @@ public class DashboardSummaryResponse {
      */
     public static DashboardSummaryResponse from(DashboardSummaryView view) {
         return new DashboardSummaryResponse(
-                view.getTotalAdminCount(),
-                view.getActiveAdminCount(),
-                view.getTotalCustomerCount(),
-                view.getActiveCustomerCount(),
-                view.getTotalProductCount(),
-                view.getLowStockProductCount(),
-                view.getTotalOrderCount(),
-                view.getTodayOrderCount(),
-                view.getTotalReviewCount(),
+                view.getTotalAdmins(),
+                view.getActiveAdmins(),
+                view.getTotalCustomers(),
+                view.getActiveCustomers(),
+                view.getTotalProducts(),
+                view.getLowStockProducts(),
+                view.getTotalOrders(),
+                view.getTodayOrders(),
+                view.getTotalReviews(),
                 view.getAverageRating()
         );
     }
