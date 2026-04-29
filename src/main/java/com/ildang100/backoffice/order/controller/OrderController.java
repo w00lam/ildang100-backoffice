@@ -8,16 +8,25 @@ import com.ildang100.backoffice.order.dto.request.OrderCancelRequest;
 import com.ildang100.backoffice.order.dto.request.OrderCreateRequest;
 import com.ildang100.backoffice.order.dto.request.OrderStatusUpdateRequest;
 import com.ildang100.backoffice.order.dto.response.*;
+import com.ildang100.backoffice.order.policy.OrderSortPolicy;
 import com.ildang100.backoffice.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/orders")
+@Validated
 public class OrderController {
 
     private final OrderService orderService;
@@ -32,8 +41,7 @@ public class OrderController {
      * @return 생성된 주문 정보를 포함한 응답
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CommonApiResponse<OrderCreateResponse> createOrder(
+    public ResponseEntity<CommonApiResponse<OrderCreateResponse>> createOrder(
             @Valid @RequestBody OrderCreateRequest request,
             HttpSession session
     ){
@@ -41,11 +49,13 @@ public class OrderController {
 
         OrderCreateResponse response = orderService.createOrder(loginAdmin.getId(), request);
 
-        return CommonApiResponse.success(
-                HttpStatus.CREATED,
-                "주문 생성 성공",
-                response
-        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonApiResponse.success(
+                    HttpStatus.CREATED,
+                    "주문 생성 성공",
+                    response
+                ));
     }
 
     /**
@@ -56,7 +66,7 @@ public class OrderController {
      *
      * @param keyword 고객 이름 또는 주문 번호 검색어. 생략 시 검색 조건 없이 조회
      * @param page 조회할 페이지 번호. 1부터 시작
-     * @param size 페이지당 조회할 주문 수
+     * @param size 페이지당 조회할 주문 수. 최대 100
      * @param sortBy 정렬 기준. 허용 값: {@code quantity}, {@code totalPrice}, {@code createdAt}
      * @param sortOrder 정렬 방향. 허용 값: {@code asc}, {@code desc}
      * @param status 조회할 주문 상태. 생략 시 전체 상태 조회
@@ -66,8 +76,8 @@ public class OrderController {
     @GetMapping
     public CommonApiResponse<OrderListResponse> getOrders(
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortOrder,
             @RequestParam(required = false) OrderStatus status,
@@ -75,14 +85,10 @@ public class OrderController {
     ) {
         SessionUtils.getLoginAdmin(session);
 
-        OrderListResponse response = orderService.getOrders(
-                keyword,
-                page,
-                size,
-                sortBy,
-                sortOrder,
-                status
-        );
+        Sort sort = OrderSortPolicy.resolve(sortBy, sortOrder);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+
+        OrderListResponse response = orderService.getOrders(keyword, status, pageable);
 
         return CommonApiResponse.success(
                 HttpStatus.OK,

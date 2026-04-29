@@ -1,7 +1,7 @@
 package com.ildang100.backoffice.order.service;
 
 import com.ildang100.backoffice.admin.entity.Admin;
-import com.ildang100.backoffice.admin.repository.AdminRepository;
+import com.ildang100.backoffice.admin.service.AdminService;
 import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
@@ -14,26 +14,25 @@ import com.ildang100.backoffice.order.dto.response.*;
 import com.ildang100.backoffice.order.entity.Order;
 import com.ildang100.backoffice.order.repository.OrderRepository;
 import com.ildang100.backoffice.product.entity.Product;
-import com.ildang100.backoffice.product.repository.ProductRepository;
+import com.ildang100.backoffice.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final AdminRepository adminRepository;
+    private final AdminService adminService;
     private final CustomerService customerService;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
 
     /**
      * 주문을 생성합니다.
@@ -47,15 +46,12 @@ public class OrderService {
      */
     @Transactional
     public OrderCreateResponse createOrder(Long adminId, OrderCreateRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new ServiceException(ErrorCode.UNAUTHORIZED));
-
+        Admin admin = adminService.getAdminOrThrow(adminId);
         Customer customer = customerService.getCustomerOrThrow(request.getCustomerId());
+        Product product = productService.getProductOrThrow(request.getProductId());
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
-
-        product.assertOrderable();   // ⬅ 추가 (P-7): 단종/삭제 사전 차단 - 가드
+        // 주문 생성 전에 단종 또는 삭제된 상품을 차단한다.
+        product.assertOrderable();
 
         product.decreaseStock(request.getQuantity());
 
@@ -71,75 +67,51 @@ public class OrderService {
     }
 
     /**
-     * 주문 목록 조회 조건을 검증하고 페이지 요청 정보로 변환한 뒤 주문 목록을 조회합니다.
+     * 주문번호를 생성합니다.
      *
-     * <p>{@code page}는 1부터 시작하며, 내부 조회 시 Spring Data의 0 기반 페이지 번호로 변환합니다.
-     * 숫자 검색어는 주문 번호 검색에도 사용합니다.</p>
+     * <p>주문번호는 현재 시각(yyyyMMddHHmmssSSS)에 3자리 난수를 붙여 생성합니다.
+     * 동일한 밀리초에 여러 주문이 생성될 경우 시간값만으로는 중복될 수 있으므로,
+     * 중복 가능성을 낮추기 위해 난수를 함께 사용합니다.</p>
+     *
+     * <p>최종 중복 방지는 DB의 unique 제약 조건에 의해 보장됩니다.</p>
+     *
+     * @return 생성된 주문번호
+     */
+    private Long generateOrderNumber() {
+        String dateTime = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+
+        int randomNumber = ThreadLocalRandom.current().nextInt(100, 1000);
+
+        return Long.parseLong(dateTime + randomNumber);
+    }
+
+    /**
+     * 주문 목록을 페이지 단위로 조회합니다.
+     *
+     * <p>검색어와 주문 상태 조건을 적용합니다. 숫자 검색어는 주문 번호 검색에도 사용합니다.</p>
      *
      * @param keyword 고객 이름 또는 주문 번호 검색어. {@code null} 또는 빈 문자열이면 검색 조건 없음
-     * @param page 조회할 페이지 번호. 1 이상이어야 함
-     * @param size 페이지당 조회할 주문 수. 1 이상이어야 함
-     * @param sortBy 정렬 기준. 허용 값: {@code quantity}, {@code totalPrice}, {@code createdAt}
-     * @param sortOrder 정렬 방향. 허용 값: {@code asc}, {@code desc}
      * @param status 조회할 주문 상태. {@code null}이면 상태 조건 없음
+     * @param pageable 페이지 및 정렬 정보
      * @return 주문 목록 응답 DTO
-     * @throws ServiceException 페이지, 크기, 정렬 기준 또는 정렬 방향이 유효하지 않은 경우
      */
     @Transactional(readOnly = true)
     public OrderListResponse getOrders(
             String keyword,
-            int page,
-            int size,
-            String sortBy,
-            String sortOrder,
-            OrderStatus status
+            OrderStatus status,
+            Pageable pageable
     ) {
-        if (page < 1 || size < 1) {
-            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
-        }
+        Long orderNumber = parseOrderNumber(keyword);
 
-        String sortProperty = convertOrderSortProperty(sortBy);
-        Sort.Direction direction = convertSortDirection(sortOrder);
-
-        Pageable pageable = PageRequest.of(
-                page - 1,
-                size,
-                Sort.by(direction, sortProperty)
+        Page<Order> orders = orderRepository.searchOrders(
+                keyword,
+                orderNumber,
+                status,
+                pageable
         );
 
-        Long orderNumber = parseOrderNumber(keyword);
-        Page<Order> orders = orderRepository.searchOrders(
-                keyword, orderNumber, status, pageable);
-
         return OrderListResponse.from(orders);
-    }
-
-    private String convertOrderSortProperty(String sortBy) {
-        if ("quantity".equals(sortBy)) {
-            return "quantity";
-        }
-
-        if ("totalPrice".equals(sortBy)) {
-            return "totalPrice";
-        }
-
-        if ("createdAt".equals(sortBy)) {
-            return "createdAt";
-        }
-
-        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
-    }
-
-    private Sort.Direction convertSortDirection(String sortOrder) {
-        if ("asc".equalsIgnoreCase(sortOrder)) {
-            return Sort.Direction.ASC;
-        }
-
-        if ("desc".equalsIgnoreCase(sortOrder)) {
-            return Sort.Direction.DESC;
-        }
-
-        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
     }
 
     /**
@@ -217,12 +189,13 @@ public class OrderService {
         return OrderCancelResponse.from(order);
     }
 
-    private Long generateOrderNumber() {
-        return Long.parseLong(
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
-        );
-    }
-
+    /**
+     * 주문 ID로 주문을 조회하고, 없으면 예외를 발생시킵니다.
+     *
+     * @param orderId 조회할 주문 ID
+     * @return 조회된 주문 엔티티
+     * @throws ServiceException 주문 ID가 유효하지 않거나 주문을 찾을 수 없는 경우
+     */
     @Transactional(readOnly = true)
     public Order getOrderOrThrow(Long orderId) {
         validateOrderId(orderId);
