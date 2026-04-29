@@ -392,4 +392,19 @@ public class AdminService {
         return adminRepository.findByEmail(email)
                 .orElseThrow(() -> new ServiceException(ErrorCode.INVALID_CREDENTIALS));
     }
+
+    /**
+     * 관리자 ID로 관리자를 조회하고, 없으면 예외를 발생시킵니다.
+     *
+     * <p>세션에서 추출한 관리자 ID 검증에도 사용하므로, 조회 실패 시 인증 실패 응답으로 처리합니다.</p>
+     *
+     * @param adminId 조회할 관리자 ID
+     * @return 조회된 관리자 엔티티
+     * @throws ServiceException 관리자를 찾을 수 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public Admin getAdminOrThrow(Long adminId) {
+        return adminRepository.findById(adminId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.UNAUTHORIZED));
+    }
 }

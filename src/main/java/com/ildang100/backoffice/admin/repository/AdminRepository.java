@@ -106,21 +106,6 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
     );
 
     /**
-     * 관리자 상태별 개수를 조회합니다.
-     *
-     * <p>
-     * 대시보드 Summary 통계에서 활성 관리자 수를 계산하기 위해 사용됩니다.
-     * </p>
-     *
-     * @param status 관리자 상태
-     * @return 해당 상태의 관리자 수
-     *
-     * @author 이우람
-     * @since 2026-04-27
-     */
-    long countByStatus(AdminStatus status);
-
-    /**
      * 예외 처리까지 완료된 엔티티를 반환하는 공통 메서드
      * @author 박채빈
      * @since 2026-04-29

@@ -2,7 +2,7 @@ package com.ildang100.backoffice.product.service;
 
 
 import com.ildang100.backoffice.admin.entity.Admin;
-import com.ildang100.backoffice.admin.repository.AdminRepository;
+import com.ildang100.backoffice.admin.service.AdminService;
 import com.ildang100.backoffice.common.enums.ProductStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
@@ -17,9 +17,7 @@ import com.ildang100.backoffice.product.entity.Product;
 import com.ildang100.backoffice.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,15 +27,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final AdminRepository adminRepository;
+    private final AdminService adminService;
 
     /**
      * 상품 등록.
      * 등록 관리자(Admin)를 조회한 뒤 Aggregate.create()에 위임한다.
      */
     public ProductResponse create(Long adminId, ProductCreateRequest request) {
-        Admin admin = adminRepository.findById(adminId)
-                                     .orElseThrow(() -> new ServiceException(ErrorCode.UNAUTHORIZED));
+        Admin admin = adminService.getAdminOrThrow(adminId);
 
         Product product = Product.create(
                 admin,
@@ -56,8 +53,7 @@ public class ProductService {
      * 상품 정보 부분 수정.
      */
     public ProductResponse update(Long productId, ProductUpdateRequest request) {
-        Product product = productRepository.findById(productId)
-                                           .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = getProductOrThrow(productId);
 
         product.updateInfo(request.getName(), request.getCategory(), request.getPrice());
 
@@ -79,8 +75,7 @@ public class ProductService {
      * 본질상 데이터가 보존되므로 주문/리뷰 연결 여부와 무관하게 처리 가능하다.
      */
     public void delete(Long productId) {
-        Product product = productRepository.findById(productId)
-                                           .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = getProductOrThrow(productId);
 
         product.markAsDeleted();
     }
@@ -123,8 +118,7 @@ public class ProductService {
      * </p>
      */
     public ProductResponse changeStock(Long productId, ProductStockUpdateRequest request) {
-        Product product = productRepository.findById(productId)
-                                           .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = getProductOrThrow(productId);
 
         product.changeStock(request.getStock());
 
@@ -140,12 +134,22 @@ public class ProductService {
      * </p>
      */
     public ProductResponse changeStatus(Long productId, ProductStatusUpdateRequest request) {
-        Product product = productRepository.findById(productId)
-                                           .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = getProductOrThrow(productId);
 
         product.changeStatus(request.getStatus());
 
         return ProductResponse.from(product);
     }
 
+    /**
+     * 상품 ID로 상품을 조회하고, 없으면 예외를 발생시킵니다.
+     *
+     * @param productId 조회할 상품 ID
+     * @return 조회된 상품 엔티티
+     * @throws ServiceException 상품을 찾을 수 없는 경우
+     */
+    public Product getProductOrThrow(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
+    }
 }
