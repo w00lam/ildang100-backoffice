@@ -1,12 +1,15 @@
 package com.ildang100.backoffice.review.repository;
 
 import com.ildang100.backoffice.review.entity.Review;
+import com.ildang100.backoffice.review.repository.projection.AverageAndCount;
+import com.ildang100.backoffice.review.repository.projection.RatingCount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
@@ -112,7 +115,60 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             @Param("productId") Long productId,
             @Param("reviewId") Long reviewId
                                          );
+    /**
+     * 상품 평균 평점 + 총 개수 집계 (Story R-4).
+     *
+     * <p>
+     * DELETED 리뷰는 집계에서 자동 제외. 리뷰 0건이면 {@code AverageAndCount(null, 0L)}.
+     * Service에서 {@code count == 0L} 분기 후 처리.
+     * </p>
+     */
+    @Query(
+            "SELECT new com.ildang100.backoffice.review.repository.projection.AverageAndCount(AVG(r.rating), COUNT(r)) "
+                    + "FROM Review r "
+                    + "WHERE r.product.id = :productId "
+                    + "AND r.deletionStatus = com.ildang100.backoffice.common.enums.DeletionStatus.NOT_DELETED"
+    )
+    AverageAndCount findAverageAndCountByProductId(@Param("productId") Long productId);
 
+    /**
+     * 상품 별점별 개수 집계 (Story R-4).
+     *
+     * <p>
+     * DELETED 제외. 0건인 별점은 결과 row에 포함되지 않으므로 호출자
+     * ({@link com.ildang100.backoffice.review.dto.response.ProductReviewSummary#of})가
+     * 1~5 모든 키를 0으로 채우는 후처리 수행.
+     * </p>
+     */
+    @Query(
+            "SELECT new com.ildang100.backoffice.review.repository.projection.RatingCount(r.rating, COUNT(r)) "
+                    + "FROM Review r "
+                    + "WHERE r.product.id = :productId "
+                    + "AND r.deletionStatus = com.ildang100.backoffice.common.enums.DeletionStatus.NOT_DELETED "
+                    + "GROUP BY r.rating"
+    )
+    List<RatingCount> countByProductIdGroupByRating(@Param("productId") Long productId);
+
+    /**
+     * 상품 최신 리뷰 N건 조회 (Story R-4).
+     *
+     * <p>
+     * {@code customer}를 fetch join으로 함께 로딩 — {@code LatestReviewItem.from} 변환 시
+     * N+1 회피. 정렬·제한은 {@link Pageable}로 위임. DELETED 제외.
+     * </p>
+     *
+     * @param pageable {@code PageRequest.of(0, latestLimit, Sort.by(DESC, "createdAt"))} 형태로 전달
+     */
+    @Query(
+            "SELECT r FROM Review r "
+                    + "JOIN FETCH r.customer "
+                    + "WHERE r.product.id = :productId "
+                    + "AND r.deletionStatus = com.ildang100.backoffice.common.enums.DeletionStatus.NOT_DELETED"
+    )
+    List<Review> findLatestByProductId(
+            @Param("productId") Long productId,
+            Pageable pageable
+                                      );
 
 
 }

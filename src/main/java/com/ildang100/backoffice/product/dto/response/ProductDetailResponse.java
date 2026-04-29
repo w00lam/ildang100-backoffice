@@ -2,6 +2,7 @@ package com.ildang100.backoffice.product.dto.response;
 
 import com.ildang100.backoffice.common.enums.ProductStatus;
 import com.ildang100.backoffice.product.entity.Product;
+import com.ildang100.backoffice.review.dto.response.ProductReviewSummary;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -40,6 +41,7 @@ public class ProductDetailResponse {
     private final ProductStatus status;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
+    private final ProductReviewSummary reviewSummary;
 
     private ProductDetailResponse(
             Long id,
@@ -51,7 +53,8 @@ public class ProductDetailResponse {
             int stock,
             ProductStatus status,
             LocalDateTime createdAt,
-            LocalDateTime updatedAt
+            LocalDateTime updatedAt,
+            ProductReviewSummary reviewSummary
                                  ) {
         this.id = id;
         this.adminName = adminName;
@@ -63,9 +66,23 @@ public class ProductDetailResponse {
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.reviewSummary = reviewSummary;
     }
 
-    public static ProductDetailResponse from(Product product) {
+    /**
+     * 상품 본체와 리뷰 통계를 합성하여 상세 응답을 생성합니다.
+     *
+     * <p>
+     * 호출자({@code ProductService#getDetail}) 책임:
+     * <ul>
+     *     <li>{@code product}는 fetch join으로 {@code admin}이 함께 로딩된 상태여야 함
+     *         — {@code adminName}/{@code adminEmail} 호출 시 N+1 회피</li>
+     *     <li>{@code reviewSummary}는 항상 non-null. 리뷰 0건이면
+     *         {@link ProductReviewSummary#empty()}로 전달 (필드 자체는 항상 존재)</li>
+     * </ul>
+     * </p>
+     */
+    public static ProductDetailResponse from(Product product, ProductReviewSummary reviewSummary) {
         return new ProductDetailResponse(
                 product.getId(),
                 product.getAdmin().getName(),
@@ -76,7 +93,8 @@ public class ProductDetailResponse {
                 product.getStock(),
                 product.getStatus(),
                 product.getCreatedAt(),
-                product.getUpdatedAt()
+                product.getUpdatedAt(),
+                reviewSummary
         );
     }
 }
