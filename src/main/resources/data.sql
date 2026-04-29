@@ -1,27 +1,27 @@
 INSERT INTO admins
 (id, name, email, password, tele, status, role, created_at, approved_at, updated_at)
 VALUES
-    (1, 'admin', 'admin@sparta.com', '$2a$04$0slsLbTBojZGxBjb/sQ5he4U28QNqFn0bzwSae8LcqTDKwtlqFCC2', '010-0000-0000',
+    (1, 'admin', 'admin@sparta.com', '$2a$10$TSPNz8qpjtfwiUbVZxI2LOWBMEGZ03OeXaQzvF19j8tkMOOT9wTfe', '010-0000-0000',
      'ACTIVE', 'SUPER_ADMIN', NOW(), NOW(), NOW()),
-    (2, '김운영', 'operation@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-1111-1111',
+    (2, '김운영', 'operation@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1111-1111',
      'ACTIVE', 'OPERATIONS_ADMIN', NOW(), NOW(), NOW()),
-    (3, '김철수', 'kim@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-6666-6666',
+    (3, '김철수', 'kim@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-6666-6666',
      'ACTIVE', 'OPERATIONS_ADMIN', NOW(), NOW(), NOW()),
-    (4, '박민수', 'park@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-8888-8888',
+    (4, '박민수', 'park@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-8888-8888',
      'ACTIVE', 'OPERATIONS_ADMIN', NOW(), NOW(), NOW()),
-    (5, '최동욱', 'choi@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-1010-1010',
+    (5, '최동욱', 'choi@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1010-1010',
      'ACTIVE', 'OPERATIONS_ADMIN', NOW(), NOW(), NOW()),
-    (6, '최거부', 'rejected@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-4444-4444',
+    (6, '최거부', 'rejected@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-4444-4444',
      'REJECTED', 'OPERATIONS_ADMIN', NOW(), NOW(), NOW()),
-    (7, '이고객', 'cs@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-2222-2222',
+    (7, '이고객', 'cs@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-2222-2222',
      'ACTIVE', 'CS_ADMIN', NOW(), NOW(), NOW()),
-    (8, '이영희', 'lee@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-7777-7777',
+    (8, '이영희', 'lee@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-7777-7777',
      'ACTIVE', 'CS_ADMIN', NOW(), NOW(), NOW()),
-    (9, '박대기', 'pending@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-3333-3333',
+    (9, '박대기', 'pending@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-3333-3333',
      'PENDING_APPROVAL', 'CS_ADMIN', NOW(), NOW(), NOW()),
-    (10, '정정지', 'suspended@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-5555-5555',
+    (10, '정정지', 'suspended@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-5555-5555',
      'SUSPENDED', 'CS_ADMIN', NOW(), NOW(), NOW()),
-    (11, '정수연', 'jung@sparta.com', '$2a$04$3OrPMqoEYFxaZ0Sw5o6qPuso4gsLPHcosPPyJYfZ/qbZElSirWuim', '010-9999-9999',
+    (11, '정수연', 'jung@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-9999-9999',
      'INACTIVE', 'CS_ADMIN', NOW(), NOW(), NOW());
 
 INSERT INTO customers
@@ -44,6 +44,66 @@ VALUES
     (1, 1, '무선 키보드', '전자기기', 59000, 100, 'ON_SALE', NOW(), NOW()),
     (2, 1, '블루투스 마우스', '전자기기', 39000, 80, 'ON_SALE', NOW(), NOW()),
     (3, 1, '텀블러', '생활용품', 18000, 50, 'ON_SALE', NOW(), NOW());
+
+--- 재고 부족
+INSERT INTO products
+(id, admin_id, name, category, price, stock, status, created_at, updated_at)
+VALUES
+    (4, 1, 'USB-C 케이블', '전자기기', 9000, 5, 'ON_SALE', NOW(), NOW()),
+    (5, 1, '노트북 거치대', '전자기기', 29000, 3, 'ON_SALE', NOW(), NOW());
+
+--- 품절
+INSERT INTO products
+(id, admin_id, name, category, price, stock, status, created_at, updated_at)
+VALUES
+    (6, 1, '게이밍 마우스패드', '전자기기', 15000, 0, 'OUT_OF_STOCK', NOW(), NOW()),
+    (7, 1, '스마트폰 거치대', '전자기기', 12000, 0, 'OUT_OF_STOCK', NOW(), NOW());
+
+-- 준비중 (오늘)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price
+) VALUES
+    (1, 1, 1, 2, 'PREPARING', NOW(), NOW(), 100001, 10000, 20000);
+
+-- 배송중 (오늘)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price
+) VALUES
+    (1, 1, 1, 1, 'SHIPPING', NOW(), NOW(), 100002, 15000, 15000);
+
+-- 배송완료 (오늘)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price
+) VALUES
+    (1, 1, 1, 3, 'DELIVERED', NOW(), NOW(), 100003, 8000, 24000);
+
+-- 배송완료 (어제)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price
+) VALUES
+    (1, 1, 1, 2, 'DELIVERED',
+     NOW() - INTERVAL 1 DAY,
+     NOW() - INTERVAL 1 DAY,
+     100004, 12000, 24000);
+
+-- 취소 (오늘, 통계 제외 확인용)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price,
+    cancel_reason
+) VALUES
+    (1, 1, 1, 1, 'CANCELLED',
+     NOW(), NOW(),
+     100005, 10000, 10000, '테스트 취소');
 
 INSERT INTO reviews
 (id, customer_id, product_id, rating, content, created_at, updated_at)

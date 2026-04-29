@@ -81,6 +81,11 @@ public enum ErrorCode {
             "REJECT_REASON_REQUIRED",
             "거절 사유는 필수입니다."
     ),
+    INVALID_RATING_VALUE(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_RATING_VALUE",
+            "평점은 1 이상 5 이하여야 합니다."
+    ),
 
     // 401 UNAUTHORIZED
     UNAUTHORIZED(
@@ -145,6 +150,11 @@ public enum ErrorCode {
             "PRODUCT_NOT_FOUND",
             "상품이 존재하지 않습니다."
     ),
+    PRODUCT_DELETE_NOT_ALLOWED(
+            HttpStatus.CONFLICT,
+            "PRODUCT_DELETE_NOT_ALLOWED",
+            "주문 또는 리뷰가 연결된 상품은 삭제할 수 없습니다."
+    ),
     ORDER_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "ORDER_NOT_FOUND",
@@ -154,6 +164,26 @@ public enum ErrorCode {
             HttpStatus.NOT_FOUND,
             "REVIEW_NOT_FOUND",
             "리뷰가 존재하지 않습니다."
+    ),
+    TOKEN_REQUIRED(
+            HttpStatus.UNAUTHORIZED,
+            "TOKEN_REQUIRED",
+            "인증 토큰이 필요합니다."
+    ),
+    TOKEN_EXPIRED(
+            HttpStatus.UNAUTHORIZED,
+            "TOKEN_EXPIRED",
+            "인증 토큰이 만료되었습니다."
+    ),
+    INVALID_TOKEN(
+            HttpStatus.UNAUTHORIZED,
+            "INVALID_TOKEN",
+            "유효하지 않은 토큰입니다."
+    ),
+    INVALID_TOKEN_FORMAT(
+            HttpStatus.UNAUTHORIZED,
+            "INVALID_TOKEN_FORMAT",
+            "토큰 형식이 올바르지 않습니다."
     ),
 
     // 409 CONFLICT
@@ -222,10 +252,10 @@ public enum ErrorCode {
             "CUSTOMER_DELETE_NOT_ALLOWED",
             "삭제할 수 없는 고객 상태입니다."
     ),
-    PRODUCT_DELETE_NOT_ALLOWED(
+    REVIEW_ALREADY_DELETED(
             HttpStatus.CONFLICT,
-            "PRODUCT_DELETE_NOT_ALLOWED",
-            "주문 또는 리뷰가 연결된 상품은 삭제할 수 없습니다."
+            "REVIEW_ALREADY_DELETED",
+            "이미 삭제된 리뷰입니다."
     ),
 
     // 500 INTERNAL_SERVER_ERROR

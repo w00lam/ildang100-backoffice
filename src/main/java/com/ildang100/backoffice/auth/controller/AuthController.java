@@ -1,6 +1,7 @@
 package com.ildang100.backoffice.auth.controller;
 
 import com.ildang100.backoffice.auth.dto.AdminLoginRequest;
+import com.ildang100.backoffice.auth.dto.AdminLoginResponse;
 import com.ildang100.backoffice.auth.dto.AdminSignUpRequest;
 import com.ildang100.backoffice.auth.service.AuthService;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
@@ -45,16 +46,14 @@ public class AuthController {
     }
 
     @PostMapping("/admins/login")
-    public CommonApiResponse<Void> login(@RequestBody @Valid AdminLoginRequest request, HttpSession session) {
-        authService.login(request, session);
+    public CommonApiResponse<AdminLoginResponse> login(@RequestBody @Valid AdminLoginRequest request, HttpSession session) {
+        AdminLoginResponse response = authService.login(request, session);
 
-        return CommonApiResponse.success(HttpStatus.OK, "로그인에 성공했습니다.", null);
+        return CommonApiResponse.success(HttpStatus.OK, "로그인에 성공했습니다.", response);
     }
 
     @PostMapping("/admins/logout")
-    public CommonApiResponse<Void> logout(HttpSession session) {
-        authService.logout(session);
-
+    public CommonApiResponse<Void> logout() {
         return CommonApiResponse.success(HttpStatus.OK, "로그아웃이 완료되었습니다.", null);
     }
 }
