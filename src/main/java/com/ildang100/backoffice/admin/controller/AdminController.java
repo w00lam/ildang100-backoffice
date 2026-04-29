@@ -12,7 +12,7 @@ import com.ildang100.backoffice.common.response.CommonApiResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-//import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -45,7 +45,7 @@ public class AdminController {
      * @author 박채빈
      * @since 2026-04-27
      */
-    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping
     public CommonApiResponse<AdminListResponse> getAdminList(
             @RequestParam(required = false) String keyword,
@@ -69,7 +69,7 @@ public class AdminController {
      * 관리자 상세 조회 API
      * GET /admins/{adminId}
      */
-    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping("/{adminId}")
     public CommonApiResponse<AdminResponse> getAdmin(@PathVariable Long adminId, HttpSession session) {
 
@@ -100,7 +100,7 @@ public class AdminController {
      * @return 수정된 관리자 정보를 포함한 공통 응답 객체
      * @throws ServiceException 인증되지 않았거나 권한이 없는 경우, 또는 대상 관리자가 없는 경우 발생
      */
-    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping("/{adminId}")
     public CommonApiResponse<AdminResponse> updateAdmin(
             @PathVariable Long adminId,
@@ -127,13 +127,13 @@ public class AdminController {
      * @param session 현재 사용자 세션 (로그인 검증용)
      * @return 수정된 관리자 정보를 포함한 공통 응답 객체
      */
-    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping("/{adminId}/role")
     public CommonApiResponse<AdminResponse> updateAdminRole(
             @PathVariable Long adminId,
             @RequestBody @Valid AdminRoleUpdateRequest request,
-            HttpSession session
-    ) {
+            HttpSession session) {
+
         SessionUtils.getLoginAdmin(session);
 
         AdminResponse response = adminService.updateAdminRole(adminId, request);
@@ -159,7 +159,7 @@ public class AdminController {
      * @param session 현재 사용자의 세션
      * @return 수정된 관리자 정보를 포함한 공통 응답 객체
      */
-    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping("/{adminId}/status")
     public CommonApiResponse<AdminResponse> updateAdminStatus(
             @PathVariable Long adminId,
@@ -190,7 +190,7 @@ public class AdminController {
      * @param session 현재 사용자 세션
      * @return 삭제 완료 메시지를 포함한 공통 응답 객체
      */
-    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @DeleteMapping("/{adminId}")
     public CommonApiResponse<Void> deleteAdmin(
             @PathVariable Long adminId,
@@ -213,7 +213,7 @@ public class AdminController {
      * @param session 세션 정보
      * @return 공통 응답 규격에 맞춘 처리 결과
      */
-    //@PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PatchMapping("/{adminId}/approval")
     public CommonApiResponse<AdminApprovalResponse> approveAdmin(
             @PathVariable Long adminId,
@@ -225,6 +225,7 @@ public class AdminController {
         AdminApprovalResponse response = adminService.approveAdmin(adminId, request);
 
         String message = request.getIsApproved() ? "관리자 승인 완료" : "관리자 거부 완료";
+
         return CommonApiResponse.success(OK, message, response);
     }
     /**
@@ -237,13 +238,11 @@ public class AdminController {
      */
     @GetMapping("/me")
     public CommonApiResponse<AdminResponse> getMyProfile(HttpSession session) {
-        // 1. 세션에서 현재 로그인한 관리자 정보 가져오기 (비로그인 시 401 처리됨)
+
         LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);
 
-        // 2. 서비스 호출하여 최신 DB 데이터 조회
         AdminResponse response = adminService.getAdminProfile(loginAdmin.getId());
 
-        // 3. 성공 응답 반환
         return CommonApiResponse.success(OK, "관리자 프로필 조회 성공", response);
     }
 
@@ -272,8 +271,8 @@ public class AdminController {
     @PatchMapping("/me/password")
     public CommonApiResponse<Void> updateMyPassword(
             @RequestBody @Valid AdminPasswordUpdateRequest request,
-            HttpSession session
-    ) {
+            HttpSession session) {
+
         LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);
 
         adminService.updatePassword(loginAdmin.getId(), request);
