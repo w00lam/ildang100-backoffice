@@ -1,12 +1,16 @@
 package com.ildang100.backoffice.order.repository;
 
 import com.ildang100.backoffice.common.enums.OrderStatus;
+import com.ildang100.backoffice.customer.dto.CustomerOrderStats;
 import com.ildang100.backoffice.order.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -70,4 +74,54 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     WHERE DATE(o.createdAt) = CURRENT_DATE
     """)
     long countTodayOrders();
+
+    /**
+     * 고객 ID 목록에 해당하는 고객별 주문 통계를 조회합니다.
+     *
+     * <p>목록 조회 화면에서 현재 페이지에 포함된 고객들의 주문 통계를 한 번에 조회하기 위한 집계 쿼리입니다.</p>
+     *
+     * @param customerIds 조회할 고객 ID 목록
+     * @param excludedStatus 집계에서 제외할 주문 상태
+     * @return 고객별 주문 통계 목록
+     */
+    @Query("""
+            select new com.ildang100.backoffice.customer.dto.CustomerOrderStats(
+                o.customer.id,
+                count(o),
+                sum(o.totalPrice)
+            )
+            from Order o
+            where o.customer.id in :customerIds
+              and o.status <> :excludedStatus
+            group by o.customer.id
+            """)
+    List<CustomerOrderStats> findCustomerOrderStatsByCustomerIds(
+            @Param("customerIds") List<Long> customerIds,
+            @Param("excludedStatus") OrderStatus excludedStatus
+    );
+
+    /**
+     * 특정 고객의 주문 통계를 조회합니다.
+     *
+     * <p>고객 상세, 수정, 상태 변경 응답에 포함할 주문 통계를 조회합니다.</p>
+     *
+     * @param customerId 조회할 고객 ID
+     * @param excludedStatus 집계에서 제외할 주문 상태
+     * @return 고객 주문 통계
+     */
+    @Query("""
+            select new com.ildang100.backoffice.customer.dto.CustomerOrderStats(
+                o.customer.id,
+                count(o),
+                sum(o.totalPrice)
+            )
+            from Order o
+            where o.customer.id = :customerId
+              and o.status <> :excludedStatus
+            group by o.customer.id
+            """)
+    Optional<CustomerOrderStats> findCustomerOrderStatsByCustomerId(
+            @Param("customerId") Long customerId,
+            @Param("excludedStatus") OrderStatus excludedStatus
+    );
 }
