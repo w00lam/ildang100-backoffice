@@ -302,4 +302,34 @@ public class Product extends BaseEntity {
         return this.deletionStatus == DeletionStatus.DELETED;
     }
 
+    /**
+     * 주문 가능 여부 사전 검증 (P-7).
+     *
+     * <p>
+     * Order 도메인이 본 Aggregate를 대상으로 주문을 생성하기 직전에 호출하는 검증 진입점.
+     * 다음 두 케이스를 차단합니다:
+     * <ul>
+     *   <li>{@code DeletionStatus.DELETED} — 도메인 정책상 "조회되지 않는 것으로 취급" →
+     *       {@link ErrorCode#PRODUCT_NOT_FOUND}(404)</li>
+     *   <li>{@code ProductStatus.DISCONTINUED} — 영구 단종 →
+     *       {@link ErrorCode#PRODUCT_DISCONTINUED}(409)</li>
+     * </ul>
+     *
+     * <p>
+     * 재고 부족({@code stock < quantity})은 본 메서드가 아니라 후행 호출인
+     * {@link #decreaseStock(int)}에서 {@link ErrorCode#INSUFFICIENT_STOCK}으로 차단됩니다 —
+     * 검증 중복을 피하기 위함.
+     * </p>
+     *
+     * @throws ServiceException 주문할 수 없는 상품인 경우
+     */
+    public void assertOrderable() {
+        if (this.deletionStatus == DeletionStatus.DELETED) {
+            throw new ServiceException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+        if (this.status == ProductStatus.DISCONTINUED) {
+            throw new ServiceException(ErrorCode.PRODUCT_DISCONTINUED);
+        }
+    }
+
 }

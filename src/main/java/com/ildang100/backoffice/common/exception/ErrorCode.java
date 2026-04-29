@@ -257,6 +257,11 @@ public enum ErrorCode {
             "REVIEW_ALREADY_DELETED",
             "이미 삭제된 리뷰입니다."
     ),
+    PRODUCT_DISCONTINUED(
+            HttpStatus.CONFLICT,
+            "PRODUCT_DISCONTINUED",
+            "단종된 상품은 주문할 수 없습니다."
+    ),
 
     // 500 INTERNAL_SERVER_ERROR
     INTERNAL_SERVER_ERROR(
