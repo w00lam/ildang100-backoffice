@@ -5,15 +5,22 @@ import com.ildang100.backoffice.common.exception.ServiceException;
 import com.ildang100.backoffice.product.dto.response.PageResponse;
 import com.ildang100.backoffice.product.entity.Product;
 import com.ildang100.backoffice.product.repository.ProductRepository;
+import com.ildang100.backoffice.review.dto.response.LatestReviewItem;
+import com.ildang100.backoffice.review.dto.response.ProductReviewSummary;
 import com.ildang100.backoffice.review.dto.response.ReviewDetailResponse;
 import com.ildang100.backoffice.review.dto.response.ReviewListItemResponse;
 import com.ildang100.backoffice.review.entity.Review;
 import com.ildang100.backoffice.review.repository.ReviewRepository;
+import com.ildang100.backoffice.review.repository.projection.AverageAndCount;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 리뷰 도메인 서비스.
@@ -138,6 +145,70 @@ public class ReviewService {
                                         .orElseThrow(() -> new ServiceException(ErrorCode.REVIEW_NOT_FOUND));
 
         review.markAsDeleted();
+    }
+
+    /**
+     * 상품 상세용 리뷰 통계 집계 (Story R-4 — Product P-8 공급자).
+     *
+     * <p>
+     * Review BC 도메인 모델 §통계 응답 계약 표가 응답 포맷의 단일 진실원천.
+     * 본 메서드는 다른 도메인(Product P-8)이 직접 호출하는 진입점이며, REST
+     * 엔드포인트가 아님. productId 존재 검증은 호출자 책임 — 본 메서드는
+     * {@code latestLimit} 검증과 쿼리 호출 orchestration만 수행합니다.
+     * </p>
+     *
+     * <p>
+     * 표현 형식 정책(반올림·누락 키 채움)은 {@link ProductReviewSummary#of}에
+     * 캡슐화 — 본 Service는 raw 집계 결과만 넘깁니다.
+     * </p>
+     *
+     * <p>
+     * 흐름:
+     * <ol>
+     *     <li>{@code latestLimit} 검증 — 0 이하면 VALIDATION_FAILED</li>
+     *     <li>평균/카운트 집계 1쿼리</li>
+     *     <li>0건이면 {@link ProductReviewSummary#empty()} 즉시 반환 (DECISION-3 빠른 종료)</li>
+     *     <li>별점별 분포 + 최신 N건 쿼리 추가 호출 후 DTO 조립 위임</li>
+     * </ol>
+     * </p>
+     *
+     * <p>
+     * 모든 집계 쿼리는 DELETED 리뷰를 자동 제외 (Repository 계층에서 보장).
+     * 본 epic 범위에서 캐시 미적용 — 작성/삭제 직후 다음 호출에서 즉시 반영.
+     * </p>
+     *
+     * @param productId   통계 대상 상품 ID (존재 검증은 호출자 책임)
+     * @param latestLimit 최신 리뷰 N건 제한 (양수, 본 epic 합의 값 3)
+     * @throws ServiceException {@code latestLimit ≤ 0}이면 {@link ErrorCode#VALIDATION_FAILED}
+     */
+    @Transactional(readOnly = true)
+    public ProductReviewSummary getSummary(Long productId, int latestLimit) {
+        if (latestLimit <= 0) {
+            throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+        }
+
+        AverageAndCount stats = reviewRepository.findAverageAndCountByProductId(productId);
+
+        if (stats.count() == 0L) {
+            return ProductReviewSummary.empty();
+        }
+
+        return ProductReviewSummary.of(
+                stats.average(),
+                stats.count(),
+                reviewRepository.countByProductIdGroupByRating(productId),
+                findLatestReviews(productId, latestLimit)
+                                      );
+    }
+
+    private List<LatestReviewItem> findLatestReviews(Long productId, int latestLimit) {
+        return reviewRepository.findLatestByProductId(
+                                       productId,
+                                       PageRequest.of(0, latestLimit, Sort.by(Sort.Direction.DESC, "createdAt"))
+                                                     )
+                               .stream()
+                               .map(LatestReviewItem::from)
+                               .toList();
     }
 }
 

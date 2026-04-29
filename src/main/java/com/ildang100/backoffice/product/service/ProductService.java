@@ -15,6 +15,8 @@ import com.ildang100.backoffice.product.dto.response.ProductDetailResponse;
 import com.ildang100.backoffice.product.dto.response.ProductResponse;
 import com.ildang100.backoffice.product.entity.Product;
 import com.ildang100.backoffice.product.repository.ProductRepository;
+import com.ildang100.backoffice.review.dto.response.ProductReviewSummary;
+import com.ildang100.backoffice.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,9 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final AdminService adminService;
+    private final ReviewService reviewService;
+
+    private static final int LATEST_REVIEW_LIMIT = 3; //우선 임의로 최대 3개만 하겠습니다.
 
     /**
      * 상품 등록.
@@ -106,7 +111,14 @@ public class ProductService {
         Product product = productRepository.findDetailById(productId)
                                            .orElseThrow(() -> new ServiceException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        return ProductDetailResponse.from(product);
+        // ⚠️ DELETED 검증 추가 필요 — 현재 코드는 DELETED 상품도 응답함
+        if (product.isDeleted()) {
+            throw new ServiceException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        ProductReviewSummary reviewSummary = reviewService.getSummary(productId, LATEST_REVIEW_LIMIT);
+
+        return ProductDetailResponse.from(product, reviewSummary);
     }
 
     /**
