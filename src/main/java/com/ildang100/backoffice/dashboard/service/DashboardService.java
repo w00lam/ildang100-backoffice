@@ -1,66 +1,43 @@
 package com.ildang100.backoffice.dashboard.service;
 
-import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.common.enums.AdminStatus;
 import com.ildang100.backoffice.common.enums.CustomerStatus;
-import com.ildang100.backoffice.customer.repository.CustomerRepository;
 import com.ildang100.backoffice.dashboard.dto.DashboardResponse;
-import com.ildang100.backoffice.dashboard.dto.SummaryResponse;
-import com.ildang100.backoffice.order.repository.OrderRepository;
-import com.ildang100.backoffice.product.repository.ProductRepository;
+import com.ildang100.backoffice.dashboard.dto.DashboardWidgetResponse;
+import com.ildang100.backoffice.dashboard.entity.DashboardWidgetView;
+import com.ildang100.backoffice.dashboard.repository.DashboardWidgetViewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 대시보드 통계 조회 서비스입니다.
+ * 대시보드 조회 비즈니스 로직을 처리하는 서비스입니다.
  *
  * @author 이우람
- * @since 2026-04-27
+ * @since 2026-04-28
  */
 @Service
 @RequiredArgsConstructor
 public class DashboardService {
 
-    private final AdminRepository adminRepository;
-    private final CustomerRepository customerRepository;
-    private final ProductRepository productRepository;
-    private final OrderRepository orderRepository;
+    private final DashboardWidgetViewRepository dashboardWidgetViewRepository;
 
     /**
-     * 대시보드 Summary 데이터를 조회합니다.
+     * 대시보드 위젯 통계를 조회합니다.
      *
-     * <p>
-     * 현재는 관리자, 고객, 상품, 주문 통계만 제공하며,
-     * 추후 리뷰 통계를 확장할 예정입니다.
-     * </p>
+     * @return 대시보드 위젯 통계 응답
      */
     @Transactional(readOnly = true)
-    public DashboardResponse getDashboard() {
+    public DashboardResponse getDashBoard() {
+        DashboardWidgetView widgetView = dashboardWidgetViewRepository.findById(1L).orElseThrow();
 
-        long totalAdmins = adminRepository.count();
-        long activeAdmins = adminRepository.countByStatus(AdminStatus.ACTIVE);
+        DashboardWidgetResponse widgets = DashboardWidgetResponse.from(widgetView);
 
-        long totalCustomers = customerRepository.count();
-        long activeCustomers = customerRepository.countByStatus(CustomerStatus.ACTIVE);
+        // TODO: 이후 구현 예정
+        // DashboardSummaryResponse summary;
+        // DashboardChartResponse charts;
+        // List<RecentOrderResponse> recentOrders;
 
-        long totalProducts = productRepository.count();
-        long lowStockProducts = productRepository.countByStockLessThanEqual(5);
-
-        long totalOrders = orderRepository.count();
-        long todayOrders = orderRepository.countTodayOrders();
-
-        SummaryResponse summary = SummaryResponse.of(
-                totalAdmins,
-                activeAdmins,
-                totalCustomers,
-                activeCustomers,
-                totalProducts,
-                lowStockProducts,
-                totalOrders,
-                todayOrders
-        );
-
-        return DashboardResponse.of(summary);
+        return DashboardResponse.of(widgets);
     }
 }

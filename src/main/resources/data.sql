@@ -45,6 +45,66 @@ VALUES
     (2, 1, '블루투스 마우스', '전자기기', 39000, 80, 'ON_SALE', NOW(), NOW()),
     (3, 1, '텀블러', '생활용품', 18000, 50, 'ON_SALE', NOW(), NOW());
 
+--- 재고 부족
+INSERT INTO products
+(id, admin_id, name, category, price, stock, status, created_at, updated_at)
+VALUES
+    (4, 1, 'USB-C 케이블', '전자기기', 9000, 5, 'ON_SALE', NOW(), NOW()),
+    (5, 1, '노트북 거치대', '전자기기', 29000, 3, 'ON_SALE', NOW(), NOW());
+
+--- 품절
+INSERT INTO products
+(id, admin_id, name, category, price, stock, status, created_at, updated_at)
+VALUES
+    (6, 1, '게이밍 마우스패드', '전자기기', 15000, 0, 'OUT_OF_STOCK', NOW(), NOW()),
+    (7, 1, '스마트폰 거치대', '전자기기', 12000, 0, 'OUT_OF_STOCK', NOW(), NOW());
+
+-- 준비중 (오늘)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price
+) VALUES
+    (1, 1, 1, 2, 'PREPARING', NOW(), NOW(), 100001, 10000, 20000);
+
+-- 배송중 (오늘)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price
+) VALUES
+    (1, 1, 1, 1, 'SHIPPING', NOW(), NOW(), 100002, 15000, 15000);
+
+-- 배송완료 (오늘)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price
+) VALUES
+    (1, 1, 1, 3, 'DELIVERED', NOW(), NOW(), 100003, 8000, 24000);
+
+-- 배송완료 (어제)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price
+) VALUES
+    (1, 1, 1, 2, 'DELIVERED',
+     NOW() - INTERVAL 1 DAY,
+     NOW() - INTERVAL 1 DAY,
+     100004, 12000, 24000);
+
+-- 취소 (오늘, 통계 제외 확인용)
+INSERT INTO orders (
+    admin_id, customer_id, product_id,
+    quantity, status, created_at, updated_at,
+    order_number, unit_price, total_price,
+    cancel_reason
+) VALUES
+    (1, 1, 1, 1, 'CANCELLED',
+     NOW(), NOW(),
+     100005, 10000, 10000, '테스트 취소');
+
 INSERT INTO reviews
 (id, customer_id, product_id, rating, content, created_at, updated_at)
 VALUES
