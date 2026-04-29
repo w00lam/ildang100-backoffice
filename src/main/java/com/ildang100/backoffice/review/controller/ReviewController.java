@@ -3,6 +3,7 @@ package com.ildang100.backoffice.review.controller;
 import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.product.dto.response.PageResponse;
+import com.ildang100.backoffice.review.dto.response.ReviewDetailResponse;
 import com.ildang100.backoffice.review.dto.response.ReviewListItemResponse;
 import com.ildang100.backoffice.review.policy.ReviewSortPolicy;
 import com.ildang100.backoffice.review.service.ReviewService;
@@ -81,5 +82,27 @@ public class ReviewController {
                 reviewService.search(productId, keyword, rating, pageable);
 
         return CommonApiResponse.success(HttpStatus.OK, "리뷰 리스트 조회 성공", response);
+    }
+
+    /**
+     * 리뷰 상세 조회 (Story R-2).
+     *
+     * <p>
+     * 어드민 채널 — 작성 고객의 이메일(customerEmail)을 포함한 상세 정보를 반환합니다.
+     * 소프트 삭제된 리뷰는 운영자에게도 노출되지 않으며 404 {@code REVIEW_NOT_FOUND}로
+     * 응답합니다.
+     * </p>
+     */
+    @GetMapping("/{reviewId}")
+    public CommonApiResponse<ReviewDetailResponse> getDetail(
+            @PathVariable Long productId,
+            @PathVariable Long reviewId,
+            HttpSession session
+                                                            ) {
+        SessionUtils.getLoginAdmin(session); // 인증 가드 (미인증 시 401 자동 발생)
+
+        ReviewDetailResponse response = reviewService.getDetail(productId, reviewId);
+
+        return CommonApiResponse.success(HttpStatus.OK, "리뷰 상세 조회 성공", response);
     }
 }
