@@ -112,6 +112,54 @@ public class OrderService {
         return OrderListResponse.from(orders);
     }
 
+    private String convertOrderSortProperty(String sortBy) {
+        if ("quantity".equals(sortBy)) {
+            return "quantity";
+        }
+
+        if ("totalPrice".equals(sortBy)) {
+            return "totalPrice";
+        }
+
+        if ("createdAt".equals(sortBy)) {
+            return "createdAt";
+        }
+
+        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+    }
+
+    private Sort.Direction convertSortDirection(String sortOrder) {
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            return Sort.Direction.ASC;
+        }
+
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            return Sort.Direction.DESC;
+        }
+
+        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
+    }
+
+    /**
+     * 검색어를 주문 번호 검색 조건으로 변환합니다.
+     *
+     * <p>검색어가 비어 있거나 숫자로 변환할 수 없으면 주문 번호 조건을 적용하지 않도록 {@code null}을 반환합니다.</p>
+     *
+     * @param keyword 주문 목록 검색어
+     * @return 주문 번호 검색에 사용할 값. 변환할 수 없으면 {@code null}
+     */
+    private Long parseOrderNumber(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Long.parseLong(keyword);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     /**
      * 주문 ID로 주문 상세 정보를 조회합니다.
      *
@@ -171,54 +219,6 @@ public class OrderService {
         return Long.parseLong(
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))
         );
-    }
-
-    /**
-     * 검색어를 주문 번호 검색 조건으로 변환합니다.
-     *
-     * <p>검색어가 비어 있거나 숫자로 변환할 수 없으면 주문 번호 조건을 적용하지 않도록 {@code null}을 반환합니다.</p>
-     *
-     * @param keyword 주문 목록 검색어
-     * @return 주문 번호 검색에 사용할 값. 변환할 수 없으면 {@code null}
-     */
-    private Long parseOrderNumber(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
-            return null;
-        }
-
-        try {
-            return Long.parseLong(keyword);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private String convertOrderSortProperty(String sortBy) {
-        if ("quantity".equals(sortBy)) {
-            return "quantity";
-        }
-
-        if ("totalPrice".equals(sortBy)) {
-            return "totalPrice";
-        }
-
-        if ("createdAt".equals(sortBy)) {
-            return "createdAt";
-        }
-
-        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
-    }
-
-    private Sort.Direction convertSortDirection(String sortOrder) {
-        if ("asc".equalsIgnoreCase(sortOrder)) {
-            return Sort.Direction.ASC;
-        }
-
-        if ("desc".equalsIgnoreCase(sortOrder)) {
-            return Sort.Direction.DESC;
-        }
-
-        throw new ServiceException(ErrorCode.VALIDATION_FAILED);
     }
 
     @Transactional(readOnly = true)
