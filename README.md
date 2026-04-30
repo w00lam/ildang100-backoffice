@@ -9,6 +9,12 @@
 
 Spring Boot 기반의 3 Layer Architecture로 구성되어 있으며, JWT 인증 방식을 사용해 Stateless한 API 인증 구조를 제공합니다.
 
+## 시연 영상
+
+시연 영상은 추후 추가할 예정입니다.
+
+![시연 영상 썸네일](docs/thumbnail.png)
+
 ## 주요 기능
 
 - 관리자 회원가입 / 로그인 / 로그아웃
