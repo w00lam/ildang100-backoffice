@@ -299,7 +299,7 @@ public class AdminService {
      *
      * <p>조회용 메서드이므로 성능 최적화를 위해 readOnly = true를 적용합니다.</p>
      *
-     * @param adminId 조회할 관리자의 고유 ID (세션에서 추출)
+     * @param adminId 조회할 관리자의 고유 ID
      * @return 관리자 프로필 정보 응답 DTO
      * @throws ServiceException 관리자 정보를 찾을 수 없을 때 발생
      */
@@ -313,7 +313,7 @@ public class AdminService {
 
     /**
      * 관리자 프로필 수정 로직
-     * * @param adminId 세션에서 추출한 관리자 ID
+     * @param adminId 현재 로그인한 관리자 ID
      * @param request 수정할 프로필 정보
      * @return 수정 완료된 프로필 응답 객체
      */
@@ -396,7 +396,7 @@ public class AdminService {
     /**
      * 관리자 ID로 관리자를 조회하고, 없으면 예외를 발생시킵니다.
      *
-     * <p>세션에서 추출한 관리자 ID 검증에도 사용하므로, 조회 실패 시 인증 실패 응답으로 처리합니다.</p>
+     * <p>SecurityContext에서 얻은 관리자 ID 검증에도 사용하므로, 조회 실패 시 인증 실패 응답으로 처리합니다.</p>
      *
      * @param adminId 조회할 관리자 ID
      * @return 조회된 관리자 엔티티

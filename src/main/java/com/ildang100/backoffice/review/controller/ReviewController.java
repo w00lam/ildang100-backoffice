@@ -1,13 +1,11 @@
 package com.ildang100.backoffice.review.controller;
 
-import com.ildang100.backoffice.auth.util.SessionUtils;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.product.dto.response.PageResponse;
 import com.ildang100.backoffice.review.dto.response.ReviewDetailResponse;
 import com.ildang100.backoffice.review.dto.response.ReviewListItemResponse;
 import com.ildang100.backoffice.review.policy.ReviewSortPolicy;
 import com.ildang100.backoffice.review.service.ReviewService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -70,11 +68,8 @@ public class ReviewController {
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @RequestParam(defaultValue = "10") @Min(1) @Max(20) int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortOrder,
-            HttpSession session
+            @RequestParam(defaultValue = "desc") String sortOrder
                                                                          ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드 (미인증 시 401 자동 발생)
-
         Sort sort = ReviewSortPolicy.resolve(sortBy, sortOrder);
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
@@ -96,11 +91,8 @@ public class ReviewController {
     @GetMapping("/{reviewId}")
     public CommonApiResponse<ReviewDetailResponse> getDetail(
             @PathVariable Long productId,
-            @PathVariable Long reviewId,
-            HttpSession session
+            @PathVariable Long reviewId
                                                             ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드 (미인증 시 401 자동 발생)
-
         ReviewDetailResponse response = reviewService.getDetail(productId, reviewId);
 
         return CommonApiResponse.success(HttpStatus.OK, "리뷰 상세 조회 성공", response);
@@ -125,11 +117,8 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public CommonApiResponse<Void> delete(
             @PathVariable Long productId,
-            @PathVariable Long reviewId,
-            HttpSession session
+            @PathVariable Long reviewId
                                          ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드 (미인증 시 401 자동 발생)
-
         reviewService.delete(productId, reviewId);
 
         return CommonApiResponse.success(HttpStatus.OK, "리뷰 삭제 완료", null);

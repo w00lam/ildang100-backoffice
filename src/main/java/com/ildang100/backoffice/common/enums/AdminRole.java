@@ -14,7 +14,7 @@ import com.ildang100.backoffice.common.exception.ServiceException;
  *
  * <p>
  * 실제 API 접근 권한 검사는 Enum 내부에서 직접 처리하지 않고,
- * SecurityConfig 또는 {@code @PreAuthorize}를 통해 처리하는 것을 기준으로 합니다.
+ * API 접근 권한은 {@code SecurityConfig}의 URL 인가 정책을 통해 처리하는 것을 기준으로 합니다.
  * </p>
  *
  * <ul>

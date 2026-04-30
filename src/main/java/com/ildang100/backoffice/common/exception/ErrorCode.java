@@ -175,6 +175,11 @@ public enum ErrorCode {
             "TOKEN_EXPIRED",
             "인증 토큰이 만료되었습니다."
     ),
+    INVALID_TOKEN_SIGNATURE(
+            HttpStatus.UNAUTHORIZED,
+            "INVALID_TOKEN_SIGNATURE",
+            "토큰 서명이 유효하지 않습니다."
+    ),
     INVALID_TOKEN(
             HttpStatus.UNAUTHORIZED,
             "INVALID_TOKEN",

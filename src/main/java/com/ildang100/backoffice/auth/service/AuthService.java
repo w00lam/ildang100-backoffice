@@ -5,12 +5,9 @@ import com.ildang100.backoffice.admin.service.AdminService;
 import com.ildang100.backoffice.auth.dto.AdminLoginRequest;
 import com.ildang100.backoffice.auth.dto.AdminLoginResponse;
 import com.ildang100.backoffice.auth.dto.AdminSignUpRequest;
-import com.ildang100.backoffice.auth.dto.LoginAdminDto;
 import com.ildang100.backoffice.auth.jwt.JwtProvider;
-import com.ildang100.backoffice.auth.session.SessionConst;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  * </ol>
  *
  * <p>
- * 기존 세션 기반 인증 대신, 클라이언트는 발급된 토큰을
+ * JWT 인증 방식에서는 클라이언트가 발급된 토큰을
  * Authorization 헤더에 담아 이후 요청을 수행해야 합니다.
  * </p>
  *
@@ -75,19 +72,12 @@ public class AuthService {
     }
 
     @Transactional
-    public AdminLoginResponse  login(AdminLoginRequest request, HttpSession session) {
+    public AdminLoginResponse  login(AdminLoginRequest request) {
         Admin admin = adminService.getByEmail(request.getEmail());
 
         validatePassword(request.getPassword(), admin.getPassword());
 
         admin.validateLoginAvailable();
-
-        // TODO(auth-jwt): JWT 전환 기간 동안만 기존 세션 로그인을 함께 유지한다.
-        // 모든 보호 API가 Authorization Bearer 토큰으로 검증되면 이 세션 저장 로직을 제거한다.
-        session.setAttribute(
-                SessionConst.LOGIN_ADMIN,
-                LoginAdminDto.from(admin)
-        );
 
         String accessToken = jwtProvider.createAccessToken(admin);
 
@@ -98,17 +88,11 @@ public class AuthService {
      * 관리자 로그아웃 처리
      *
      * <p>
-     * 현재 요청의 {@link HttpSession}을 무효화하여
-     * 세션에 저장된 로그인 관리자 정보를 제거합니다.
-     * </p>
-     *
-     * @param session 현재 HTTP 세션
      */
     @Transactional
-    public void logout(HttpSession session) {
-        // TODO(auth-jwt): JWT 전용 인증으로 전환되면 로그아웃은 클라이언트 토큰 삭제 정책으로 변경한다.
-        // Refresh Token을 도입하면 서버 저장소에서 refresh token을 폐기하는 방식으로 확장한다.
-        session.invalidate();
+    public void logout() {
+        // JWT는 서버가 로그인 상태를 들고 있지 않으므로 여기서 삭제할 서버 상태가 없습니다.
+        // 현재 단계의 로그아웃은 클라이언트가 보관 중인 accessToken을 제거하는 방식으로 처리합니다.
     }
 
     private void validatePassword(String raw, String encoded) {

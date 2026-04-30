@@ -11,27 +11,18 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-
 /**
- * 인증 실패 시 처리 로직을 담당하는 클래스입니다.
+ * 인증 실패 응답을 JSON 형태로 내려주는 진입점입니다.
  *
  * <p>
- * 인증이 필요한 요청에서 JWT 토큰이 없거나 유효하지 않을 경우 호출됩니다.
+ * 인증이 필요한 API에 토큰 없이 접근하거나, JWT 필터에서 토큰 관련 오류를 request attribute에 남긴 경우
+ * Spring Security가 이 클래스를 호출합니다.
  * </p>
- *
- * <p><b>동작 방식</b></p>
- * <ul>
- *     <li>필터에서 전달된 에러 코드를 request attribute에서 추출</li>
- *     <li>해당 에러 코드 기반으로 HTTP 상태 및 메시지 설정</li>
- *     <li>JSON 형식의 공통 에러 응답 반환</li>
- * </ul>
  *
  * <p>
- * 필터에서 발생한 인증 관련 예외를 중앙에서 일관되게 처리하기 위한 진입점입니다.
+ * 예를 들어 토큰이 없으면 TOKEN_REQUIRED, 만료되었으면 TOKEN_EXPIRED,
+ * 서명이 다르면 INVALID_TOKEN_SIGNATURE 응답을 내려줍니다.
  * </p>
- *
- * @author 이우람
- * @since 2026-04-29
  */
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
@@ -45,6 +36,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     ) throws IOException {
         ErrorCode errorCode = (ErrorCode) request.getAttribute("exception");
 
+        // 필터에서 별도 에러를 남기지 않았다면 토큰이 없는 인증 실패로 처리합니다.
         if (errorCode == null) {
             errorCode = ErrorCode.TOKEN_REQUIRED;
         }

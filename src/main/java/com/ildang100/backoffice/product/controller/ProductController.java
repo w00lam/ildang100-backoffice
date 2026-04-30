@@ -1,7 +1,7 @@
 package com.ildang100.backoffice.product.controller;
 
 import com.ildang100.backoffice.auth.dto.LoginAdminDto;
-import com.ildang100.backoffice.auth.util.SessionUtils;
+import com.ildang100.backoffice.auth.util.AuthUtils;
 import com.ildang100.backoffice.common.enums.ProductStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import com.ildang100.backoffice.product.dto.request.ProductCreateRequest;
@@ -13,7 +13,6 @@ import com.ildang100.backoffice.product.dto.response.ProductDetailResponse;
 import com.ildang100.backoffice.product.dto.response.ProductResponse;
 import com.ildang100.backoffice.product.policy.ProductSortPolicy;
 import com.ildang100.backoffice.product.service.ProductService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -34,16 +33,16 @@ public class ProductController {
     private final ProductService productService;
 
     /**
-     * 상품 등록.
-     * 등록 관리자 ID는 세션에서 식별. 요청 본문의 adminId는 받지 않는다.
+     * 상품을 등록합니다.
+     *
+     * <p>등록 관리자 ID는 JWT 인증 후 SecurityContext에 저장된 값을 사용합니다.</p>
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CommonApiResponse<ProductResponse> create(
-            @Valid @RequestBody ProductCreateRequest request,
-            HttpSession session
-                                                    ) {
-        LoginAdminDto loginAdmin = SessionUtils.getLoginAdmin(session);
+            @Valid @RequestBody ProductCreateRequest request
+    ) {
+        LoginAdminDto loginAdmin = AuthUtils.getLoginAdmin();
 
         ProductResponse response = productService.create(loginAdmin.getId(), request);
 
@@ -51,116 +50,85 @@ public class ProductController {
     }
 
     /**
-     * 상품 정보 부분 수정.
-     * 모든 필드가 null이면 변경 없이 정상 응답 (멱등성 보장).
+     * 상품 정보를 수정합니다.
      */
     @PutMapping("/{productId}")
     public CommonApiResponse<ProductResponse> update(
             @PathVariable Long productId,
-            @Valid @RequestBody ProductUpdateRequest request,
-            HttpSession session
-                                                    ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드 (미인증 시 401 자동 발생)
-
+            @Valid @RequestBody ProductUpdateRequest request
+    ) {
         ProductResponse response = productService.update(productId, request);
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 정보 수정 성공", response);
     }
 
     /**
-     * 상품 삭제 (소프트 삭제 / P-6).
-     * Aggregate의 {@code deletionStatus}를 {@code DELETED}로 전이시키며, 데이터는
-     * 물리적으로 삭제되지 않는다. 상품의 판매 상태({@code status})는 보존된다.
-     * 이미 {@code DELETED} 상태인 상품을 재삭제 요청하면 409 {@code PRODUCT_ALREADY_DELETED}.
+     * 상품을 삭제 처리합니다.
      */
     @DeleteMapping("/{productId}")
     public CommonApiResponse<Void> delete(
-            @PathVariable Long productId,
-            HttpSession session
-                                         ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드
-
+            @PathVariable Long productId
+    ) {
         productService.delete(productId);
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 삭제 완료", null);
     }
 
     /**
-     * 상품 목록 조회 (페이징·검색·필터·정렬).
-     *
-     * <p>
-     * page는 외부 API 기준 1-based. status가 ProductStatus enum에 매핑되지 않으면
-     * Spring의 {@code MethodArgumentTypeMismatchException}으로 떨어지며,
-     * GlobalExceptionHandler에서 {@code INVALID_PRODUCT_STATUS}(400)로 매핑된다.
-     * </p>
+     * 상품 목록을 조회합니다.
      */
     @GetMapping
     public CommonApiResponse<PageResponse<ProductResponse>> search(
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String category,            // ⬅ 추가
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) ProductStatus status,
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortOrder,
-            HttpSession session
-                                                                  ) {
-        SessionUtils.getLoginAdmin(session);
-
+            @RequestParam(defaultValue = "desc") String sortOrder
+    ) {
         Sort sort = ProductSortPolicy.resolve(sortBy, sortOrder);
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         PageResponse<ProductResponse> response =
-                productService.search(keyword, category, status, pageable);   // ⬅ category 전달
+                productService.search(keyword, category, status, pageable);
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 목록 조회 성공", response);
     }
 
     /**
-     * 상품 상세 조회.
-     * 등록 관리자 이름과 이메일을 함께 반환한다.
+     * 상품 상세 정보를 조회합니다.
      */
     @GetMapping("/{productId}")
     public CommonApiResponse<ProductDetailResponse> getDetail(
-            @PathVariable Long productId,
-            HttpSession session
-                                                             ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드 (미인증 시 401 자동 발생)
-
+            @PathVariable Long productId
+    ) {
         ProductDetailResponse response = productService.getDetail(productId);
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 상세 조회 성공", response);
     }
 
     /**
-     * 상품 재고 변경 (운영자 채널).
-     * 재고 절대값을 설정하며, 도메인 정책에 의해 상태가 자동 전이된다.
+     * 상품 재고를 변경합니다.
      */
     @PutMapping("/{productId}/stock")
     public CommonApiResponse<ProductResponse> changeStock(
             @PathVariable Long productId,
-            @Valid @RequestBody ProductStockUpdateRequest request,
-            HttpSession session
-                                                         ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드
-
+            @Valid @RequestBody ProductStockUpdateRequest request
+    ) {
         ProductResponse response = productService.changeStock(productId, request);
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 재고 변경 성공", response);
     }
 
     /**
-     * 상품 상태 변경 (운영자 채널).
-     * 운영자의 명시적 의사결정으로 상태를 변경한다. 자동 전이 정책과 독립적으로 동작.
+     * 상품 상태를 변경합니다.
      */
     @PutMapping("/{productId}/status")
     public CommonApiResponse<ProductResponse> changeStatus(
             @PathVariable Long productId,
-            @Valid @RequestBody ProductStatusUpdateRequest request,
-            HttpSession session
-                                                          ) {
-        SessionUtils.getLoginAdmin(session); // 인증 가드
-
+            @Valid @RequestBody ProductStatusUpdateRequest request
+    ) {
         ProductResponse response = productService.changeStatus(productId, request);
 
         return CommonApiResponse.success(HttpStatus.OK, "상품 상태 변경 성공", response);
