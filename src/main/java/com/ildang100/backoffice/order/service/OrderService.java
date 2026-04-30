@@ -84,7 +84,7 @@ public class OrderService {
      */
     private Long generateOrderNumber() {
         String dateTime = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+                .format(DateTimeFormatter.ofPattern("yyMMddHHmmssSSS"));
 
         int randomNumber = ThreadLocalRandom.current().nextInt(100, 1000);
 
