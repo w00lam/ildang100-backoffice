@@ -1,5 +1,6 @@
 package com.ildang100.backoffice.dashboard.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.ildang100.backoffice.dashboard.entity.ReviewRatingDistributionView;
 import lombok.Getter;
 
@@ -14,6 +15,7 @@ import lombok.Getter;
  * @since 2026-04-29
  */
 @Getter
+@JsonPropertyOrder({"rating", "count"})
 public class ReviewRatingDistributionResponse {
 
     /**

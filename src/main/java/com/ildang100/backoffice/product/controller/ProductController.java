@@ -21,12 +21,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,20 +38,15 @@ public class ProductController {
      * <p>등록 관리자 ID는 JWT 인증 후 SecurityContext에 저장된 값을 사용합니다.</p>
      */
     @PostMapping
-    public ResponseEntity<CommonApiResponse<ProductResponse>> create(
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommonApiResponse<ProductResponse> create(
             @Valid @RequestBody ProductCreateRequest request
-                                                                    ) {
+    ) {
         LoginAdminDto loginAdmin = AuthUtils.getLoginAdmin();
+
         ProductResponse response = productService.create(loginAdmin.getId(), request);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                                                  .path("/{id}")
-                                                  .buildAndExpand(response.getId())
-                                                  .toUri();
-
-        return ResponseEntity
-                .created(location)
-                .body(CommonApiResponse.success(HttpStatus.CREATED, "상품 생성 완료", response));
+        return CommonApiResponse.success(HttpStatus.CREATED, "상품 생성 완료", response);
     }
 
     /**

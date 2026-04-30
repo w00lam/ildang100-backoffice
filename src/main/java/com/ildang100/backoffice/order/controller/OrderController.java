@@ -36,20 +36,14 @@ public class OrderController {
      * <p>JWT 인증 후 SecurityContext에 저장된 관리자 ID를 주문 담당자로 기록합니다.</p>
      */
     @PostMapping
-    public ResponseEntity<CommonApiResponse<OrderCreateResponse>> createOrder(
+    public CommonApiResponse<OrderCreateResponse> createOrder(
             @Valid @RequestBody OrderCreateRequest request
     ) {
         LoginAdminDto loginAdmin = AuthUtils.getLoginAdmin();
 
         OrderCreateResponse response = orderService.createOrder(loginAdmin.getId(), request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(CommonApiResponse.success(
-                        HttpStatus.CREATED,
-                        "주문 생성 성공",
-                        response
-                ));
+        return CommonApiResponse.success(HttpStatus.CREATED, "주문 생성 성공", response);
     }
 
     /**
