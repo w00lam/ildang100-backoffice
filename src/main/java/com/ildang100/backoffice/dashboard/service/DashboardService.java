@@ -6,6 +6,7 @@ import com.ildang100.backoffice.dashboard.entity.DashboardWidgetView;
 import com.ildang100.backoffice.dashboard.repository.*;
 import com.ildang100.backoffice.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +68,7 @@ public class DashboardService {
      */
     private DashboardChartResponse getCharts() {
         return DashboardChartResponse.of(
-                reviewRatingDistributionViewRepository.findAll()
+                reviewRatingDistributionViewRepository.findAll(Sort.by(Sort.Direction.ASC, "rating"))
                         .stream()
                         .map(ReviewRatingDistributionResponse::from)
                         .toList(),

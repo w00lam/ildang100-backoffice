@@ -35,8 +35,7 @@ public class AdminController {
             @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String sortOrder
     ) {
-        AdminListResponse response =
-                adminService.getAdminList(keyword, role, status, page, size, sortBy, sortOrder);
+        AdminListResponse response = adminService.getAdminList(keyword, role, status, page, size, sortBy, sortOrder);
 
         return CommonApiResponse.success(OK, "관리자 리스트 조회 성공", response);
     }

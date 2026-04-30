@@ -38,7 +38,6 @@ public class ProductController {
      * <p>등록 관리자 ID는 JWT 인증 후 SecurityContext에 저장된 값을 사용합니다.</p>
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     public CommonApiResponse<ProductResponse> create(
             @Valid @RequestBody ProductCreateRequest request
     ) {

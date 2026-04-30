@@ -199,11 +199,19 @@ SELECT 1                                           AS id,
            OR p.status = 'OUT_OF_STOCK')           AS out_of_stock_products;
 
 CREATE VIEW review_rating_distribution_view AS
-SELECT r.rating AS rating,
-       COUNT(*) AS count
-FROM reviews r
-WHERE r.deletion_status != 'DELETED'
-GROUP BY r.rating;
+SELECT rating_options.rating AS rating,
+       COALESCE(COUNT(r.id), 0) AS count
+FROM (
+         SELECT 1 AS rating
+         UNION ALL SELECT 2
+         UNION ALL SELECT 3
+         UNION ALL SELECT 4
+         UNION ALL SELECT 5
+     ) rating_options
+LEFT JOIN reviews r
+       ON r.rating = rating_options.rating
+      AND r.deletion_status != 'DELETED'
+GROUP BY rating_options.rating;
 
 CREATE VIEW customer_status_distribution_view AS
 SELECT c.status AS status,
