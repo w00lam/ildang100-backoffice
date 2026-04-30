@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lidang100 백오피스</title>
+    <link rel="stylesheet" href="./style.css?v=20260430-order-layout">
+</head>
+<body>
+    <div id="authBanner" class="auth-banner" hidden>로그인이 필요합니다.</div>
+
+    <section id="loginView" class="login-screen" hidden>
+        <div class="login-card">
+            <div class="login-brand">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <div>
+                    <strong>lidang100</strong>
+                    <span>Backoffice</span>
+                </div>
+            </div>
+
+            <div class="login-copy">
+                <p class="page-kicker">Admin Login</p>
+                <h1 id="authTitle">관리자 로그인</h1>
+                <p id="authDescription">관리자 이메일과 비밀번호를 입력하면 운영 대시보드로 이동합니다.</p>
+            </div>
+
+            <div class="auth-mode-tabs" role="tablist" aria-label="인증 방식 선택">
+                <button id="showLoginForm" class="active" type="button">로그인</button>
+                <button id="showSignupForm" type="button">관리자 가입</button>
+            </div>
+
+            <div id="authMessage" class="login-success" role="status" hidden></div>
+
+            <form id="loginForm" class="login-form">
+                <label for="adminEmail">
+                    이메일
+                    <input id="adminEmail" name="email" type="email" autocomplete="username" placeholder="admin@sparta.com" required>
+                </label>
+
+                <label for="adminPassword">
+                    비밀번호
+                    <input id="adminPassword" name="password" type="password" autocomplete="current-password" placeholder="비밀번호 입력" required>
+                </label>
+
+                <div id="loginError" class="login-error" role="alert" hidden></div>
+
+                <button id="loginButton" class="login-button" type="submit">로그인</button>
+            </form>
+
+            <form id="signupForm" class="login-form" hidden>
+                <label for="signupName">
+                    이름
+                    <input id="signupName" name="name" maxlength="30" placeholder="홍길동" required>
+                </label>
+
+                <label for="signupEmail">
+                    이메일
+                    <input id="signupEmail" name="email" type="email" autocomplete="username" maxlength="50" placeholder="admin@example.com" required>
+                </label>
+
+                <label for="signupPassword">
+                    비밀번호
+                    <input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="255" placeholder="8자 이상" required>
+                </label>
+
+                <label for="signupTele">
+                    연락처
+                    <input id="signupTele" name="tele" maxlength="20" pattern="010-[0-9]{4}-[0-9]{4}" placeholder="010-1234-5678" required>
+                </label>
+
+                <label for="signupRole">
+                    요청 권한
+                    <select id="signupRole" name="role" required>
+                        <option value="OPERATIONS_ADMIN">운영 관리자</option>
+                        <option value="CS_ADMIN">CS 관리자</option>
+                    </select>
+                </label>
+
+                <div id="signupError" class="login-error" role="alert" hidden></div>
+
+                <button id="signupButton" class="login-button" type="submit">가입 요청</button>
+            </form>
+        </div>
+    </section>
+
+    <div id="dashboardView" class="app-shell" hidden>
+        <aside class="sidebar" aria-label="관리자 메뉴">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-name">lidang100</span>
+            </div>
+
+            <nav class="side-nav">
+                <a href="#" class="nav-item active" data-page="dashboard" aria-current="page">
+                    <span class="nav-icon">□</span>
+                    대시보드
+                </a>
+                <a href="#" class="nav-item" data-page="customers">
+                    <span class="nav-icon">●</span>
+                    고객관리
+                </a>
+                <a href="#" class="nav-item" data-page="products">
+                    <span class="nav-icon">◇</span>
+                    상품관리
+                </a>
+                <a href="#" class="nav-item" data-page="orders">
+                    <span class="nav-icon">○</span>
+                    주문관리
+                </a>
+                <a id="adminApprovalNav" href="#" class="nav-item" data-page="adminApprovals" hidden>
+                    <span class="nav-icon">△</span>
+                    관리자 관리
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <span class="footer-label">Backoffice</span>
+                <strong>운영 콘솔</strong>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <header class="top-header">
+                <div>
+                    <p class="page-kicker">Management</p>
+                    <h1 id="pageTitle">대시보드</h1>
+                </div>
+
+                <div class="header-actions">
+                    <label class="global-search" for="globalSearch">
+                        <span>⌕</span>
+                        <input id="globalSearch" type="search" placeholder="현재 페이지에서 검색">
+                    </label>
+
+                    <div class="profile" aria-label="관리자 프로필">
+                        <div>
+                            <strong id="profileName">관리자</strong>
+                            <span id="profileEmail">Admin</span>
+                        </div>
+                    </div>
+
+                    <button id="logoutButton" class="logout-button" type="button">로그아웃</button>
+                </div>
+            </header>
+
+            <section id="pageContent" class="page-content" aria-live="polite"></section>
+        </main>
+    </div>
+
+    <div id="modalRoot"></div>
+
+    <script src="./app.js?v=20260430-order-layout" defer></script>
+</body>
+</html>

@@ -8,7 +8,7 @@
 
 @adminId = 1
 @targetAdminId = 3
-@pendingAdminId = 9
+@pendingAdminId = 13
 @customerId = 1
 @targetCustomerId = 2
 @productId = 1
@@ -42,7 +42,6 @@ Content-Type: application/json
 }
 
 ### 인증 - 관리자 로그인 성공: accessToken 저장
-# @name loginSuperAdmin
 POST {{baseUrl}}/admins/login
 Content-Type: application/json
 
@@ -146,7 +145,7 @@ Content-Type: application/json
 }
 
 ### 관리자 - 삭제 성공
-DELETE {{baseUrl}}/admins/11
+DELETE {{baseUrl}}/admins/10
 Authorization: Bearer {{accessToken}}
 
 ### 관리자 - 삭제 실패: 슈퍼 관리자 삭제 불가
@@ -399,7 +398,6 @@ DELETE {{baseUrl}}/admin/products/999999
 Authorization: Bearer {{accessToken}}
 
 ### 주문 - 생성 성공
-# @name createOrder
 POST {{baseUrl}}/admin/orders
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
@@ -517,7 +515,7 @@ GET {{baseUrl}}/admin/products/{{reviewProductId}}/reviews/999999
 Authorization: Bearer {{accessToken}}
 
 ### 리뷰 - 삭제 성공
-DELETE {{baseUrl}}/admin/products/{{reviewProductId}}/reviews/2
+DELETE {{baseUrl}}/admin/products/{{reviewProductId}}/reviews/11
 Authorization: Bearer {{accessToken}}
 
 ### 리뷰 - 삭제 실패: 존재하지 않는 리뷰
