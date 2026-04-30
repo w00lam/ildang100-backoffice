@@ -218,11 +218,17 @@ LEFT JOIN reviews r
 GROUP BY rating_options.rating;
 
 CREATE VIEW customer_status_distribution_view AS
-SELECT c.status AS status,
-       COUNT(*) AS count
-FROM customers c
-WHERE c.deletion_status != 'DELETED'
-GROUP BY c.status;
+SELECT status_options.status AS status,
+       COALESCE(COUNT(c.id), 0) AS count
+FROM (
+         SELECT 'ACTIVE' AS status
+         UNION ALL SELECT 'INACTIVE'
+         UNION ALL SELECT 'SUSPENDED'
+     ) status_options
+LEFT JOIN customers c
+       ON c.status = status_options.status
+      AND c.deletion_status != 'DELETED'
+GROUP BY status_options.status;
 
 CREATE VIEW product_category_distribution_view AS
 SELECT p.category AS category,
