@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,15 +39,16 @@ public class ProductController {
      * <p>등록 관리자 ID는 JWT 인증 후 SecurityContext에 저장된 값을 사용합니다.</p>
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CommonApiResponse<ProductResponse> create(
+    public ResponseEntity<CommonApiResponse<ProductResponse>> create(
             @Valid @RequestBody ProductCreateRequest request
-    ) {
+                                                                    ) {
         LoginAdminDto loginAdmin = AuthUtils.getLoginAdmin();
 
         ProductResponse response = productService.create(loginAdmin.getId(), request);
 
-        return CommonApiResponse.success(HttpStatus.CREATED, "상품 생성 완료", response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CommonApiResponse.success(HttpStatus.CREATED, "상품 생성 완료", response));
     }
 
     /**
