@@ -515,7 +515,7 @@ GET {{baseUrl}}/admin/products/{{reviewProductId}}/reviews/999999
 Authorization: Bearer {{accessToken}}
 
 ### 리뷰 - 삭제 성공
-DELETE {{baseUrl}}/admin/products/{{reviewProductId}}/reviews/2
+DELETE {{baseUrl}}/admin/products/{{reviewProductId}}/reviews/11
 Authorization: Bearer {{accessToken}}
 
 ### 리뷰 - 삭제 실패: 존재하지 않는 리뷰
