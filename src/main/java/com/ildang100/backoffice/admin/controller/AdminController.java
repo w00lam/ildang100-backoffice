@@ -9,7 +9,6 @@ import com.ildang100.backoffice.common.enums.AdminStatus;
 import com.ildang100.backoffice.common.response.CommonApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -26,7 +25,6 @@ public class AdminController {
      *
      * <p>SUPER_ADMIN 권한을 가진 관리자만 접근할 수 있습니다.</p>
      */
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping
     public CommonApiResponse<AdminListResponse> getAdminList(
             @RequestParam(required = false) String keyword,
@@ -46,7 +44,6 @@ public class AdminController {
     /**
      * 특정 관리자 상세 정보를 조회합니다.
      */
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @GetMapping("/{adminId}")
     public CommonApiResponse<AdminResponse> getAdmin(@PathVariable Long adminId) {
         AdminResponse response = adminService.getAdmin(adminId);
@@ -57,7 +54,6 @@ public class AdminController {
     /**
      * 특정 관리자 기본 정보를 수정합니다.
      */
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping("/{adminId}")
     public CommonApiResponse<AdminResponse> updateAdmin(
             @PathVariable Long adminId,
@@ -71,7 +67,6 @@ public class AdminController {
     /**
      * 특정 관리자의 역할을 수정합니다.
      */
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping("/{adminId}/role")
     public CommonApiResponse<AdminResponse> updateAdminRole(
             @PathVariable Long adminId,
@@ -85,7 +80,6 @@ public class AdminController {
     /**
      * 특정 관리자의 계정 상태를 수정합니다.
      */
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping("/{adminId}/status")
     public CommonApiResponse<AdminResponse> updateAdminStatus(
             @PathVariable Long adminId,
@@ -99,7 +93,6 @@ public class AdminController {
     /**
      * 특정 관리자 계정을 삭제합니다.
      */
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @DeleteMapping("/{adminId}")
     public CommonApiResponse<Void> deleteAdmin(@PathVariable Long adminId) {
         adminService.deleteAdmin(adminId);
@@ -110,7 +103,6 @@ public class AdminController {
     /**
      * 관리자 가입 요청을 승인하거나 거절합니다.
      */
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PatchMapping("/{adminId}/approval")
     public CommonApiResponse<AdminApprovalResponse> approveAdmin(
             @PathVariable Long adminId,
