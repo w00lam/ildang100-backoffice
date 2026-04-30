@@ -2,6 +2,7 @@ package com.ildang100.backoffice.customer.entity;
 
 import com.ildang100.backoffice.common.entity.BaseEntity;
 import com.ildang100.backoffice.common.enums.CustomerStatus;
+import com.ildang100.backoffice.common.enums.DeletionStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import jakarta.persistence.*;
@@ -33,6 +34,10 @@ public class Customer extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CustomerStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private DeletionStatus deletionStatus = DeletionStatus.NOT_DELETED;
 
     /**
      * 고객 기본 정보를 수정합니다.
@@ -67,17 +72,24 @@ public class Customer extends BaseEntity {
     }
 
     /**
-     * 고객을 탈퇴 처리합니다.
+     * 고객을 소프트 삭제 처리합니다.
      *
-     * <p>고객 데이터를 삭제하지 않고 상태를 {@code INACTIVE}로 변경합니다.</p>
+     * <p>데이터를 물리 삭제하지 않고 {@code deletionStatus}만 {@code DELETED}로 변경합니다.</p>
      *
-     * @throws ServiceException 이미 비활성 상태인 고객인 경우
+     * @throws ServiceException 이미 삭제된 고객인 경우
      */
     public void withdraw() {
-        if (status == CustomerStatus.INACTIVE) {
-            throw new ServiceException(ErrorCode.CUSTOMER_DELETE_NOT_ALLOWED);
+        if (this.deletionStatus == DeletionStatus.DELETED) {
+            throw new ServiceException(ErrorCode.CUSTOMER_ALREADY_DELETED);
         }
 
-        this.status = CustomerStatus.INACTIVE;
+        this.deletionStatus = DeletionStatus.DELETED;
+    }
+
+    /**
+     * 고객이 삭제 처리된 상태인지 확인합니다.
+     */
+    public boolean isDeleted() {
+        return this.deletionStatus == DeletionStatus.DELETED;
     }
 }
