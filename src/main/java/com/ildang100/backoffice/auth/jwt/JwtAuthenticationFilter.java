@@ -4,6 +4,7 @@ import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.auth.dto.LoginAdminDto;
 import com.ildang100.backoffice.common.exception.ErrorCode;
+import com.ildang100.backoffice.common.exception.ServiceException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -65,6 +66,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (admin == null) {
                 request.setAttribute("exception", ErrorCode.INVALID_TOKEN);
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            try {
+                admin.validateLoginAvailable();
+            } catch (ServiceException e) {
+                request.setAttribute("exception", e.getErrorCode());
                 filterChain.doFilter(request, response);
                 return;
             }
