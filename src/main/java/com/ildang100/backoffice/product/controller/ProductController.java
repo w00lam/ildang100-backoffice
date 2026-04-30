@@ -24,6 +24,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,11 +46,15 @@ public class ProductController {
             @Valid @RequestBody ProductCreateRequest request
                                                                     ) {
         LoginAdminDto loginAdmin = AuthUtils.getLoginAdmin();
-
         ProductResponse response = productService.create(loginAdmin.getId(), request);
 
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                                                  .path("/{id}")
+                                                  .buildAndExpand(response.getId())
+                                                  .toUri();
+
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .created(location)
                 .body(CommonApiResponse.success(HttpStatus.CREATED, "상품 생성 완료", response));
     }
 
