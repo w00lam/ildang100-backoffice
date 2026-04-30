@@ -117,7 +117,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
      * 대시보드에 표시할 최근 주문 목록을 조회합니다.
      *
      * <p>
-     * 최근 생성된 준비중인 주문을 기준으로 정렬하며,
+     * 최근 생성된 주문을 기준으로 정렬하며,
      * 조회 개수는 {@link Pageable}을 통해 제한합니다.
      * </p>
      *
@@ -137,7 +137,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         FROM Order o
         JOIN FETCH o.customer c
         JOIN FETCH o.product p
-        WHERE o.status = 'PREPARING'
         ORDER BY o.createdAt DESC
         """)
     List<Order> findRecentOrdersBySortByDesc(Pageable pageable);

@@ -1,6 +1,7 @@
 package com.ildang100.backoffice.customer.service;
 
 import com.ildang100.backoffice.common.enums.CustomerStatus;
+import com.ildang100.backoffice.common.enums.DeletionStatus;
 import com.ildang100.backoffice.common.enums.OrderStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
@@ -159,16 +160,19 @@ public class CustomerService {
     }
 
     /**
-     * 고객을 삭제 처리합니다.
+     * 고객을 소프트 삭제 처리합니다.
      *
-     * <p>고객 데이터를 물리 삭제하지 않고 비활성 상태로 변경합니다.</p>
+     * <p>고객 데이터를 물리 삭제하지 않고 {@code deletionStatus}를 {@code DELETED}로 변경합니다.</p>
      *
      * @param customerId 삭제 처리할 고객 ID
-     * @throws ServiceException 고객 ID가 유효하지 않거나, 고객을 찾을 수 없거나, 이미 비활성 상태인 경우
+     * @throws ServiceException 고객 ID가 유효하지 않거나, 고객을 찾을 수 없거나, 이미 삭제된 경우
      */
     @Transactional
     public void deleteCustomer(Long customerId) {
-        Customer customer = getCustomerOrThrow(customerId);
+        validateCustomerId(customerId);
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
 
         customer.withdraw();
     }
@@ -184,7 +188,7 @@ public class CustomerService {
     public Customer getCustomerOrThrow(Long customerId) {
         validateCustomerId(customerId);
 
-        return customerRepository.findById(customerId)
+        return customerRepository.findByIdAndDeletionStatus(customerId, DeletionStatus.NOT_DELETED)
                 .orElseThrow(() -> new ServiceException(ErrorCode.CUSTOMER_NOT_FOUND));
     }
 

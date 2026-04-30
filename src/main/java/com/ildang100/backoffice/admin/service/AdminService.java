@@ -8,6 +8,7 @@ import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.auth.dto.AdminSignUpRequest;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
+import com.ildang100.backoffice.common.enums.DeletionStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
@@ -215,22 +216,22 @@ public class AdminService {
     }
 
     /**
-     * 관리자 삭제 비즈니스 로직
+     * 관리자를 소프트 삭제 처리합니다.
      *
-     * <p><b>처리 흐름</b></p>
-     * <ol>
-     * <li>대상 관리자 존재 여부 확인</li>
-     * <li>삭제 불가능한 상태(예: 이미 삭제 처리된 경우 등)인지 검증</li>
-     * <li>Repository를 통한 데이터 삭제 실행</li>
-     * </ol>
+     * <p>슈퍼 관리자, 활성 관리자, 승인 대기/거절 관리자는 삭제할 수 없고,
+     * 삭제 가능한 관리자만 {@code deletionStatus}를 {@code DELETED}로 변경합니다.</p>
      *
-     * @param adminId 삭제할 관리자 고유 ID
-     * @throws ServiceException 관리자가 없거나(ADMIN_NOT_FOUND), 삭제할 수 없는 상태일 때 발생
+     * @param adminId 삭제 처리할 관리자 ID
+     * @throws ServiceException 관리자를 찾을 수 없거나, 이미 삭제되었거나, 삭제할 수 없는 상태인 경우
      */
     @Transactional
     public void deleteAdmin(Long adminId) {
 
-        Admin admin = adminRepository.getById(adminId);
+        Admin admin = adminRepository.getByIdIncludingDeleted(adminId);
+
+        if (admin.isDeleted()) {
+            admin.markAsDeleted();
+        }
 
         // 1. 슈퍼 관리자 삭제 방지
         if (admin.getRole() == AdminRole.SUPER_ADMIN) {
@@ -252,7 +253,7 @@ public class AdminService {
             throw new ServiceException(ErrorCode.CANNOT_DELETE_REJECTED_ADMIN);
         }
 
-        admin.updateStatus(AdminStatus.INACTIVE);
+        admin.markAsDeleted();
     }
 
     /**
@@ -389,7 +390,7 @@ public class AdminService {
      * @throws ServiceException 이메일에 해당하는 관리자가 존재하지 않는 경우
      */
     public Admin getByEmail(String email) {
-        return adminRepository.findByEmail(email)
+        return adminRepository.findByEmailAndDeletionStatus(email, DeletionStatus.NOT_DELETED)
                 .orElseThrow(() -> new ServiceException(ErrorCode.INVALID_CREDENTIALS));
     }
 
@@ -404,7 +405,7 @@ public class AdminService {
      */
     @Transactional(readOnly = true)
     public Admin getAdminOrThrow(Long adminId) {
-        return adminRepository.findById(adminId)
+        return adminRepository.findByIdAndDeletionStatus(adminId, DeletionStatus.NOT_DELETED)
                 .orElseThrow(() -> new ServiceException(ErrorCode.UNAUTHORIZED));
     }
 }

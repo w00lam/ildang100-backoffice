@@ -1,6 +1,7 @@
 package com.ildang100.backoffice.customer.repository;
 
 import com.ildang100.backoffice.common.enums.CustomerStatus;
+import com.ildang100.backoffice.common.enums.DeletionStatus;
 import com.ildang100.backoffice.customer.entity.Customer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
@@ -26,7 +29,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("""
             select c
             from Customer c
-            where (:status is null or c.status = :status)
+            where c.deletionStatus = com.ildang100.backoffice.common.enums.DeletionStatus.NOT_DELETED
+              and (:status is null or c.status = :status)
               and (
                     :keyword is null
                     or :keyword = ''
@@ -40,4 +44,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
             Pageable pageable);
 
     boolean existsByEmailAndIdNot(String email, Long customerId);
+
+    Optional<Customer> findByIdAndDeletionStatus(Long id, DeletionStatus deletionStatus);
 }

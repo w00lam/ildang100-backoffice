@@ -20,6 +20,7 @@ CREATE TABLE admins
     tele        VARCHAR(20)  NOT NULL,
     status      VARCHAR(20)  NOT NULL,
     role        VARCHAR(30)  NOT NULL,
+    deletion_status VARCHAR(20) NOT NULL DEFAULT 'NOT_DELETED',
     created_at  DATETIME     NOT NULL,
     approved_at DATETIME,
     updated_at  DATETIME     NOT NULL
@@ -45,6 +46,7 @@ CREATE TABLE customers
     email      VARCHAR(50) NOT NULL,
     tele       VARCHAR(20) NOT NULL,
     status     VARCHAR(20) NOT NULL,
+    deletion_status VARCHAR(20) NOT NULL DEFAULT 'NOT_DELETED',
     created_at DATETIME    NOT NULL,
     updated_at DATETIME    NOT NULL
 );
@@ -113,21 +115,23 @@ SELECT 1                                                    AS id,
 
        COALESCE((SELECT COUNT(*)
                  FROM admins a
-                 WHERE a.status != 'INACTIVE'
+                 WHERE a.deletion_status != 'DELETED'
              ), 0)          AS total_admins,
 
        COALESCE((SELECT COUNT(*)
                  FROM admins a
-                 WHERE a.status = 'ACTIVE'), 0)             AS active_admins,
+                 WHERE a.deletion_status != 'DELETED'
+                   AND a.status = 'ACTIVE'), 0)             AS active_admins,
 
        COALESCE((SELECT COUNT(*)
                  FROM customers c
-                 WHERE c.status != 'INACTIVE'
+                 WHERE c.deletion_status != 'DELETED'
              ), 0)          AS total_customers,
 
        COALESCE((SELECT COUNT(*)
                  FROM customers c
-                 WHERE c.status = 'ACTIVE'), 0)             AS active_customers,
+                 WHERE c.deletion_status != 'DELETED'
+                   AND c.status = 'ACTIVE'), 0)             AS active_customers,
 
        COALESCE((SELECT COUNT(*)
                  FROM products p
@@ -217,7 +221,7 @@ CREATE VIEW customer_status_distribution_view AS
 SELECT c.status AS status,
        COUNT(*) AS count
 FROM customers c
-WHERE c.status != 'INACTIVE'
+WHERE c.deletion_status != 'DELETED'
 GROUP BY c.status;
 
 CREATE VIEW product_category_distribution_view AS
