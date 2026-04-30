@@ -1,115 +1,188 @@
+-- Demo seed data
+-- Super admin login: admin@sparta.com / sparta1234
+-- Operations/CS demo login password: password123
+
 INSERT INTO admins
 (id, name, email, password, tele, status, role, deletion_status, created_at, approved_at, updated_at)
 VALUES
-    (1, 'admin', 'admin@sparta.com', '$2a$10$TSPNz8qpjtfwiUbVZxI2LOWBMEGZ03OeXaQzvF19j8tkMOOT9wTfe', '010-0000-0000',
-     'ACTIVE', 'SUPER_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (2, '김운영', 'operation@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1111-1111',
-     'ACTIVE', 'OPERATIONS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (3, '김철수', 'kim@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-6666-6666',
-     'ACTIVE', 'OPERATIONS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (4, '박민수', 'park@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-8888-8888',
-     'ACTIVE', 'OPERATIONS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (5, '최동욱', 'choi@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1010-1010',
-     'ACTIVE', 'OPERATIONS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (6, '최거부', 'rejected@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-4444-4444',
-     'REJECTED', 'OPERATIONS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (7, '이고객', 'cs@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-2222-2222',
-     'ACTIVE', 'CS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (8, '이영희', 'lee@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-7777-7777',
-     'ACTIVE', 'CS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (9, '박대기', 'pending@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-3333-3333',
-     'PENDING_APPROVAL', 'CS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (10, '정정지', 'suspended@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-5555-5555',
-     'SUSPENDED', 'CS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW()),
-    (11, '정수연', 'jung@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-9999-9999',
-     'INACTIVE', 'CS_ADMIN', 'NOT_DELETED', NOW(), NOW(), NOW());
+    (1,  '이우람',       'admin@sparta.com',       '$2a$10$TSPNz8qpjtfwiUbVZxI2LOWBMEGZ03OeXaQzvF19j8tkMOOT9wTfe', '010-0000-0000', 'ACTIVE',           'SUPER_ADMIN',      'NOT_DELETED', NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 1 DAY),
+    (2,  '김유진',       'operation@sparta.com',   '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1111-1111', 'ACTIVE',           'OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 27 DAY, NOW() - INTERVAL 26 DAY, NOW() - INTERVAL 2 DAY),
+    (3,  '김철수',       'kim@sparta.com',         '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-6666-6666', 'ACTIVE',           'OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 25 DAY, NOW() - INTERVAL 24 DAY, NOW() - INTERVAL 3 DAY),
+    (4,  '박민수',       'park@sparta.com',        '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-8888-8888', 'ACTIVE',           'OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 24 DAY, NOW() - INTERVAL 23 DAY, NOW() - INTERVAL 4 DAY),
+    (5,  '최동욱',       'choi@sparta.com',        '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1010-1010', 'ACTIVE',           'OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 23 DAY, NOW() - INTERVAL 22 DAY, NOW() - INTERVAL 5 DAY),
+    (6,  '서민재',       'seo.minjae@sparta.com',  '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-4444-4444', 'REJECTED',         'OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 22 DAY, NULL,                  NOW() - INTERVAL 21 DAY),
+    (7,  '이지은',       'cs@sparta.com',          '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-2222-2222', 'ACTIVE',           'CS_ADMIN',         'NOT_DELETED', NOW() - INTERVAL 21 DAY, NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 6 DAY),
+    (8,  '이영희',       'lee@sparta.com',         '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-7777-7777', 'ACTIVE',           'CS_ADMIN',         'NOT_DELETED', NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 19 DAY, NOW() - INTERVAL 7 DAY),
+    (9,  '강다현',       'kang.dahyun@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-3333-3333', 'PENDING_APPROVAL','CS_ADMIN',         'NOT_DELETED', NOW() - INTERVAL 4 DAY,  NULL,                  NOW() - INTERVAL 4 DAY),
+    (10, '정유찬',       'jung.yuchan@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-5555-5555', 'SUSPENDED',        'CS_ADMIN',         'NOT_DELETED', NOW() - INTERVAL 18 DAY, NOW() - INTERVAL 17 DAY, NOW() - INTERVAL 2 DAY),
+    (11, '정수연',       'jung@sparta.com',        '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-9999-9999', 'INACTIVE',         'CS_ADMIN',         'NOT_DELETED', NOW() - INTERVAL 17 DAY, NOW() - INTERVAL 16 DAY, NOW() - INTERVAL 8 DAY),
+    (12, '한재민',       'han.jaemin@sparta.com',  '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1212-1212', 'ACTIVE',           'OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 14 DAY, NOW() - INTERVAL 13 DAY, NOW() - INTERVAL 1 DAY),
+    (13, '윤태준',       'yoon.taejun@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1313-1313', 'PENDING_APPROVAL','OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 2 DAY,  NULL,                  NOW() - INTERVAL 2 DAY),
+    (14, '한서윤',       'han.seoyun@sparta.com',  '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1414-1414', 'PENDING_APPROVAL','CS_ADMIN',         'NOT_DELETED', NOW() - INTERVAL 1 DAY,  NULL,                  NOW() - INTERVAL 1 DAY),
+    (15, '문도현',       'moon.dohyun@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1515-1515', 'REJECTED',         'OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 8 DAY,  NULL,                  NOW() - INTERVAL 7 DAY),
+    (16, '배수진',       'bae.sujin@sparta.com',   '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW', '010-1616-1616', 'INACTIVE',         'OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 12 DAY, NOW() - INTERVAL 11 DAY, NOW() - INTERVAL 6 DAY),
+    (17, '권지호',       'kwon.jiho@sparta.com',   '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW','010-1717-1717', 'SUSPENDED',        'OPERATIONS_ADMIN', 'NOT_DELETED', NOW() - INTERVAL 11 DAY, NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 5 DAY),
+    (18, '임가영',       'lim.gayeong@sparta.com', '$2a$10$MNpaDSOm4to665V0JnEB/.Z8EGqUZqa9URNXbuUCNMx.cGPdgYKNW','010-1818-1818', 'INACTIVE',         'CS_ADMIN',         'DELETED',     NOW() - INTERVAL 40 DAY, NOW() - INTERVAL 39 DAY, NOW() - INTERVAL 38 DAY);
+
+INSERT INTO history
+(id, admin_id, status, reject_reason, rejected_at, created_at, updated_at)
+VALUES
+    (1, 6,  'REJECTED', '가입 목적 확인 불가', NOW() - INTERVAL 21 DAY, NOW() - INTERVAL 21 DAY, NOW() - INTERVAL 21 DAY),
+    (2, 15, 'REJECTED', '승인 기준 미충족',    NOW() - INTERVAL 7 DAY,  NOW() - INTERVAL 7 DAY,  NOW() - INTERVAL 7 DAY);
 
 INSERT INTO customers
-(id, name, email, tele, status, created_at, updated_at)
+(id, name, email, tele, status, deletion_status, created_at, updated_at)
 VALUES
-    (1, '김민수', 'customer1@example.com', '010-1000-0001', 'ACTIVE', NOW(), NOW()),
-    (2, '이서연', 'customer2@example.com', '010-1000-0002', 'ACTIVE', NOW(), NOW()),
-    (3, '박지훈', 'customer3@example.com', '010-1000-0003', 'ACTIVE', NOW(), NOW()),
-    (4, '최하은', 'customer4@example.com', '010-1000-0004', 'ACTIVE', NOW(), NOW()),
-    (5, '정도윤', 'customer5@example.com', '010-1000-0005', 'ACTIVE', NOW(), NOW()),
-    (6, '강서준', 'customer6@example.com', '010-1000-0006', 'ACTIVE', NOW(), NOW()),
-    (7, '조아린', 'customer7@example.com', '010-1000-0007', 'ACTIVE', NOW(), NOW()),
-    (8, '오지우', 'customer8@example.com', '010-1000-0008', 'ACTIVE', NOW(), NOW()),
-    (9, '윤유준', 'customer9@example.com', '010-1000-0009', 'ACTIVE', NOW(), NOW()),
-    (10, '한하늘', 'customer10@example.com', '010-1000-0010', 'ACTIVE', NOW(), NOW());
+    (1,  '김민수', 'customer1@example.com',  '010-1000-0001', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 60 DAY, NOW() - INTERVAL 2 DAY),
+    (2,  '이서연', 'customer2@example.com',  '010-1000-0002', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 55 DAY, NOW() - INTERVAL 3 DAY),
+    (3,  '박지훈', 'customer3@example.com',  '010-1000-0003', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 52 DAY, NOW() - INTERVAL 4 DAY),
+    (4,  '최하은', 'customer4@example.com',  '010-1000-0004', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 49 DAY, NOW() - INTERVAL 1 DAY),
+    (5,  '정도윤', 'customer5@example.com',  '010-1000-0005', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 47 DAY, NOW() - INTERVAL 6 DAY),
+    (6,  '강서준', 'customer6@example.com',  '010-1000-0006', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 45 DAY, NOW() - INTERVAL 5 DAY),
+    (7,  '조아린', 'customer7@example.com',  '010-1000-0007', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 43 DAY, NOW() - INTERVAL 7 DAY),
+    (8,  '오지우', 'customer8@example.com',  '010-1000-0008', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 41 DAY, NOW() - INTERVAL 8 DAY),
+    (9,  '윤유준', 'customer9@example.com',  '010-1000-0009', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 39 DAY, NOW() - INTERVAL 9 DAY),
+    (10, '한하늘', 'customer10@example.com', '010-1000-0010', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 37 DAY, NOW() - INTERVAL 10 DAY),
+    (11, '문지아', 'customer11@example.com', '010-1000-0011', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 35 DAY, NOW() - INTERVAL 1 DAY),
+    (12, '서도현', 'customer12@example.com', '010-1000-0012', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 33 DAY, NOW() - INTERVAL 12 DAY),
+    (13, '배유나', 'customer13@example.com', '010-1000-0013', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 31 DAY, NOW() - INTERVAL 13 DAY),
+    (14, '신우진', 'customer14@example.com', '010-1000-0014', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 29 DAY, NOW() - INTERVAL 14 DAY),
+    (15, '노하린', 'customer15@example.com', '010-1000-0015', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 27 DAY, NOW() - INTERVAL 15 DAY),
+    (16, '장태오', 'customer16@example.com', '010-1000-0016', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 25 DAY, NOW() - INTERVAL 16 DAY),
+    (17, '차서아', 'customer17@example.com', '010-1000-0017', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 23 DAY, NOW() - INTERVAL 17 DAY),
+    (18, '임시우', 'customer18@example.com', '010-1000-0018', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 21 DAY, NOW() - INTERVAL 18 DAY),
+    (19, '백지율', 'customer19@example.com', '010-1000-0019', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 19 DAY, NOW() - INTERVAL 19 DAY),
+    (20, '남이든', 'customer20@example.com', '010-1000-0020', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 17 DAY, NOW() - INTERVAL 2 DAY),
+    (21, '류은재', 'customer21@example.com', '010-1000-0021', 'INACTIVE',  'NOT_DELETED', NOW() - INTERVAL 15 DAY, NOW() - INTERVAL 3 DAY),
+    (22, '마도겸', 'customer22@example.com', '010-1000-0022', 'INACTIVE',  'NOT_DELETED', NOW() - INTERVAL 13 DAY, NOW() - INTERVAL 4 DAY),
+    (23, '홍예린', 'customer23@example.com', '010-1000-0023', 'INACTIVE',  'NOT_DELETED', NOW() - INTERVAL 11 DAY, NOW() - INTERVAL 5 DAY),
+    (24, '권준호', 'customer24@example.com', '010-1000-0024', 'SUSPENDED', 'NOT_DELETED', NOW() - INTERVAL 9 DAY,  NOW() - INTERVAL 6 DAY),
+    (25, '송라희', 'customer25@example.com', '010-1000-0025', 'SUSPENDED', 'NOT_DELETED', NOW() - INTERVAL 7 DAY,  NOW() - INTERVAL 7 DAY),
+    (26, '양다온', 'customer26@example.com', '010-1000-0026', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 5 DAY,  NOW() - INTERVAL 1 DAY),
+    (27, '주민재', 'customer27@example.com', '010-1000-0027', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 3 DAY,  NOW() - INTERVAL 2 DAY),
+    (28, '표가온', 'customer28@example.com', '010-1000-0028', 'ACTIVE',    'NOT_DELETED', NOW() - INTERVAL 1 DAY,  NOW() - INTERVAL 1 DAY),
+    (29, '김나연', 'customer29@example.com', '010-1000-0029', 'ACTIVE','NOT_DELETED', NOW(), NOW()),
+    (30, '유하준', 'customer30@example.com', '010-1000-0030', 'INACTIVE', 'DELETED', NOW() - INTERVAL 70 DAY, NOW() - INTERVAL 65 DAY);
 
 INSERT INTO products
 (id, admin_id, name, category, price, stock, status, deletion_status, created_at, updated_at)
 VALUES
-    (1, 1, '무선 키보드',     '전자기기', 59000, 100, 'ON_SALE', 'NOT_DELETED', NOW(), NOW()),
-    (2, 1, '블루투스 마우스', '전자기기', 39000,  80, 'ON_SALE', 'NOT_DELETED', NOW(), NOW()),
-    (3, 1, '텀블러',         '생활용품', 18000,  50, 'ON_SALE', 'NOT_DELETED', NOW(), NOW());
+    (1,  1, '무선 키보드 PRO',       '전자기기', 69000,  88, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 50 DAY, NOW() - INTERVAL 1 DAY),
+    (2,  1, '블루투스 마우스',       '전자기기', 39000,  80, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 49 DAY, NOW() - INTERVAL 2 DAY),
+    (3,  2, '스테인리스 텀블러',     '생활용품', 18000,  50, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 48 DAY, NOW() - INTERVAL 3 DAY),
+    (4,  2, 'USB-C 케이블',          '전자기기',  9000,   5, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 47 DAY, NOW() - INTERVAL 1 DAY),
+    (5,  3, '노트북 거치대',         '전자기기', 29000,   3, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 46 DAY, NOW() - INTERVAL 4 DAY),
+    (6,  3, '게이밍 마우스패드',     '전자기기', 15000,   0, 'OUT_OF_STOCK',  'NOT_DELETED', NOW() - INTERVAL 45 DAY, NOW() - INTERVAL 1 DAY),
+    (7,  4, '스마트폰 거치대',       '전자기기', 12000,   0, 'OUT_OF_STOCK',  'NOT_DELETED', NOW() - INTERVAL 44 DAY, NOW() - INTERVAL 2 DAY),
+    (8,  4, '데스크 램프',            '생활용품', 42000,  12, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 43 DAY, NOW() - INTERVAL 3 DAY),
+    (9,  5, '프리미엄 키보드',       '전자기기',129000,  12, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 42 DAY, NOW() - INTERVAL 4 DAY),
+    (10, 5, '허브 독 7포트',         '전자기기', 79000,   2, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 41 DAY, NOW() - INTERVAL 5 DAY),
+    (11, 12, '에코 장바구니',        '생활용품',  7000, 200, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 40 DAY, NOW() - INTERVAL 6 DAY),
+    (12, 12, '오가닉 커피 원두',     '식품',     23000,  60, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 39 DAY, NOW() - INTERVAL 7 DAY),
+    (13, 2, '프로틴 바 세트',        '식품',     32000,   4, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 38 DAY, NOW() - INTERVAL 8 DAY),
+    (14, 3, '면 티셔츠',             '패션',     19900, 120, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 37 DAY, NOW() - INTERVAL 9 DAY),
+    (15, 4, '후드 집업',             '패션',     59000,  25, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 36 DAY, NOW() - INTERVAL 10 DAY),
+    (16, 5, '캔버스 토트백',         '패션',     24000,   0, 'OUT_OF_STOCK',  'NOT_DELETED', NOW() - INTERVAL 35 DAY, NOW() - INTERVAL 11 DAY),
+    (17, 12, '문구 스타터 키트',     '문구',     16000,  75, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 34 DAY, NOW() - INTERVAL 12 DAY),
+    (18, 2, '프리미엄 노트',         '문구',      6000,   5, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 33 DAY, NOW() - INTERVAL 13 DAY),
+    (19, 3, '볼펜 10개입',           '문구',      4500, 300, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 32 DAY, NOW() - INTERVAL 14 DAY),
+    (20, 4, '모니터 받침대',         '전자기기', 34000,   1, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 31 DAY, NOW() - INTERVAL 15 DAY),
+    (21, 5, '무선 충전 패드',        '전자기기', 27000,   0, 'OUT_OF_STOCK',  'NOT_DELETED', NOW() - INTERVAL 30 DAY, NOW() - INTERVAL 16 DAY),
+    (22, 12, '클래식 유선 이어폰',   '전자기기', 19000,   0, 'DISCONTINUED',  'NOT_DELETED', NOW() - INTERVAL 29 DAY, NOW() - INTERVAL 17 DAY),
+    (23, 2, '2025 위클리 다이어리',  '문구',     12000,  10, 'DISCONTINUED',  'NOT_DELETED', NOW() - INTERVAL 28 DAY, NOW() - INTERVAL 18 DAY),
+    (24, 3, '저당 그래놀라',         '식품',     18000,   2, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 27 DAY, NOW() - INTERVAL 19 DAY),
+    (25, 4, '홈 트레이닝 밴드',      '생활용품', 11000,  45, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 26 DAY, NOW() - INTERVAL 20 DAY),
+    (26, 5, '방수 파우치',           '생활용품',  8500,   5, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 25 DAY, NOW() - INTERVAL 21 DAY),
+    (27, 12, '미니 선풍기',          '전자기기', 25000,  18, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 24 DAY, NOW() - INTERVAL 22 DAY),
+    (28, 2, '시그니처 머그컵',       '생활용품', 10000,  10, 'ON_SALE',       'NOT_DELETED', NOW() - INTERVAL 3 DAY,  NOW() - INTERVAL 1 DAY),
+    (29, 3, '컴팩트 우산',           '생활용품', 12000,   0, 'OUT_OF_STOCK',  'NOT_DELETED', NOW() - INTERVAL 2 DAY,  NOW() - INTERVAL 1 DAY),
+    (30, 4, '아로마 캔들',           '생활용품',  9999,   1, 'ON_SALE',       'DELETED',     NOW() - INTERVAL 70 DAY, NOW() - INTERVAL 65 DAY);
 
---- 재고 부족
-INSERT INTO products
-(id, admin_id, name, category, price, stock, status, created_at, updated_at)
+INSERT INTO orders
+(id, admin_id, customer_id, product_id, quantity, status, created_at, updated_at, order_number, unit_price, total_price, cancel_reason)
 VALUES
-    (4, 1, 'USB-C 케이블', '전자기기', 9000, 5, 'ON_SALE', NOW(), NOW()),
-    (5, 1, '노트북 거치대', '전자기기', 29000, 3, 'ON_SALE', NOW(), NOW());
-
---- 품절
-INSERT INTO products
-(id, admin_id, name, category, price, stock, status, created_at, updated_at)
-VALUES
-    (6, 1, '게이밍 마우스패드', '전자기기', 15000, 0, 'OUT_OF_STOCK', NOW(), NOW()),
-    (7, 1, '스마트폰 거치대', '전자기기', 12000, 0, 'OUT_OF_STOCK', NOW(), NOW());
-
--- 준비중 (오늘)
-INSERT INTO orders (
-    admin_id, customer_id, product_id,
-    quantity, status, created_at, updated_at,
-    order_number, unit_price, total_price
-) VALUES
-    (1, 1, 1, 2, 'PREPARING', NOW(), NOW(), 100001, 10000, 20000);
-
--- 배송중 (오늘)
-INSERT INTO orders (
-    admin_id, customer_id, product_id,
-    quantity, status, created_at, updated_at,
-    order_number, unit_price, total_price
-) VALUES
-    (1, 1, 1, 1, 'SHIPPING', NOW(), NOW(), 100002, 15000, 15000);
-
--- 배송완료 (오늘)
-INSERT INTO orders (
-    admin_id, customer_id, product_id,
-    quantity, status, created_at, updated_at,
-    order_number, unit_price, total_price
-) VALUES
-    (1, 1, 1, 3, 'DELIVERED', NOW(), NOW(), 100003, 8000, 24000);
-
--- 배송완료 (어제)
-INSERT INTO orders (
-    admin_id, customer_id, product_id,
-    quantity, status, created_at, updated_at,
-    order_number, unit_price, total_price
-) VALUES
-    (1, 1, 1, 2, 'DELIVERED',
-     NOW() - INTERVAL 1 DAY,
-     NOW() - INTERVAL 1 DAY,
-     100004, 12000, 24000);
-
--- 취소 (오늘, 통계 제외 확인용)
-INSERT INTO orders (
-    admin_id, customer_id, product_id,
-    quantity, status, created_at, updated_at,
-    order_number, unit_price, total_price,
-    cancel_reason
-) VALUES
-    (1, 1, 1, 1, 'CANCELLED',
-     NOW(), NOW(),
-     100005, 10000, 10000, '테스트 취소');
+    (1,  1,  1,  1, 2, 'PREPARING', NOW(),                 NOW(),                 260430100000001101, 69000, 138000, NULL),
+    (2,  2,  1,  2, 1, 'SHIPPING',  NOW(),                 NOW(),                 260430100001002102, 39000,  39000, NULL),
+    (3,  3,  2,  3, 3, 'DELIVERED', NOW(),                 NOW(),                 260430100002003103, 18000,  54000, NULL),
+    (4,  4,  3,  8, 1, 'DELIVERED', NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, 260430100003004104, 42000,  42000, NULL),
+    (5,  5,  4,  9, 1, 'CANCELLED', NOW(),                 NOW(),                 260430100004005105,129000, 129000, '고객 변심'),
+    (6,  1,  5, 10, 2, 'PREPARING', NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, 260430100005006106, 79000, 158000, NULL),
+    (7,  2,  6, 11, 5, 'SHIPPING',  NOW() - INTERVAL 2 DAY, NOW() - INTERVAL 1 DAY, 260430100006007107,  7000,  35000, NULL),
+    (8,  3,  7, 12, 2, 'DELIVERED', NOW() - INTERVAL 2 DAY, NOW() - INTERVAL 1 DAY, 260430100007008108, 23000,  46000, NULL),
+    (9,  4,  8, 13, 1, 'PREPARING', NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 2 DAY, 260430100008009109, 32000,  32000, NULL),
+    (10, 5,  9, 14, 3, 'DELIVERED', NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 2 DAY, 260430100009010110, 19900,  59700, NULL),
+    (11, 12, 10, 15, 1, 'SHIPPING', NOW() - INTERVAL 4 DAY, NOW() - INTERVAL 3 DAY, 260430100010011111, 59000,  59000, NULL),
+    (12, 1,  11, 17, 4, 'DELIVERED',NOW() - INTERVAL 4 DAY, NOW() - INTERVAL 3 DAY, 260430100011012112, 16000,  64000, NULL),
+    (13, 2,  12, 18, 6, 'CANCELLED',NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY, 260430100012013113,  6000,  36000, '중복 주문'),
+    (14, 3,  13, 19,10, 'DELIVERED',NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 4 DAY, 260430100013014114,  4500,  45000, NULL),
+    (15, 4,  14, 20, 1, 'PREPARING',NOW() - INTERVAL 6 DAY, NOW() - INTERVAL 5 DAY, 260430100014015115, 34000,  34000, NULL),
+    (16, 5,  15, 24, 2, 'SHIPPING', NOW() - INTERVAL 6 DAY, NOW() - INTERVAL 5 DAY, 260430100015016116, 18000,  36000, NULL),
+    (17, 12, 16, 25, 3, 'DELIVERED',NOW() - INTERVAL 7 DAY, NOW() - INTERVAL 6 DAY, 260430100016017117, 11000,  33000, NULL),
+    (18, 1,  17, 26, 2, 'DELIVERED',NOW() - INTERVAL 7 DAY, NOW() - INTERVAL 6 DAY, 260430100017018118,  8500,  17000, NULL),
+    (19, 2,  18, 27, 1, 'SHIPPING', NOW() - INTERVAL 8 DAY, NOW() - INTERVAL 7 DAY, 260430100018019119, 25000,  25000, NULL),
+    (20, 3,  19,  1, 1, 'DELIVERED',NOW() - INTERVAL 8 DAY, NOW() - INTERVAL 7 DAY, 260430100019020120, 69000,  69000, NULL),
+    (21, 4,  20,  2, 2, 'PREPARING',NOW() - INTERVAL 9 DAY, NOW() - INTERVAL 8 DAY, 260430100020021121, 39000,  78000, NULL),
+    (22, 5,  21,  3, 1, 'DELIVERED',NOW() - INTERVAL 9 DAY, NOW() - INTERVAL 8 DAY, 260430100021022122, 18000,  18000, NULL),
+    (23, 12, 22,  4, 4, 'CANCELLED',NOW() - INTERVAL 10 DAY,NOW() - INTERVAL 10 DAY,260430100022023123,  9000,  36000, '배송지 오류'),
+    (24, 1,  23,  5, 1, 'DELIVERED',NOW() - INTERVAL 10 DAY,NOW() - INTERVAL 9 DAY, 260430100023024124, 29000,  29000, NULL),
+    (25, 2,  24,  8, 2, 'SHIPPING', NOW() - INTERVAL 11 DAY,NOW() - INTERVAL 10 DAY,260430100024025125, 42000,  84000, NULL),
+    (26, 3,  25,  9, 1, 'DELIVERED',NOW() - INTERVAL 11 DAY,NOW() - INTERVAL 10 DAY,260430100025026126,129000, 129000, NULL),
+    (27, 4,  26, 10, 1, 'PREPARING',NOW() - INTERVAL 12 DAY,NOW() - INTERVAL 11 DAY,260430100026027127, 79000,  79000, NULL),
+    (28, 5,  27, 11, 8, 'DELIVERED',NOW() - INTERVAL 12 DAY,NOW() - INTERVAL 11 DAY,260430100027028128,  7000,  56000, NULL),
+    (29, 12, 28, 12, 1, 'SHIPPING', NOW() - INTERVAL 13 DAY,NOW() - INTERVAL 12 DAY,260430100028029129, 23000,  23000, NULL),
+    (30, 1,  29, 28, 2, 'DELIVERED',NOW() - INTERVAL 13 DAY,NOW() - INTERVAL 12 DAY,260430100029030130, 10000,  20000, NULL),
+    (31, 2,   2, 14, 1, 'PREPARING',NOW() - INTERVAL 14 DAY,NOW() - INTERVAL 13 DAY,260430100030031131, 19900,  19900, NULL),
+    (32, 3,   3, 15, 2, 'DELIVERED',NOW() - INTERVAL 14 DAY,NOW() - INTERVAL 13 DAY,260430100031032132, 59000, 118000, NULL),
+    (33, 4,   4, 17, 1, 'SHIPPING', NOW() - INTERVAL 15 DAY,NOW() - INTERVAL 14 DAY,260430100032033133, 16000,  16000, NULL),
+    (34, 5,   5, 18, 3, 'DELIVERED',NOW() - INTERVAL 15 DAY,NOW() - INTERVAL 14 DAY,260430100033034134,  6000,  18000, NULL),
+    (35, 12,  6, 19, 4, 'CANCELLED',NOW() - INTERVAL 16 DAY,NOW() - INTERVAL 16 DAY,260430100034035135,  4500,  18000, '결제 실패'),
+    (36, 1,   7, 24, 1, 'DELIVERED',NOW() - INTERVAL 16 DAY,NOW() - INTERVAL 15 DAY,260430100035036136, 18000,  18000, NULL),
+    (37, 2,   8, 25, 5, 'PREPARING',NOW() - INTERVAL 17 DAY,NOW() - INTERVAL 16 DAY,260430100036037137, 11000,  55000, NULL),
+    (38, 3,   9, 26, 2, 'SHIPPING', NOW() - INTERVAL 17 DAY,NOW() - INTERVAL 16 DAY,260430100037038138,  8500,  17000, NULL),
+    (39, 4,  10, 27, 2, 'DELIVERED',NOW() - INTERVAL 18 DAY,NOW() - INTERVAL 17 DAY,260430100038039139, 25000,  50000, NULL),
+    (40, 5,  11,  1, 1, 'DELIVERED',NOW() - INTERVAL 18 DAY,NOW() - INTERVAL 17 DAY,260430100039040140, 69000,  69000, NULL),
+    (41, 12, 12,  2, 1, 'PREPARING',NOW() - INTERVAL 19 DAY,NOW() - INTERVAL 18 DAY,260430100040041141, 39000,  39000, NULL),
+    (42, 1,  13,  3, 2, 'SHIPPING', NOW() - INTERVAL 19 DAY,NOW() - INTERVAL 18 DAY,260430100041042142, 18000,  36000, NULL),
+    (43, 2,  14,  8, 1, 'DELIVERED',NOW() - INTERVAL 20 DAY,NOW() - INTERVAL 19 DAY,260430100042043143, 42000,  42000, NULL),
+    (44, 3,  15,  9, 1, 'DELIVERED',NOW() - INTERVAL 20 DAY,NOW() - INTERVAL 19 DAY,260430100043044144,129000, 129000, NULL),
+    (45, 4,  16, 13, 2, 'CANCELLED',NOW() - INTERVAL 21 DAY,NOW() - INTERVAL 21 DAY,260430100044045145, 32000,  64000, '단순 변심');
 
 INSERT INTO reviews
 (id, customer_id, product_id, order_id, rating, content, deletion_status, created_at, updated_at)
 VALUES
-    ( 1,  1, 1,  1, 5, '아주 만족합니다.',                'NOT_DELETED', NOW(), NOW()),
-    ( 2,  2, 1,  2, 4, '배송도 빠르고 쓸만해요.',         'NOT_DELETED', NOW(), NOW()),
-    ( 3,  3, 2,  3, 5, '사용하기 편하고 디자인이 좋습니다.', 'NOT_DELETED', NOW(), NOW()),
-    ( 4,  4, 2,  4, 3, '무난한 상품입니다.',              'NOT_DELETED', NOW(), NOW()),
-    ( 5,  5, 3,  5, 4, '가격 대비 괜찮습니다.',            'NOT_DELETED', NOW(), NOW());
+    (1,  1,  1,  1,  5, '키감이 좋고 연결도 안정적입니다.',        'NOT_DELETED', NOW(), NOW()),
+    (2,  1,  2,  2,  4, '마우스 그립감이 괜찮습니다.',             'NOT_DELETED', NOW(), NOW()),
+    (3,  2,  3,  3,  5, '텀블러 보온력이 좋아요.',                 'NOT_DELETED', NOW(), NOW()),
+    (4,  3,  8,  4,  3, '밝기는 좋은데 각도 조절이 아쉽습니다.',     'NOT_DELETED', NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY),
+    (5,  7, 12,  8,  4, '원두 향이 진하고 배송도 빨랐습니다.',       'NOT_DELETED', NOW() - INTERVAL 2 DAY, NOW() - INTERVAL 2 DAY),
+    (6,  9, 14, 10, 5, '티셔츠 재질이 부드러워요.',                 'NOT_DELETED', NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 3 DAY),
+    (7,  11,17, 12, 4, '문구 세트 구성이 알찹니다.',                'NOT_DELETED', NOW() - INTERVAL 4 DAY, NOW() - INTERVAL 4 DAY),
+    (8,  13,19, 14, 3, '가격만큼 무난합니다.',                      'NOT_DELETED', NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY),
+    (9,  16,25, 17, 5, '홈트용으로 충분합니다.',                    'NOT_DELETED', NOW() - INTERVAL 7 DAY, NOW() - INTERVAL 7 DAY),
+    (10, 17,26, 18, 4, '물놀이 때 잘 썼습니다.',                    'NOT_DELETED', NOW() - INTERVAL 7 DAY, NOW() - INTERVAL 7 DAY),
+    (11, 19,1,  20, 5, '비싼 값은 합니다.',                         'NOT_DELETED', NOW() - INTERVAL 8 DAY, NOW() - INTERVAL 8 DAY),
+    (12, 21,3,  22, 2, '포장이 조금 찌그러져 왔습니다.',             'NOT_DELETED', NOW() - INTERVAL 9 DAY, NOW() - INTERVAL 9 DAY),
+    (13, 23,5,  24, 4, '노트북 높이가 딱 맞아요.',                  'NOT_DELETED', NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 10 DAY),
+    (14, 25,9,  26, 5, '프리미엄 제품답게 완성도가 높습니다.',       'NOT_DELETED', NOW() - INTERVAL 11 DAY, NOW() - INTERVAL 11 DAY),
+    (15, 27,11, 28, 4, '장바구니가 튼튼합니다.',                    'NOT_DELETED', NOW() - INTERVAL 12 DAY, NOW() - INTERVAL 12 DAY),
+    (16, 29,28, 30, 5, '컵 크기가 적당하고 디자인이 깔끔합니다.',    'NOT_DELETED', NOW() - INTERVAL 13 DAY, NOW() - INTERVAL 13 DAY),
+    (17, 3,  15, 32, 4, '후드 핏이 좋아요.',                        'NOT_DELETED', NOW() - INTERVAL 14 DAY, NOW() - INTERVAL 14 DAY),
+    (18, 5,  18, 34, 3, '노트는 평범하지만 쓸만합니다.',             'NOT_DELETED', NOW() - INTERVAL 15 DAY, NOW() - INTERVAL 15 DAY),
+    (19, 7,  24, 36, 2, '그래놀라가 생각보다 달아요.',               'NOT_DELETED', NOW() - INTERVAL 16 DAY, NOW() - INTERVAL 16 DAY),
+    (20, 10,27, 39, 5, '여름에 쓰기 좋습니다.',                     'NOT_DELETED', NOW() - INTERVAL 18 DAY, NOW() - INTERVAL 18 DAY),
+    (21, 11,1,  40, 5, '재구매 의사 있습니다.',                      'NOT_DELETED', NOW() - INTERVAL 18 DAY, NOW() - INTERVAL 18 DAY),
+    (22, 14,8,  43, 4, '책상 위가 깔끔해졌습니다.',                  'NOT_DELETED', NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY),
+    (23, 15,9,  44, 5, '타건감과 마감 모두 만족합니다.',             'NOT_DELETED', NOW() - INTERVAL 20 DAY, NOW() - INTERVAL 20 DAY),
+    (24, 4,  9,  5,  1, '제품 수령 전 주문을 취소했습니다.',         'DELETED',     NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY),
+    (25, 8, 13,  9,  3, '맛은 괜찮지만 양이 적어요.',                 'NOT_DELETED', NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 3 DAY),
+    (26, 12,18, 13, 1, '구매 취소 후 남긴 후기입니다.',              'DELETED',     NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY),
+    (27, 14,20, 15, 4, '모니터 받침대로 안정적입니다.',              'NOT_DELETED', NOW() - INTERVAL 6 DAY, NOW() - INTERVAL 6 DAY),
+    (28, 18,27, 19, 5, '작지만 바람이 강합니다.',                    'NOT_DELETED', NOW() - INTERVAL 8 DAY, NOW() - INTERVAL 8 DAY),
+    (29, 20,2,  21, 4, '마우스가 가볍고 편합니다.',                  'NOT_DELETED', NOW() - INTERVAL 9 DAY, NOW() - INTERVAL 9 DAY),
+    (30, 24,8,  25, 2, '배송 중 파손이 조금 있었습니다.',            'NOT_DELETED', NOW() - INTERVAL 11 DAY, NOW() - INTERVAL 11 DAY),
+    (31, 26,10, 27, 4, '허브 포트 인식이 빠릅니다.',                 'NOT_DELETED', NOW() - INTERVAL 12 DAY, NOW() - INTERVAL 12 DAY),
+    (32, 2, 14, 31, 5, '기본 티셔츠로 만족합니다.',                  'NOT_DELETED', NOW() - INTERVAL 14 DAY, NOW() - INTERVAL 14 DAY),
+    (33, 4, 17, 33, 3, '구성은 좋지만 포장이 아쉬웠습니다.',          'NOT_DELETED', NOW() - INTERVAL 15 DAY, NOW() - INTERVAL 15 DAY),
+    (34, 6, 19, 35, 2, '결제 취소 과정이 조금 번거로웠습니다.',       'DELETED',     NOW() - INTERVAL 16 DAY, NOW() - INTERVAL 16 DAY),
+    (35, 13,3,  42, 4, '선물용으로 무난합니다.',                     'NOT_DELETED', NOW() - INTERVAL 19 DAY, NOW() - INTERVAL 19 DAY),
+    (36, 16,13, 45, 1, '구매 경험이 기대보다 좋지 않았습니다.',       'NOT_DELETED', NOW() - INTERVAL 21 DAY, NOW() - INTERVAL 21 DAY);

@@ -50,11 +50,21 @@ public class SecurityConfig {
                         .accessDeniedHandler(new JwtAccessDeniedHandler())
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // 정적 프론트엔드 리소스는 브라우저가 먼저 내려받아야 하므로 인증 없이 허용합니다.
+                        // 실제 백오피스 API 접근 권한은 아래 /admin/** 규칙과 JWT 검증으로 유지됩니다.
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/style.css",
+                                "/app.js",
+                                "/favicon.ico"
+                        ).permitAll()
+
                         // 회원가입과 로그인은 토큰 발급 전 호출해야 하므로 인증 없이 허용합니다.
                         .requestMatchers("/admins/signup", "/admins/login").permitAll()
 
                         // 내 정보와 로그아웃은 로그인한 관리자만 접근할 수 있습니다.
-                        .requestMatchers("/admins/me/**").authenticated()
+                        .requestMatchers("/admins/me", "/admins/me/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/admins/logout").authenticated()
 
                         // 대시보드는 로그인 이후 접근하는 관리자 화면이므로 모든 관리자 역할에게 조회 권한을 허용합니다.
