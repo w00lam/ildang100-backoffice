@@ -106,9 +106,9 @@ public class CustomerController {
     }
 
     /**
-     * 고객 삭제 처리를 수행합니다.
+     * 고객을 소프트 삭제 처리합니다.
      *
-     * <p>실제 데이터를 삭제하지 않고 고객 상태를 비활성 상태로 변경합니다.</p>
+     * <p>실제 데이터를 삭제하지 않고 {@code deletionStatus}를 {@code DELETED}로 변경합니다.</p>
      */
     @DeleteMapping("/{customerId}")
     public CommonApiResponse<Void> deleteCustomer(

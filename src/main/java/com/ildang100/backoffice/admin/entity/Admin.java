@@ -4,6 +4,7 @@ import com.ildang100.backoffice.admin.dto.AdminInfoUpdateRequest;
 import com.ildang100.backoffice.common.entity.BaseEntity;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
+import com.ildang100.backoffice.common.enums.DeletionStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import jakarta.persistence.*;
@@ -61,6 +62,10 @@ public class Admin extends BaseEntity {
     @Column(length = 30, nullable = false)
     private AdminStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private DeletionStatus deletionStatus;
+
     private LocalDateTime approvedAt;
 
     private Admin(String name, String email, String password, String tele, AdminRole role) {
@@ -70,6 +75,7 @@ public class Admin extends BaseEntity {
         this.tele = tele;
         this.role = role;
         this.status = AdminStatus.PENDING_APPROVAL;
+        this.deletionStatus = DeletionStatus.NOT_DELETED;
         this.approvedAt = null;
     }
 
@@ -149,6 +155,27 @@ public class Admin extends BaseEntity {
      */
     public void updateStatus(AdminStatus status) {
         this.status = status;
+    }
+
+    /**
+     * 관리자를 소프트 삭제 처리합니다.
+     *
+     * <p>데이터를 물리 삭제하지 않고 {@code deletionStatus}만 {@code DELETED}로 변경합니다.</p>
+     *
+     * @throws ServiceException 이미 삭제된 관리자인 경우
+     */
+    public void markAsDeleted() {
+        if (this.deletionStatus == DeletionStatus.DELETED) {
+            throw new ServiceException(ErrorCode.ADMIN_ALREADY_DELETED);
+        }
+        this.deletionStatus = DeletionStatus.DELETED;
+    }
+
+    /**
+     * 관리자가 삭제 처리된 상태인지 확인합니다.
+     */
+    public boolean isDeleted() {
+        return this.deletionStatus == DeletionStatus.DELETED;
     }
 
     /**

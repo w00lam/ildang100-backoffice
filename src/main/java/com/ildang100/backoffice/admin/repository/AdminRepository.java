@@ -3,6 +3,7 @@ package com.ildang100.backoffice.admin.repository;
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.common.enums.AdminRole;
 import com.ildang100.backoffice.common.enums.AdminStatus;
+import com.ildang100.backoffice.common.enums.DeletionStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import org.springframework.data.domain.Page;
@@ -74,7 +75,9 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
      * @author 이우람
      * @since 2026-04-27
      */
-    Optional<Admin> findByEmail(String email);
+    Optional<Admin> findByEmailAndDeletionStatus(String email, DeletionStatus deletionStatus);
+
+    Optional<Admin> findByIdAndDeletionStatus(Long id, DeletionStatus deletionStatus);
 
     /**
      * 관리자 목록 동적 검색 및 페이징 조회
@@ -95,7 +98,8 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
      * @since 2026-04-27
      */
     @Query("SELECT a FROM Admin a " +
-            "WHERE (:keyword IS NULL OR a.name LIKE %:keyword% OR a.email LIKE %:keyword%) " +
+            "WHERE a.deletionStatus = com.ildang100.backoffice.common.enums.DeletionStatus.NOT_DELETED " +
+            "AND (:keyword IS NULL OR a.name LIKE %:keyword% OR a.email LIKE %:keyword%) " +
             "AND (:role IS NULL OR a.role = :role) " +
             "AND (:status IS NULL OR a.status = :status)")
     Page<Admin> findAdminsByCondition(
@@ -111,6 +115,11 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
      * @since 2026-04-29
      */
     default Admin getById(Long id) {
+        return findByIdAndDeletionStatus(id, DeletionStatus.NOT_DELETED)
+                .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
+    }
+
+    default Admin getByIdIncludingDeleted(Long id) {
         return findById(id)
                 .orElseThrow(() -> new ServiceException(ErrorCode.ADMIN_NOT_FOUND));
     }

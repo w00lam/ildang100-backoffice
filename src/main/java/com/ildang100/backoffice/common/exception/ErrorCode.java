@@ -40,6 +40,16 @@ public enum ErrorCode {
             "PRODUCT_ALREADY_DELETED",
             "이미 삭제된 상품입니다."
     ),
+    ADMIN_ALREADY_DELETED(
+            HttpStatus.CONFLICT,
+            "ADMIN_ALREADY_DELETED",
+            "이미 삭제된 관리자입니다."
+    ),
+    CUSTOMER_ALREADY_DELETED(
+            HttpStatus.CONFLICT,
+            "CUSTOMER_ALREADY_DELETED",
+            "이미 삭제된 고객입니다."
+    ),
     INVALID_ORDER_STATUS(
             HttpStatus.BAD_REQUEST,
             "INVALID_ORDER_STATUS",

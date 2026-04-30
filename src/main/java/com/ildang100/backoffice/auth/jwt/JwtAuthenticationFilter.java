@@ -3,6 +3,7 @@ package com.ildang100.backoffice.auth.jwt;
 import com.ildang100.backoffice.admin.entity.Admin;
 import com.ildang100.backoffice.admin.repository.AdminRepository;
 import com.ildang100.backoffice.auth.dto.LoginAdminDto;
+import com.ildang100.backoffice.common.enums.DeletionStatus;
 import com.ildang100.backoffice.common.exception.ErrorCode;
 import com.ildang100.backoffice.common.exception.ServiceException;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -62,7 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             Long adminId = jwtProvider.getAdminId(token);
 
-            Admin admin = adminRepository.findById(adminId).orElse(null);
+            Admin admin = adminRepository.findByIdAndDeletionStatus(adminId, DeletionStatus.NOT_DELETED)
+                    .orElse(null);
 
             if (admin == null) {
                 request.setAttribute("exception", ErrorCode.INVALID_TOKEN);
